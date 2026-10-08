@@ -1,0 +1,8 @@
+{
+  "name": "Remix Sarkari Fleet \u0026 Tender Manager",
+  "description": "Monthly Govt Office Cab \u0026 Taxi Hiring Tender ERP: Vehicle \u0026 Officer Allocation, Daily Log Book, Extra KM/Hr Billing, Fixed Fuel \u0026 Expense Tracking, Driver Khata \u0026 Automated Reminders.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
