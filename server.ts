@@ -94,7 +94,7 @@ async function startServer() {
     }
     if ((process.env.DATABASE_URL || '').startsWith('file:')) {
       console.warn(
-        '[shakti] WARNING: DATABASE_URL is still SQLite. For production, switch Prisma provider to postgresql and use a hosted Postgres URL.'
+        '[shakti] WARNING: DATABASE_URL is still SQLite (file:). Production requires a PostgreSQL DATABASE_URL.'
       );
     }
   }
