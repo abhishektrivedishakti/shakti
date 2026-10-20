@@ -1,0 +1,21 @@
+# Local Postgres for development (schema provider is postgresql).
+# Usage:
+#   docker compose up -d
+#   Set DATABASE_URL=postgresql://shakti:shakti@localhost:5432/shakti
+#   npx prisma db push && npm run db:seed
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: shakti
+      POSTGRES_PASSWORD: shakti
+      POSTGRES_DB: shakti
+    ports:
+      - "5432:5432"
+    volumes:
+      - shakti_pg_data:/var/lib/postgresql/data
+
+volumes:
+  shakti_pg_data:

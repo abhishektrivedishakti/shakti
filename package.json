@@ -14,7 +14,8 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "smoke:prod": "bash scripts/smoke-production.sh"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

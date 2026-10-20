@@ -15,8 +15,10 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
 
-/** SQLite: WAL + reasonable sync for faster local CRUD without waiting on every fsync. */
+/** SQLite only: WAL + reasonable sync for faster local CRUD. No-op on Postgres. */
 export async function tuneSqliteForSpeed(): Promise<void> {
+  const url = process.env.DATABASE_URL || '';
+  if (!url.startsWith('file:')) return;
   if (globalForPrisma.prismaSqliteTuned) return;
   try {
     // journal_mode returns a row — must use queryRaw, not executeRaw
