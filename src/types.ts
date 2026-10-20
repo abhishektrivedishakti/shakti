@@ -822,6 +822,7 @@ export type ModulePermissionKey =
   | 'attached_vendors'
   | 'statutory_payroll'
   | 'petty_cash'
+  | 'fleet_dispatch'
   | 'reminders'
   | 'staff_management';
 

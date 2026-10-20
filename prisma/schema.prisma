@@ -1,0 +1,871 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../server/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(cuid())
+  name        String
+  designation String    @default("Staff Member")
+  role        String    @default("custom")
+  email       String    @unique
+  mobile      String?   @unique
+  pinHash     String
+  avatarColor String    @default("bg-teal-600")
+  status      String    @default("active")
+  permissions Json
+  createdAt   DateTime  @default(now())
+  lastLoginAt DateTime?
+}
+
+model Tender {
+  id                         String   @id @default(cuid())
+  tenderNumber               String
+  workOrderNumber            String
+  departmentName             String
+  authorityOffice            String
+  contractPeriodStart        String
+  contractPeriodEnd          String
+  billingCycleDay            Int      @default(1)
+  paymentTermsDays           Int      @default(30)
+  baseMonthlyRate            Float    @default(0)
+  includedKms                Float    @default(0)
+  includedHours              Float    @default(0)
+  extraKmRate                Float    @default(0)
+  extraHourRate              Float    @default(0)
+  nightHaltRate              Float    @default(0)
+  tollTerms                  String   @default("reimbursable_actuals")
+  penaltyClauses             String   @default("")
+  officerDesignationsSummary String   @default("")
+  status                     String   @default("active")
+  contactPerson              String   @default("")
+  contactPhone               String   @default("")
+  contactEmail               String?
+  billSeriesPrefix           String?
+  emdDetails                 String?
+  agreementNumber            String?
+  contractType               String?
+  /// JSON: TenderOnCallDefaults
+  onCallDefaults             Json?
+  /// JSON: TenderVehiclePackage[]
+  packages                   Json?
+  /// JSON: DocumentAttachment[]
+  documents                  Json?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@index([status])
+  @@index([tenderNumber])
+}
+
+model CompanyDocument {
+  id                   String   @id @default(cuid())
+  title                String
+  category             String
+  docNumber            String   @default("")
+  issuingAuthority     String   @default("")
+  issueDate            String
+  expiryDate           String?
+  isLifetime           Boolean  @default(false)
+  alertDaysBefore      Int      @default(30)
+  custodyLocation      String?
+  contactPersonOrAgent String?
+  fileUrl              String?
+  fileName             String?
+  fileType             String?
+  fileSize             String?
+  notes                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([category])
+  @@index([expiryDate])
+}
+
+model Officer {
+  id                   String   @id @default(cuid())
+  officerCode          String?
+  name                 String
+  designation          String   @default("")
+  department           String   @default("")
+  officeAddress        String   @default("")
+  mobile               String   @default("")
+  alternatePhone       String?
+  email                String?
+  assignedVehicleId    String?
+  currentDriverId      String?
+  tenderId             String
+  reportingTime        String   @default("09:00 AM")
+  status               String   @default("active")
+  transferDate         String?
+  transferOrderNumber  String?
+  transferDestination  String?
+  specialInstructions  String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([tenderId])
+  @@index([status])
+  @@index([mobile])
+}
+
+model Driver {
+  id                       String   @id @default(cuid())
+  driverCode               String?
+  name                     String
+  phone                    String   @default("")
+  alternatePhone           String?
+  address                  String   @default("")
+  licenseNumber            String   @default("")
+  licenseExpiry            String   @default("")
+  badgeNumber              String?
+  policeVerificationDate   String   @default("")
+  policeVerificationExpiry String   @default("")
+  aadharNumber             String   @default("")
+  panNumber                String?
+  bloodGroup               String?
+  joiningDate              String   @default("")
+  monthlySalary            Float    @default(0)
+  dailyDaRate             Float    @default(0)
+  status                   String   @default("active")
+  currentVehicleId         String?
+  fuelPolicy               String   @default("actual_reimbursement")
+  monthlyFuelBudgetAmount  Float    @default(0)
+  bankAccountDetails       String?
+  emergencyContact         String?
+  employmentType           String?
+  uanNumber                String?
+  epfMemberId              String?
+  esicIpNumber             String?
+  skillCategory            String?
+  minimumWageBasic         Float?
+  vda                      Float?
+  hra                      Float?
+  isEpfApplicable          Boolean?
+  isEsicApplicable         Boolean?
+  /// JSON: DocumentAttachment[]
+  documents                Json?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@index([status])
+  @@index([phone])
+  @@index([licenseNumber])
+}
+
+model Vehicle {
+  id                   String   @id @default(cuid())
+  vehicleNumber        String
+  makeModel            String   @default("")
+  vehicleType          String   @default("Sedan")
+  fuelType             String   @default("Diesel")
+  color                String   @default("")
+  modelYear            Int      @default(2024)
+  ownershipType        String   @default("Company Owned")
+  registrationType     String?
+  vendorId             String?
+  vendorName           String?
+  monthlyVendorRent    Float?
+  tenderId             String
+  tenderPackageId      String?
+  assignedOfficerId    String?
+  assignedOfficerName  String?
+  currentDriverId      String?
+  driverName           String?
+  driverPhone          String?
+  currentOdometer      Float    @default(0)
+  purchaseDate         String?
+  purchaseCost         Float?
+  financingBank        String?
+  chassisNumber        String?
+  engineNumber         String?
+  lastServiceDate      String?
+  lastServiceKm        Float?
+  nextServiceDueKm     Float?
+  nextServiceDueDate   String?
+  rtoFitnessExpiry     String   @default("")
+  insuranceExpiry      String   @default("")
+  insuranceCompany     String?
+  insurancePolicyNo    String?
+  pucExpiry            String   @default("")
+  roadTaxExpiry        String   @default("")
+  permitExpiry         String   @default("")
+  rcNumber             String?
+  fitnessCertNumber    String?
+  taxReceiptNumber     String?
+  permitNumber         String?
+  permitType           String?
+  fastagId             String?
+  status               String   @default("active")
+  idleSinceDate        String?
+  idleReason           String?
+  transferOrderRef     String?
+  fuelPolicy           String   @default("actual_reimbursement")
+  monthlyFixedFuelAmount Float?
+  /// JSON: DocumentAttachment[]
+  documents            Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([tenderId])
+  @@index([status])
+  @@index([ownershipType])
+  @@index([vehicleNumber])
+}
+
+model DriverAllocationHistory {
+  id              String   @id @default(cuid())
+  driverId        String
+  driverName      String
+  vehicleId       String
+  vehicleNumber   String
+  tenderId        String   @default("")
+  tenderName      String   @default("")
+  officerId       String   @default("")
+  officerName     String   @default("")
+  assignedDate    String
+  releasedDate    String?
+  reasonForChange String
+  notes           String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([vehicleId])
+  @@index([driverId])
+  @@index([tenderId])
+}
+
+model VehicleAllocationHistory {
+  id                        String   @id @default(cuid())
+  tenderId                  String   @default("")
+  tenderName                String   @default("")
+  vehicleId                 String
+  vehicleNumber             String
+  makeModel                 String   @default("")
+  officerId                 String?
+  officerName               String?
+  driverId                  String?
+  driverName                String?
+  assignedDate              String
+  releasedDate              String?
+  replacementVehicleId      String?
+  replacementVehicleNumber  String?
+  replacementVehicleModel   String?
+  reasonForChange           String
+  notes                     String   @default("")
+  ownershipType             String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  @@index([vehicleId])
+  @@index([tenderId])
+}
+
+model OfficerAllocationHistory {
+  id                            String   @id @default(cuid())
+  tenderId                      String   @default("")
+  tenderName                    String   @default("")
+  vehicleId                     String
+  vehicleNumber                 String
+  officerId                     String
+  officerName                   String
+  officerDesignation            String   @default("")
+  department                    String   @default("")
+  assignedDate                  String
+  relievedDate                  String?
+  replacementOfficerId          String?
+  replacementOfficerName        String?
+  replacementOfficerDesignation String?
+  vehicleAction                 String
+  reason                        String
+  transferOrderNumber           String?
+  notes                         String   @default("")
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  @@index([vehicleId])
+  @@index([officerId])
+  @@index([tenderId])
+}
+
+model DailyLogEntry {
+  id                  String   @id @default(cuid())
+  date                String
+  vehicleId           String
+  vehicleNumber       String   @default("")
+  driverId            String   @default("")
+  driverName          String   @default("")
+  officerId           String   @default("")
+  officerName         String   @default("")
+  tenderId            String   @default("")
+  openingKm           Float    @default(0)
+  closingKm           Float    @default(0)
+  totalKm             Float    @default(0)
+  openingTime         String   @default("")
+  closingTime         String   @default("")
+  totalHours          Float    @default(0)
+  startLocation       String   @default("")
+  endLocation         String   @default("")
+  purpose             String   @default("")
+  dutyType            String   @default("local")
+  tollParkingCost     Float    @default(0)
+  driverDaNightHalt  Float    @default(0)
+  acUsed              Boolean  @default(false)
+  slipNumber          String   @default("")
+  isVerifiedByOfficer Boolean  @default(false)
+  officerRemarks      String?
+  recordedBy          String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([date])
+  @@index([vehicleId])
+  @@index([tenderId])
+  @@index([driverId])
+}
+
+model MaintenanceRecord {
+  id                 String   @id @default(cuid())
+  date               String
+  vehicleId          String
+  vehicleNumber      String   @default("")
+  serviceType        String   @default("other")
+  odometerKm         Float    @default(0)
+  garageName         String   @default("")
+  cost               Float    @default(0)
+  partsReplaced      String?
+  description        String   @default("")
+  invoiceNumber      String?
+  nextServiceDueKm   Float?
+  nextServiceDueDate String?
+  recordedBy         String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([date])
+  @@index([vehicleId])
+  @@index([serviceType])
+}
+
+model FuelPumpVendor {
+  id                 String   @id @default(cuid())
+  name               String
+  stationBrand       String   @default("Other")
+  location           String   @default("")
+  contactPerson      String   @default("")
+  phone              String   @default("")
+  alternatePhone     String?
+  panNumber          String?
+  gstin              String?
+  creditLimit        Float?
+  billingCycleDay    Int      @default(1)
+  bankDetails        String?
+  isTdsApplicable    Boolean  @default(false)
+  tdsRate            Float?
+  tdsSection         String?
+  tdsExemptionReason String?
+  status             String   @default("active")
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([status])
+  @@index([name])
+}
+
+model FuelRecord {
+  id            String   @id @default(cuid())
+  date          String
+  vehicleId     String
+  vehicleNumber String   @default("")
+  driverId      String   @default("")
+  driverName    String   @default("")
+  mode          String   @default("slip")
+  liters        Float    @default(0)
+  ratePerLiter  Float    @default(0)
+  totalAmount   Float    @default(0)
+  odometerKm    Float    @default(0)
+  fuelType      String   @default("Diesel")
+  fuelStation   String   @default("")
+  receiptNumber String   @default("")
+  fullTank      Boolean  @default(false)
+  notes         String?
+  recordedBy    String?
+  fuelSlipId    String?
+  pumpVendorId  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([date])
+  @@index([vehicleId])
+  @@index([fuelSlipId])
+  @@index([pumpVendorId])
+}
+
+model FuelSlip {
+  id                      String   @id @default(cuid())
+  slipNumber              String
+  issueDate               String
+  issueTime               String?
+  vehicleId               String
+  vehicleNumber           String   @default("")
+  vehicleModel            String?
+  driverId                String   @default("")
+  driverName              String   @default("")
+  driverPhone             String?
+  pumpVendorId            String
+  pumpVendorName          String   @default("")
+  fuelType                String   @default("Diesel")
+  authorizedQuantityType  String   @default("liters")
+  authorizedValue         Float    @default(0)
+  openingOdometerKm       Float?
+  issuedBy                String   @default("")
+  status                  String   @default("issued")
+  fillDate                String?
+  fillTime                String?
+  actualLiters            Float?
+  ratePerLiter            Float?
+  totalAmount             Float?
+  closingOdometerKm       Float?
+  pumpReceiptNumber       String?
+  notes                   String?
+  vendorBillId            String?
+  vendorBillNumber        String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@index([status])
+  @@index([issueDate])
+  @@index([vehicleId])
+  @@index([pumpVendorId])
+  @@index([slipNumber])
+}
+
+model FuelVendorMonthlyBill {
+  id                   String   @id @default(cuid())
+  billNumber           String
+  pumpVendorId         String
+  pumpVendorName       String   @default("")
+  monthYear            String
+  billDate             String
+  dueDate              String?
+  totalLiters          Float    @default(0)
+  totalAmount          Float    @default(0)
+  discountOrRebate     Float?
+  isTdsApplicable      Boolean  @default(false)
+  tdsRate              Float?
+  tdsAmount            Float?
+  tdsSection           String?
+  netPayable           Float    @default(0)
+  paymentStatus        String   @default("pending")
+  paidAmount           Float?
+  paidDate             String?
+  paymentMode          String?
+  paymentReference     String?
+  /// JSON: FuelVendorBillVehicleSummary[]
+  vehicleBreakdown     Json?
+  reconciledSlipsCount Int      @default(0)
+  notes                String?
+  verifiedBy           String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([pumpVendorId])
+  @@index([monthYear])
+  @@index([paymentStatus])
+  @@index([billNumber])
+}
+
+model BillSeriesConfig {
+  id               String   @id @default("default")
+  prefix           String   @default("ST/BILL/2026-27/")
+  startingNumber   Int      @default(1)
+  currentNumber    Int      @default(1)
+  paddingDigits    Int      @default(3)
+  suffix           String   @default("")
+  includeMonthYear Boolean  @default(false)
+  useTenderPrefix  Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model MonthlyBill {
+  id                  String   @id @default(cuid())
+  billNumber          String
+  tenderId            String
+  tenderName          String   @default("")
+  departmentName      String   @default("")
+  officerName         String   @default("")
+  vehicleId           String
+  vehicleNumber       String   @default("")
+  monthYear           String
+  billDate            String
+  dueDate             String   @default("")
+  baseAmount          Float    @default(0)
+  totalKmsRun         Float    @default(0)
+  allowedKms          Float    @default(0)
+  extraKms            Float    @default(0)
+  extraKmRate         Float    @default(0)
+  extraKmAmount       Float    @default(0)
+  totalHoursRun       Float    @default(0)
+  allowedHours        Float    @default(0)
+  extraHours          Float    @default(0)
+  extraHourRate       Float    @default(0)
+  extraHourAmount     Float    @default(0)
+  nightHaltsCount     Int      @default(0)
+  nightHaltRate       Float    @default(0)
+  nightHaltAmount     Float    @default(0)
+  tollParkingAmount   Float    @default(0)
+  penaltyDeductions   Float    @default(0)
+  penaltyRemarks      String?
+  grossAmount         Float    @default(0)
+  gstPercent          Float    @default(12)
+  gstAmount           Float    @default(0)
+  tdsPercent          Float    @default(2)
+  tdsAmount           Float    @default(0)
+  netPayableAmount    Float    @default(0)
+  paymentStatus       String   @default("draft")
+  paymentReceivedDate String?
+  paymentRemarks      String?
+  voucherNumber       String?
+  referenceVoucher    String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([tenderId])
+  @@index([vehicleId])
+  @@index([monthYear])
+  @@index([paymentStatus])
+  @@index([billNumber])
+}
+
+// ─── Phase 8: Money out ───────────────────────────────────────────────────────
+
+model DriverKhataTransaction {
+  id              String   @id @default(cuid())
+  driverId        String
+  driverName      String   @default("")
+  date            String
+  type            String
+  amount          Float    @default(0)
+  description     String   @default("")
+  paymentMode     String   @default("cash")
+  referenceNumber String?
+  tenderId        String?
+  vehicleId       String?
+  vehicleNumber   String?
+  officerId       String?
+  recordedBy      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([driverId])
+  @@index([date])
+  @@index([type])
+}
+
+model DriverLeaveRecord {
+  id                         String   @id @default(cuid())
+  driverId                   String
+  driverName                 String   @default("")
+  vehicleId                  String   @default("")
+  vehicleNumber              String   @default("")
+  tenderId                   String   @default("")
+  tenderName                 String?
+  officerId                  String?
+  officerName                String?
+  startDate                  String
+  endDate                    String
+  totalDays                  Int      @default(0)
+  leaveReason                String   @default("")
+  hasSubstitute              Boolean  @default(false)
+  substituteDriverType       String?
+  substituteDriverId         String?
+  substituteDriverName       String?
+  substituteDriverPhone      String?
+  dailySubstitutePay         Float    @default(0)
+  totalSubstitutePaid        Float    @default(0)
+  substitutePaymentMode      String?
+  deductFromMainDriverSalary Boolean  @default(false)
+  deductionAmount            Float    @default(0)
+  notes                      String?
+  recordedBy                 String?
+  createdAt                  String   @default("")
+  updatedAt                  DateTime @updatedAt
+
+  @@index([driverId])
+  @@index([startDate])
+  @@index([vehicleId])
+}
+
+model DailyPaymentEntry {
+  id              String   @id @default(cuid())
+  date            String
+  category        String
+  amount          Float    @default(0)
+  paymentMode     String   @default("cash")
+  referenceNumber String?
+  payeeName       String   @default("")
+  payeeType       String   @default("other")
+  driverId        String?
+  vendorId        String?
+  vehicleId       String?
+  vehicleNumber   String?
+  description     String   @default("")
+  autoRoutedTo    String   @default("")
+  recordedBy      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([date])
+  @@index([category])
+  @@index([driverId])
+  @@index([vendorId])
+  @@index([vehicleId])
+}
+
+model Vendor {
+  id                          String   @id @default(cuid())
+  vendorCode                  String?
+  name                        String
+  contactPerson               String   @default("")
+  phone                       String   @default("")
+  alternatePhone              String?
+  panNumber                   String   @default("")
+  gstin                       String?
+  address                     String   @default("")
+  bankAccountDetails          String   @default("")
+  vendorType                  String   @default("fleet_vendor")
+  monthlyAgreedRatePerVehicle Float    @default(0)
+  isTdsApplicable             Boolean  @default(true)
+  tdsRate                     Float    @default(1)
+  tdsSection                  String?
+  tdsExemptionReason          String?
+  status                      String   @default("active")
+  notes                       String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  @@index([status])
+  @@index([vendorType])
+  @@index([vendorCode])
+}
+
+model VendorSettlement {
+  id                            String   @id @default(cuid())
+  voucherNumber                 String   @default("")
+  vendorId                      String
+  vendorName                    String   @default("")
+  vehicleId                     String   @default("")
+  vehicleNumber                 String   @default("")
+  monthYear                     String
+  settlementDate                String   @default("")
+  agreedBaseRent                Float    @default(0)
+  extraKmShare                  Float    @default(0)
+  totalEarned                   Float    @default(0)
+  deductionsAdvances            Float    @default(0)
+  deductionsFuelByContractor    Float    @default(0)
+  deductionsFastagByContractor  Float    @default(0)
+  deductionsOther               Float    @default(0)
+  isTdsApplicable               Boolean  @default(true)
+  tdsPercent                    Float    @default(1)
+  tdsAmount                     Float    @default(0)
+  tdsSection                    String?
+  tdsExemptionReason            String?
+  netPayableToVendor            Float    @default(0)
+  paymentStatus                 String   @default("draft")
+  paymentDate                   String?
+  paymentRef                    String?
+  remarks                       String?
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  @@index([vendorId])
+  @@index([monthYear])
+  @@index([paymentStatus])
+  @@index([vehicleId])
+}
+
+model StatutoryPayrollEntry {
+  id                      String   @id @default(cuid())
+  driverId                String
+  driverName              String   @default("")
+  phone                   String   @default("")
+  uanNumber               String   @default("")
+  esicIpNumber            String   @default("")
+  tenderId                String   @default("")
+  tenderName              String   @default("")
+  vehicleNumber           String   @default("")
+  monthYear               String
+  totalMonthDays          Int      @default(30)
+  daysWorked              Int      @default(0)
+  weeklyOffs              Int      @default(0)
+  paidLeave               Int      @default(0)
+  payableDays             Int      @default(0)
+  basicWage               Float    @default(0)
+  vdaWage                 Float    @default(0)
+  hraWage                 Float    @default(0)
+  grossEarned             Float    @default(0)
+  epfEmployee12           Float    @default(0)
+  esicEmployee075         Float    @default(0)
+  advancesDeduction       Float    @default(0)
+  totalEmployeeDeductions Float    @default(0)
+  netInHandSalary         Float    @default(0)
+  epfEmployer13           Float    @default(0)
+  esicEmployer325         Float    @default(0)
+  statutoryBonus833       Float    @default(0)
+  totalCtcOutflow         Float    @default(0)
+  paymentStatus           String   @default("draft")
+  salaryPaidDate          String?
+  bankUtr                 String?
+  epfTrrnChallan          String?
+  esicChallanNo           String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@index([driverId])
+  @@index([monthYear])
+  @@index([paymentStatus])
+  @@unique([driverId, monthYear])
+}
+
+model PettyCashTransaction {
+  id                 String   @id @default(cuid())
+  type               String
+  staffUserId        String
+  staffUserName      String   @default("")
+  date               String
+  time               String?
+  amount             Float    @default(0)
+  category           String?
+  vehicleId          String?
+  vehicleNumber      String?
+  payeeOrVendor      String?
+  billSlipNumber     String?
+  billPhotoUrl       String?
+  notes              String   @default("")
+  paymentMode        String   @default("Cash")
+  approvalStatus     String   @default("pending_verification")
+  approvedByAdmin    String?
+  approvedAt         String?
+  reimbursedToStaff  Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([staffUserId])
+  @@index([date])
+  @@index([type])
+  @@index([approvalStatus])
+}
+
+// ─── Phase 9: Fleet Dispatch Pro ──────────────────────────────────────────────
+
+model DispatchProfile {
+  id             String   @id @default("default")
+  companyName    String   @default("Shakti Travels and Tours")
+  tagline        String   @default("")
+  gstin          String   @default("")
+  pan            String   @default("")
+  address        String   @default("")
+  supportPhone   String   @default("")
+  bookingEmail   String   @default("")
+  bankName       String?
+  bankAccountNo  String?
+  ifscCode       String?
+  upiId          String?
+  dutySlipTerms  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model DispatchDirectory {
+  id         String   @id @default("default")
+  /// JSON: ClientDetails[]
+  clients    Json     @default("[]")
+  /// JSON: BookerDetails[]
+  bookers    Json     @default("[]")
+  /// JSON: PassengerDetails[]
+  passengers Json     @default("[]")
+  /// JSON: { vehicleNumber, vehicleModel, vehicleClass }[]
+  vehicles   Json     @default("[]")
+  /// JSON: { name, phone }[]
+  drivers    Json     @default("[]")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model DispatchTariffPackage {
+  id            String   @id @default(cuid())
+  packageName   String
+  category      String   @default("custom_package")
+  baseRate      Float    @default(0)
+  baseHours     Float    @default(0)
+  baseKm        Float    @default(0)
+  extraKmRate   Float    @default(0)
+  extraHourRate Float    @default(0)
+  nightHaltRate Float    @default(0)
+  driverWage    Float    @default(0)
+  description   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category])
+}
+
+model DispatchBooking {
+  id                   String   @id @default(cuid())
+  bookingNumber        String
+  tenderId             String?
+  tenderNumber         String?
+  date                 String
+  status               String   @default("scheduled")
+  /// JSON: ClientDetails
+  client               Json
+  /// JSON: BookerDetails
+  booker               Json
+  /// JSON: PassengerDetails
+  passenger            Json
+  vehicleId            String?
+  vehicleNumber        String   @default("")
+  vehicleModel         String   @default("")
+  vehicleClass         String   @default("")
+  driverId             String?
+  driverName           String   @default("")
+  driverPhone          String   @default("")
+  reportingDate        String
+  reportingTime        String   @default("")
+  releaseDate          String?
+  releaseTime          String?
+  pickupLocation       String   @default("")
+  dropLocation         String   @default("")
+  routeStops           String?
+  garageOutKm          Float    @default(0)
+  garageInKm           Float?
+  totalKmRun           Float?
+  garageOutTime        String?
+  garageInTime         String?
+  totalHoursRun        Float?
+  /// JSON: DutyTariff
+  tariff               Json
+  clientInvoiceNumber  String?
+  clientPaymentStatus  String   @default("unbilled")
+  clientPaidAmount     Float?
+  driverPaymentStatus  String   @default("pending")
+  driverPaidAmount     Float?
+  notes                String?
+  createdAt            String   @default("")
+  updatedAt            DateTime @updatedAt
+
+  @@index([bookingNumber])
+  @@index([date])
+  @@index([status])
+  @@index([reportingDate])
+  @@index([vehicleNumber])
+  @@index([clientPaymentStatus])
+  @@index([driverPaymentStatus])
+}

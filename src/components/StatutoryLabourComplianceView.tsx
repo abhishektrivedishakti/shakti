@@ -170,10 +170,10 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
   return (
     <div className="space-y-6">
       {/* Top Banner Header */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Scale className="w-5 h-5 text-indigo-700" />
+            <Scale className="w-5 h-5 text-teal-800" />
             <h2 className="text-lg font-bold text-slate-900">
               Govt Labour Law, Minimum Wages &amp; EPF/ESIC Payroll
             </h2>
@@ -182,45 +182,49 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
               100+ Enrolled Commercial Drivers
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-[var(--color-muted)] mt-1">
             Mandatory statutory payroll register for GeM, PWD, NHAI &amp; PSU cab hiring tenders. Manages Central/State Sphere Skilled Commercial Drivers, EPFO ECR, and ESIC returns.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex shrink-0 flex-nowrap items-center gap-2 overflow-x-auto">
           <button
+            type="button"
             onClick={() => setIsCertificateModalOpen(true)}
-            className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
+            className="btn btn-primary shrink-0 !text-xs whitespace-nowrap"
             title="Generate Certificate of EPF & ESIC Deposit for GeM / PWD billing"
           >
-            <FileText className="w-4 h-4 text-emerald-400" />
+            <FileText className="h-4 w-4" />
             GeM Compliance Certificate
           </button>
 
           <button
+            type="button"
             onClick={handleExportEpfEcr}
-            className="px-3 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
+            className="btn btn-secondary shrink-0 !text-xs whitespace-nowrap"
             title="Download CSV formatted for EPFO ECR direct upload"
           >
-            <Download className="w-4 h-4" />
+            <Download className="h-4 w-4" />
             EPFO ECR Sheet
           </button>
 
           <button
+            type="button"
             onClick={handleExportEsic}
-            className="px-3 py-2 bg-amber-700 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
+            className="btn btn-success shrink-0 !text-xs whitespace-nowrap"
             title="Download CSV for ESIC portal upload"
           >
-            <Download className="w-4 h-4" />
+            <Download className="h-4 w-4" />
             ESIC Return
           </button>
 
           <button
+            type="button"
             onClick={() => setIsEnrollModalOpen(true)}
-            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
+            className="btn btn-accent shrink-0 !text-xs whitespace-nowrap"
           >
-            <Plus className="w-4 h-4" />
-            + Enroll Driver to EPF/ESI
+            <Plus className="h-4 w-4" />
+            Enroll Driver to EPF/ESI
           </button>
         </div>
       </div>
@@ -229,43 +233,43 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+            <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
               Compliant Drivers
             </span>
-            <Users className="w-4 h-4 text-indigo-600" />
+            <Users className="w-4 h-4 text-teal-700" />
           </div>
           <div className="mt-1 flex items-baseline justify-between">
             <span className="text-2xl font-bold text-slate-900 font-mono">
               {metrics.totalDrivers} Drivers
             </span>
-            <span className="text-xs text-indigo-600 font-semibold">100% Skilled</span>
+            <span className="text-xs text-teal-700 font-semibold">100% Skilled</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1">
             Enrolled with 12-digit UAN &amp; ESIC IP
           </p>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+            <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
               Monthly Wage Bill
             </span>
-            <CreditCard className="w-4 h-4 text-purple-600" />
+            <CreditCard className="w-4 h-4 text-sky-700" />
           </div>
           <div className="mt-1 flex items-baseline justify-between">
-            <span className="text-2xl font-bold text-purple-900 font-mono">
+            <span className="text-2xl font-bold text-[var(--color-ink)] font-mono">
               {formatCurrency(metrics.totalGrossWages)}
             </span>
-            <span className="text-xs text-slate-400">Gross Wages</span>
+            <span className="text-xs text-[var(--color-muted)]">Gross Wages</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1">
             ₹15,600 Basic + ₹1,820 VDA + HRA
           </p>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+            <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
               EPF Challan (12% + 13%)
             </span>
             <ShieldCheck className="w-4 h-4 text-blue-600" />
@@ -276,14 +280,14 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
             </span>
             <span className="text-xs text-blue-600 font-semibold">TRRN Deposited</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1">
             Employee ₹1,800 + Employer ₹1,950
           </p>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+            <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
               ESIC Challan (0.75% + 3.25%)
             </span>
             <BadgePercent className="w-4 h-4 text-emerald-600" />
@@ -294,21 +298,21 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
             </span>
             <span className="text-xs text-emerald-600 font-semibold">4% Total</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1">
             Net In-Hand Disbursed: {formatCurrency(metrics.totalNetTakeHome)}
           </p>
         </div>
       </div>
 
       {/* Statutory Formula Explanation Banner */}
-      <div className="bg-indigo-50/70 border border-indigo-200/80 rounded-xl p-4 text-xs text-indigo-950 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+      <div className="bg-teal-50/70 border border-teal-200/80 rounded-xl p-4 text-xs text-[var(--color-ink)] flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
         <div className="flex items-start gap-2.5">
-          <Scale className="w-5 h-5 text-indigo-700 shrink-0 mt-0.5" />
+          <Scale className="w-5 h-5 text-teal-800 shrink-0 mt-0.5" />
           <div>
-            <span className="font-bold block text-indigo-900">
+            <span className="font-bold block text-[var(--color-ink)]">
               Statutory Wage &amp; Deduction Formulas Applied (Govt GeM / Labour Law Mandatory Standards):
             </span>
-            <span className="text-[11px] text-indigo-800 leading-relaxed block mt-0.5">
+            <span className="text-[11px] text-teal-800 leading-relaxed block mt-0.5">
               &bull; <strong>Minimum Wage:</strong> Skilled Driver Basic ₹15,600 + VDA ₹1,820 + HRA ₹1,500 = Gross ₹18,920/month &bull; 
               <strong> EPF Employee (12%):</strong> ₹1,800 (capped at ₹15,000 statutory limit) &bull; 
               <strong> ESIC Employee (0.75%):</strong> ₹142 &bull; 
@@ -320,7 +324,7 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
         </div>
 
         <div className="shrink-0 flex items-center gap-2">
-          <span className="bg-white px-2.5 py-1 rounded-md text-[11px] font-mono font-bold text-indigo-900 border border-indigo-200">
+          <span className="bg-white px-2.5 py-1 rounded-md text-[11px] font-mono font-bold text-[var(--color-ink)] border border-teal-200">
             TRRN: 1012608001928
           </span>
           <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-md text-[11px] font-semibold flex items-center gap-1">
@@ -348,7 +352,7 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                 }}
                 className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg text-xs"
               />
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+              <Search className="w-3.5 h-3.5 text-[var(--color-muted)] absolute left-2.5 top-2.5" />
             </div>
           </div>
 
@@ -411,7 +415,7 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500">
+        <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-[var(--color-muted)]">
           <span>
             Displaying <strong>{filteredEntries.length}</strong> drivers enrolled under statutory labour law for <strong>{selectedMonth}</strong>
           </span>
@@ -453,10 +457,10 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                   <tr key={entry.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="py-2.5 px-3">
                       <div className="font-bold text-slate-900">{entry.driverName}</div>
-                      <div className="text-[10px] text-slate-500 font-mono">
+                      <div className="text-[10px] text-[var(--color-muted)] font-mono">
                         UAN: <strong className="text-slate-800">{entry.uanNumber}</strong>
                       </div>
-                      <div className="text-[10px] text-slate-500 font-mono">
+                      <div className="text-[10px] text-[var(--color-muted)] font-mono">
                         ESI IP: <strong className="text-slate-800">{entry.esicIpNumber}</strong>
                       </div>
                     </td>
@@ -465,21 +469,21 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                       <div className="font-semibold text-slate-800 truncate max-w-[170px]" title={entry.tenderName}>
                         {entry.tenderName}
                       </div>
-                      <div className="font-mono text-[10px] text-indigo-700 font-bold">
+                      <div className="font-mono text-[10px] text-teal-800 font-bold">
                         {entry.vehicleNumber}
                       </div>
                     </td>
 
                     <td className="py-2.5 px-2 text-center font-mono">
                       <span className="font-bold text-slate-900">{entry.payableDays}</span>
-                      <div className="text-[10px] text-slate-400">
+                      <div className="text-[10px] text-[var(--color-muted)]">
                         {entry.daysWorked}W + {entry.weeklyOffs}O
                       </div>
                     </td>
 
                     <td className="py-2.5 px-3 text-right font-mono">
                       <div>{formatCurrency(entry.basicWage + entry.vdaWage)}</div>
-                      <div className="text-[10px] text-slate-400">
+                      <div className="text-[10px] text-[var(--color-muted)]">
                         ({formatCurrency(entry.basicWage)} + {formatCurrency(entry.vdaWage)})
                       </div>
                     </td>
@@ -507,7 +511,7 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
 
                     <td className="py-2.5 px-3 text-right font-mono text-slate-600">
                       <div>+{formatCurrency(employerTotal)}</div>
-                      <div className="text-[10px] text-slate-400">
+                      <div className="text-[10px] text-[var(--color-muted)]">
                         (PF: {formatCurrency(entry.epfEmployer13)} | ESI: {formatCurrency(entry.esicEmployer325)})
                       </div>
                     </td>
@@ -519,7 +523,7 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                         </span>
                         <button
                           onClick={() => setSelectedEntryForSlip(entry)}
-                          className="text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold underline flex items-center gap-0.5"
+                          className="text-[11px] text-teal-700 hover:text-teal-800 font-semibold underline flex items-center gap-0.5"
                         >
                           <FileText className="w-3 h-3" />
                           Pay Slip
@@ -561,11 +565,11 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
 
       {/* MODAL 1: Statutory Pay Slip Modal */}
       {selectedEntryForSlip && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-[var(--color-ink)]/50 backdrop-blur-xs flex items-center justify-center p-3 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full border border-slate-200 overflow-hidden my-8">
-            <div className="bg-slate-900 text-white p-4 flex items-center justify-between print:hidden">
+            <div className="bg-[var(--color-surface)] text-[var(--color-ink)] p-4 flex items-center justify-between print:hidden">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-indigo-400" />
+                <FileText className="w-5 h-5 text-teal-500" />
                 <h3 className="font-bold text-sm">
                   Statutory Salary Slip &bull; {selectedEntryForSlip.monthYear}
                 </h3>
@@ -573,14 +577,14 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded text-xs font-semibold flex items-center gap-1"
+                  className="btn btn-primary !px-3 !py-1 !text-xs"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   Print Slip
                 </button>
                 <button
                   onClick={() => setSelectedEntryForSlip(null)}
-                  className="text-white/80 hover:text-white text-lg font-bold p-1"
+                  className="text-[var(--color-muted)] hover:text-[var(--color-ink)] text-lg font-bold p-1"
                 >
                   ✕
                 </button>
@@ -589,8 +593,8 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
 
             {/* Printable Slip Container */}
             <div className="p-6 space-y-4 text-xs text-slate-900 bg-white">
-              <div className="text-center border-b-2 border-slate-800 pb-3">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500">
+              <div className="text-center border-b-2 border-[var(--color-line)] pb-3">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--color-muted)]">
                   PAYSLIP UNDER MINIMUM WAGES ACT &amp; PAYMENT OF WAGES RULES
                 </span>
                 <h2 className="text-lg font-black uppercase text-slate-900 mt-0.5">
@@ -599,24 +603,24 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                 <p className="text-[11px] text-slate-600">
                   Tender Transport Contractor &bull; 42, Transport Nagar, Lucknow, UP
                 </p>
-                <p className="text-[10px] text-slate-500 font-mono">
+                <p className="text-[10px] text-[var(--color-muted)] font-mono">
                   EPFO Est Code: UP/LKO/0034812/000 &bull; ESIC Code: 21000889120001001
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 border-b border-slate-200 pb-3 text-[11px]">
                 <div>
-                  <div><span className="text-slate-500">Employee Name: </span><strong>{selectedEntryForSlip.driverName}</strong></div>
-                  <div><span className="text-slate-500">Designation: </span><strong>Commercial Driver (Skilled)</strong></div>
-                  <div><span className="text-slate-500">EPF UAN: </span><strong className="font-mono">{selectedEntryForSlip.uanNumber}</strong></div>
-                  <div><span className="text-slate-500">ESIC IP No: </span><strong className="font-mono">{selectedEntryForSlip.esicIpNumber}</strong></div>
+                  <div><span className="text-[var(--color-muted)]">Employee Name: </span><strong>{selectedEntryForSlip.driverName}</strong></div>
+                  <div><span className="text-[var(--color-muted)]">Designation: </span><strong>Commercial Driver (Skilled)</strong></div>
+                  <div><span className="text-[var(--color-muted)]">EPF UAN: </span><strong className="font-mono">{selectedEntryForSlip.uanNumber}</strong></div>
+                  <div><span className="text-[var(--color-muted)]">ESIC IP No: </span><strong className="font-mono">{selectedEntryForSlip.esicIpNumber}</strong></div>
                 </div>
 
                 <div className="text-right">
-                  <div><span className="text-slate-500">Pay Period: </span><strong>{selectedEntryForSlip.monthYear}</strong></div>
-                  <div><span className="text-slate-500">Assigned Vehicle: </span><strong className="font-mono">{selectedEntryForSlip.vehicleNumber}</strong></div>
-                  <div><span className="text-slate-500">Govt Tender: </span><strong>{selectedEntryForSlip.tenderName}</strong></div>
-                  <div><span className="text-slate-500">Payable Days: </span><strong>{selectedEntryForSlip.payableDays} Days</strong></div>
+                  <div><span className="text-[var(--color-muted)]">Pay Period: </span><strong>{selectedEntryForSlip.monthYear}</strong></div>
+                  <div><span className="text-[var(--color-muted)]">Assigned Vehicle: </span><strong className="font-mono">{selectedEntryForSlip.vehicleNumber}</strong></div>
+                  <div><span className="text-[var(--color-muted)]">Govt Tender: </span><strong>{selectedEntryForSlip.tenderName}</strong></div>
+                  <div><span className="text-[var(--color-muted)]">Payable Days: </span><strong>{selectedEntryForSlip.payableDays} Days</strong></div>
                 </div>
               </div>
 
@@ -687,10 +691,10 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] font-mono block text-slate-500">
+                  <span className="text-[10px] font-mono block text-[var(--color-muted)]">
                     EPF TRRN: {selectedEntryForSlip.epfTrrnChallan}
                   </span>
-                  <span className="text-[10px] font-mono block text-slate-500">
+                  <span className="text-[10px] font-mono block text-[var(--color-muted)]">
                     ESIC Challan: {selectedEntryForSlip.esicChallanNo}
                   </span>
                 </div>
@@ -703,7 +707,7 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                 <span>Statutory Bonus (8.33%): <strong>{formatCurrency(selectedEntryForSlip.statutoryBonus833)}</strong></span>
               </div>
 
-              <div className="pt-8 flex justify-between text-[11px] text-slate-500 border-t border-slate-200">
+              <div className="pt-8 flex justify-between text-[11px] text-[var(--color-muted)] border-t border-slate-200">
                 <div>
                   <div className="h-6 w-32 border-b border-slate-400" />
                   <span className="block mt-1">Driver Signature</span>
@@ -720,9 +724,9 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
 
       {/* MODAL 2: GeM / Govt Tender Labour Compliance Certificate */}
       {isCertificateModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-[var(--color-ink)]/50 backdrop-blur-xs flex items-center justify-center p-3 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-slate-200 overflow-hidden my-8">
-            <div className="bg-slate-900 text-white p-4 flex items-center justify-between print:hidden">
+            <div className="bg-[var(--color-surface)] text-[var(--color-ink)] p-4 flex items-center justify-between print:hidden">
               <div className="flex items-center gap-2">
                 <Award className="w-5 h-5 text-emerald-400" />
                 <h3 className="font-bold text-sm">
@@ -733,7 +737,7 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                 <select
                   value={selectedTenderForCertificate}
                   onChange={(e) => setSelectedTenderForCertificate(e.target.value)}
-                  className="px-2 py-1 text-xs bg-slate-800 text-white border border-slate-700 rounded"
+                  className="px-2 py-1 text-xs bg-[var(--color-sand-deep)] text-[var(--color-ink)] border border-[var(--color-line-strong)] rounded"
                 >
                   {tenders.map((t) => (
                     <option key={t.id} value={t.id}>
@@ -750,7 +754,7 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                 </button>
                 <button
                   onClick={() => setIsCertificateModalOpen(false)}
-                  className="text-white/80 hover:text-white text-lg font-bold p-1"
+                  className="text-[var(--color-muted)] hover:text-[var(--color-ink)] text-lg font-bold p-1"
                 >
                   ✕
                 </button>
@@ -759,8 +763,8 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
 
             {/* Official Certificate Body */}
             <div className="p-8 space-y-6 text-slate-900 bg-white leading-relaxed text-xs">
-              <div className="text-center border-b-2 border-slate-800 pb-4">
-                <span className="text-[11px] uppercase font-bold tracking-widest text-slate-500">
+              <div className="text-center border-b-2 border-[var(--color-line)] pb-4">
+                <span className="text-[11px] uppercase font-bold tracking-widest text-[var(--color-muted)]">
                   ANNEXURE - STATUTORY LABOUR &amp; SOCIAL SECURITY COMPLIANCE DECLARATION
                 </span>
                 <h2 className="text-xl font-black uppercase text-slate-900 mt-1">
@@ -769,7 +773,7 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                 <p className="text-xs text-slate-600">
                   Govt Authorized Cab &amp; Fleet Service Provider &bull; 42, Transport Nagar, Lucknow
                 </p>
-                <p className="text-[11px] text-slate-500 font-mono mt-0.5">
+                <p className="text-[11px] text-[var(--color-muted)] font-mono mt-0.5">
                   PAN: AAAFS1234F &bull; GSTIN: 09AAAFS1234F1Z8 &bull; EPFO Est ID: UP/LKO/0034812/000
                 </p>
               </div>
@@ -777,14 +781,14 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
               <div className="border border-slate-300 p-4 rounded-lg bg-slate-50">
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <span className="text-slate-500 block">To Authority:</span>
+                    <span className="text-[var(--color-muted)] block">To Authority:</span>
                     <strong className="text-sm">{selectedCertTender.authorityOffice}</strong>
                     <div className="text-slate-600 mt-0.5">{selectedCertTender.departmentName}</div>
                   </div>
                   <div className="text-right">
-                    <div><span className="text-slate-500">Tender / Bid No: </span><strong className="font-mono">{selectedCertTender.tenderNumber}</strong></div>
-                    <div><span className="text-slate-500">Work Order No: </span><strong className="font-mono">{selectedCertTender.workOrderNumber}</strong></div>
-                    <div><span className="text-slate-500">Compliance Month: </span><strong>{selectedMonth}</strong></div>
+                    <div><span className="text-[var(--color-muted)]">Tender / Bid No: </span><strong className="font-mono">{selectedCertTender.tenderNumber}</strong></div>
+                    <div><span className="text-[var(--color-muted)]">Work Order No: </span><strong className="font-mono">{selectedCertTender.workOrderNumber}</strong></div>
+                    <div><span className="text-[var(--color-muted)]">Compliance Month: </span><strong>{selectedMonth}</strong></div>
                   </div>
                 </div>
               </div>
@@ -834,13 +838,13 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
 
               <div className="pt-8 flex justify-between text-xs text-slate-600 border-t border-slate-200">
                 <div>
-                  <span className="block text-slate-500">Date: {formatDate(new Date().toISOString().slice(0, 10))}</span>
-                  <span className="block text-slate-500">Place: Lucknow, Uttar Pradesh</span>
+                  <span className="block text-[var(--color-muted)]">Date: {formatDate(new Date().toISOString().slice(0, 10))}</span>
+                  <span className="block text-[var(--color-muted)]">Place: Lucknow, Uttar Pradesh</span>
                 </div>
                 <div className="text-right">
                   <span className="font-bold block text-slate-900">For SARKARI FLEET SERVICES</span>
                   <div className="h-8" />
-                  <span className="block text-slate-500 font-medium">Authorized Signatory &amp; Stamp</span>
+                  <span className="block text-[var(--color-muted)] font-medium">Authorized Signatory &amp; Stamp</span>
                 </div>
               </div>
             </div>
@@ -850,18 +854,18 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
 
       {/* MODAL 3: Enroll Driver to Statutory Payroll Modal */}
       {isEnrollModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-[var(--color-ink)]/50 backdrop-blur-xs flex items-center justify-center p-3 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden my-8">
-            <div className="bg-indigo-900 text-white p-4 flex items-center justify-between">
+            <div className="bg-[var(--color-surface)] text-[var(--color-ink)] border-b border-[var(--color-line)] p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Scale className="w-5 h-5 text-indigo-300" />
+                <Scale className="w-5 h-5 text-teal-700" />
                 <h3 className="font-bold text-sm">
                   Enroll Driver to Govt Labour Law &amp; EPF/ESI
                 </h3>
               </div>
               <button
                 onClick={() => setIsEnrollModalOpen(false)}
-                className="text-white/80 hover:text-white text-lg font-bold p-1"
+                className="text-[var(--color-muted)] hover:text-[var(--color-ink)] text-lg font-bold p-1"
               >
                 ✕
               </button>
@@ -957,7 +961,7 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                 </div>
               </div>
 
-              <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-200 text-indigo-900 leading-snug">
+              <div className="p-3 bg-teal-50 rounded-xl border border-teal-200 text-[var(--color-ink)] leading-snug">
                 <span className="font-bold block">Automatic Calculation:</span>
                 <span>
                   Gross: <strong>{formatCurrency(enrollBasic + enrollVda + enrollHra)}</strong> &bull; 
@@ -976,7 +980,7 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Enroll Driver &amp; Post to Register
                 </button>

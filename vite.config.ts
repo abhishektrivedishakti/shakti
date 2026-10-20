@@ -17,6 +17,13 @@ export default defineConfig(() => {
       hmr: process.env.DISABLE_HMR !== 'true',
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
+      // If Vite is run alone, forward API calls to Express (npm run dev on PORT, default 3000).
+      proxy: {
+        '/api': {
+          target: process.env.VITE_DEV_API_PROXY || 'http://127.0.0.1:3000',
+          changeOrigin: true,
+        },
+      },
     },
   };
 });

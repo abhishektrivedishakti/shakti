@@ -151,17 +151,17 @@ export const CreateFuelVendorBillModal: React.FC<CreateFuelVendorBillModalProps>
       <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl my-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-3 border-b border-slate-200">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700">
+            <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-800">
               <FileText className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-bold text-slate-900 text-sm">
                 मासिक पेट्रोल पंप वेंडर बिल दर्ज करें (Create Fuel Vendor Bill)
               </h3>
-              <p className="text-[11px] text-slate-500">पंप वेंडर से प्राप्त बिल दर्ज करें व पर्ची मिलान करें</p>
+              <p className="text-[11px] text-[var(--color-muted)]">पंप वेंडर से प्राप्त बिल दर्ज करें व पर्ची मिलान करें</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+          <button onClick={onClose} className="text-[var(--color-muted)] hover:text-slate-600 font-bold text-lg">&times;</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -172,7 +172,7 @@ export const CreateFuelVendorBillModal: React.FC<CreateFuelVendorBillModalProps>
                 required
                 value={selectedPumpId}
                 onChange={(e) => handlePumpSelect(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-indigo-50/50 font-bold"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-teal-50/50 font-bold"
               >
                 {fuelPumpVendors.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -227,19 +227,19 @@ export const CreateFuelVendorBillModal: React.FC<CreateFuelVendorBillModalProps>
           </div>
 
           {/* Auto Reconciled Slips & Breakdown Preview */}
-          <div className="border border-indigo-200 rounded-xl p-4 bg-indigo-50/30 space-y-3">
+          <div className="border border-teal-200 rounded-xl p-4 bg-teal-50/30 space-y-3">
             <div className="flex items-center justify-between">
               <div>
                 <span className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>पर्ची मिलान व गाड़ी-वार स्वतः गणना (Auto Slips Reconciled)</span>
                 </span>
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[10px] text-[var(--color-muted)]">
                   इस वेंडर व माह के कुल <strong>{matchingSlips.length}</strong> पर्चियां मिलीं
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-xs font-mono font-black text-indigo-950">
+                <span className="text-xs font-mono font-black text-[var(--color-ink)]">
                   {totalCompiledLiters.toFixed(1)} L &bull; {formatCurrency(totalCompiledAmount)}
                 </span>
               </div>
@@ -287,7 +287,7 @@ export const CreateFuelVendorBillModal: React.FC<CreateFuelVendorBillModalProps>
                 <span className="font-bold text-slate-800 text-xs block">
                   TDS कटौती विकल्प (TDS Deduction on Fuel Bill)
                 </span>
-                <span className="text-[10px] text-slate-500">
+                <span className="text-[10px] text-[var(--color-muted)]">
                   {selectedPump?.name} {selectedPump?.panNumber ? `(PAN: ${selectedPump.panNumber})` : ''}
                 </span>
               </div>
@@ -327,7 +327,7 @@ export const CreateFuelVendorBillModal: React.FC<CreateFuelVendorBillModalProps>
                         onClick={() => setTdsRate(rate)}
                         className={`px-2 py-1 rounded-lg border text-xs font-bold transition-all ${
                           tdsRate === rate
-                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                            ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)] shadow-2xs'
                             : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                         }`}
                       >
@@ -345,7 +345,7 @@ export const CreateFuelVendorBillModal: React.FC<CreateFuelVendorBillModalProps>
                         className="w-12 text-xs font-bold py-1 outline-hidden"
                         placeholder="कस्टम"
                       />
-                      <span className="text-slate-400 font-bold text-xs">%</span>
+                      <span className="text-[var(--color-muted)] font-bold text-xs">%</span>
                     </div>
                   </div>
                 </div>
@@ -411,7 +411,7 @@ export const CreateFuelVendorBillModal: React.FC<CreateFuelVendorBillModalProps>
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-xs"
+              className="btn btn-primary"
             >
               मासिक बिल सुरक्षित करें (Save Bill)
             </button>

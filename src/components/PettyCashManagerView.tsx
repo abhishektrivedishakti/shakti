@@ -22,7 +22,6 @@ import {
   Check,
   X,
   CreditCard,
-  User,
 } from 'lucide-react';
 import {
   PettyCashTransaction,
@@ -235,36 +234,36 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
   const getCategoryLabel = (cat?: PettyCashExpenseCategory) => {
     switch (cat) {
       case 'fuel_emergency':
-        return { label: 'ईंधन / पेट्रोल पंप (Fuel)', color: 'bg-blue-100 text-blue-800' };
+        return { label: 'ईंधन / पेट्रोल पंप (Fuel)', color: 'bg-[var(--color-info-soft)] text-[var(--color-info)] border border-sky-200' };
       case 'servicing_puncture':
-        return { label: 'सर्विसिंग / पंचर (Service)', color: 'bg-amber-100 text-amber-800' };
+        return { label: 'सर्विसिंग / पंचर (Service)', color: 'bg-teal-50 text-teal-800 border border-teal-200' };
       case 'vehicle_accessories':
-        return { label: 'गाड़ी एक्सेसरीज (Accessories)', color: 'bg-purple-100 text-purple-800' };
+        return { label: 'गाड़ी एक्सेसरीज (Accessories)', color: 'bg-[var(--color-sand)] text-[var(--color-ink-soft)] border border-[var(--color-line)]' };
       case 'fastag_toll_cash':
-        return { label: 'फास्टैग / नकद टोल (Fastag/Toll)', color: 'bg-indigo-100 text-indigo-800' };
+        return { label: 'फास्टैग / नकद टोल (Fastag/Toll)', color: 'bg-teal-50 text-teal-900 border border-teal-200' };
       case 'car_wash_cleaning':
-        return { label: 'गाड़ी धुलाई व सफाई (Car Wash)', color: 'bg-cyan-100 text-cyan-800' };
+        return { label: 'गाड़ी धुलाई व सफाई (Car Wash)', color: 'bg-teal-50/80 text-[var(--color-copper)] border border-teal-100' };
       case 'driver_refreshments':
-        return { label: 'चालक चाय-नाश्ता (Refreshment)', color: 'bg-rose-100 text-rose-800' };
+        return { label: 'चालक चाय-नाश्ता (Refreshment)', color: 'bg-[var(--color-danger-soft)] text-[var(--color-danger)] border border-rose-200' };
       case 'rto_puc_cash':
-        return { label: 'PUC / प्रदूषण रसीद', color: 'bg-emerald-100 text-emerald-800' };
+        return { label: 'PUC / प्रदूषण रसीद', color: 'bg-[var(--color-success-soft)] text-[var(--color-success)] border border-teal-200' };
       case 'office_errands':
-        return { label: 'रसीद बुक / कार्यालय खर्च', color: 'bg-slate-100 text-slate-800' };
+        return { label: 'रसीद बुक / कार्यालय खर्च', color: 'bg-[var(--color-surface-muted)] text-[var(--color-ink)] border border-[var(--color-line)]' };
       default:
-        return { label: 'अन्य फुटकर खर्च (Misc)', color: 'bg-slate-100 text-slate-700' };
+        return { label: 'अन्य फुटकर खर्च (Misc)', color: 'bg-[var(--color-sand)] text-[var(--color-muted)] border border-[var(--color-line)]' };
     }
   };
 
   return (
     <div className="space-y-6">
       {/* Top Banner & Control Header */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-indigo-600" />
+            <Wallet className="w-5 h-5 text-teal-700" />
             <span>Petty Cash &amp; Field Expenses &bull; पेटी कैश व दैनिक फुटकर खर्च खाता</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-[var(--color-muted)] mt-1">
             ऑफिस बॉय या फील्ड सुपरवाइजर को नकद अग्रिम देना, गाड़ियों का ईंधन, पंचर, एक्सेसरीज व फुटकर खर्चों का सटीक हिसाब
           </p>
         </div>
@@ -280,7 +279,7 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
 
           <button
             onClick={() => setIsRecordExpenseModalOpen(true)}
-            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors"
+            className="btn btn-primary !text-xs"
           >
             <Receipt className="w-4 h-4" />
             + दैनिक खर्च दर्ज करें (Add Expense)
@@ -292,7 +291,7 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
         {/* Total Cash In Hand */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+          <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
             कुल हाथ में नकद बैलेंस (Net Cash in Hand)
           </span>
           <div className="mt-1 flex items-baseline justify-between">
@@ -303,14 +302,14 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
               Live Balance
             </span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1">
             कुल प्राप्त अग्रिम - कुल स्वीकृत खर्च
           </p>
         </div>
 
         {/* Total Inflow / Advance Given */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+          <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
             ऑफिस से दिया गया कुल नकद (Total Advances)
           </span>
           <div className="mt-1 flex items-baseline justify-between">
@@ -319,14 +318,14 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
             </span>
             <span className="text-[11px] font-semibold text-blue-600">Float Given</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1">
             कार्यालय द्वारा लड़कों/स्टाफ को हस्तांतरित
           </p>
         </div>
 
         {/* Total Expenses Recorded */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+          <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
             कुल किया गया दैनिक खर्च (Total Expenses)
           </span>
           <div className="mt-1 flex items-baseline justify-between">
@@ -335,14 +334,14 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
             </span>
             <span className="text-[11px] font-semibold text-rose-600">Disbursed</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1">
             फ्यूल, पंचर, एक्सेसरीज व फुटकर खर्च
           </p>
         </div>
 
         {/* Pending Approval Slips */}
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+          <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
             सत्यापन हेतु लंबित पर्चियां (Pending Verification)
           </span>
           <div className="mt-1 flex items-baseline justify-between">
@@ -353,7 +352,7 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
               {pendingCount > 0 ? 'Action Needed' : 'All Clear'}
             </span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1">
             मालिक/एडमिन द्वारा पास करने हेतु बाकी
           </p>
         </div>
@@ -363,10 +362,10 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
       <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-xs text-slate-800 flex items-center gap-1.5 uppercase tracking-wider">
-            <UserCheck className="w-4 h-4 text-indigo-600" />
+            <UserCheck className="w-4 h-4 text-teal-700" />
             <span>स्टाफ अनुसार हाथ में नकद बैलेंस (Staff Cash-in-Hand Float):</span>
           </h3>
-          <span className="text-[11px] text-slate-500">
+          <span className="text-[11px] text-[var(--color-muted)]">
             किस लड़के के पास अभी कितना नकद बाकी है
           </span>
         </div>
@@ -378,8 +377,8 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
               <div
                 key={staff.id}
                 onClick={() => setSelectedStaffFilter(staff.id)}
-                className={`p-3 bg-white rounded-lg border transition-all cursor-pointer shadow-2xs hover:border-indigo-300 ${
-                  selectedStaffFilter === staff.id ? 'border-indigo-500 ring-2 ring-indigo-200' : 'border-slate-200'
+                className={`p-3 bg-white rounded-lg border transition-all cursor-pointer shadow-2xs hover:border-teal-300 ${
+                  selectedStaffFilter === staff.id ? 'border-teal-500 ring-2 ring-teal-200' : 'border-slate-200'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -388,16 +387,16 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
                     {staff.role === 'office_boy_cashier' ? 'पेटी कैश बॉय' : staff.role === 'fleet_manager' ? 'फ्लीट मैनेजर' : 'स्टाफ'}
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-500">{staff.designation}</div>
+                <div className="text-[10px] text-[var(--color-muted)]">{staff.designation}</div>
 
                 <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
                   <div>
-                    <span className="text-[9px] text-slate-400 block uppercase font-semibold">हाथ में नकद:</span>
+                    <span className="text-[9px] text-[var(--color-muted)] block uppercase font-semibold">हाथ में नकद:</span>
                     <span className={`text-base font-bold font-mono ${cashInHand >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
                       {formatCurrency(cashInHand)}
                     </span>
                   </div>
-                  <div className="text-right text-[10px] text-slate-500">
+                  <div className="text-right text-[10px] text-[var(--color-muted)]">
                     <div>मिला: {formatCurrency(totalInflow)}</div>
                     <div>खर्च: {formatCurrency(totalExpense)}</div>
                   </div>
@@ -415,13 +414,13 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
               Search Expense, Vehicle, Shop or Slip No:
             </label>
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+              <Search className="w-3.5 h-3.5 text-[var(--color-muted)] absolute left-3 top-2.5" />
               <input
                 type="text"
                 placeholder="e.g. UP32, Sonu, Puncture, Wiper, Tea, BPCL..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-hidden"
               />
             </div>
           </div>
@@ -482,7 +481,7 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2.5">
+        <div className="flex items-center justify-between text-xs text-[var(--color-muted)] border-t border-slate-100 pt-2.5">
           <span>
             Showing <strong>{filteredTransactions.length}</strong> transactions
           </span>
@@ -494,7 +493,7 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
                 setSelectedStatusFilter('all');
                 setSearchQuery('');
               }}
-              className="text-indigo-600 hover:text-indigo-800 font-semibold"
+              className="text-teal-700 hover:text-teal-800 font-semibold"
             >
               Reset Filters &times;
             </button>
@@ -503,125 +502,139 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
       </div>
 
       {/* Transactions Ledger Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      <div className="panel overflow-hidden">
+        <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-[var(--color-ink)] px-4 py-3 text-white sm:px-5">
+          <div>
+            <div className="page-kicker !text-teal-300">Ledger</div>
+            <h3 className="font-[family-name:var(--font-display)] text-sm font-bold">
+              दैनिक पेटी कैश रजिस्टर (Petty Cash Transactions)
+            </h3>
+          </div>
+          <span className="rounded-md bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-teal-100">
+            {filteredTransactions.length} entries
+          </span>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+            <thead className="border-b border-[var(--color-line)] bg-[var(--color-surface-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted)]">
               <tr>
-                <th className="p-3">तारीख व समय</th>
-                <th className="p-3">स्टाफ सदस्य (लड़का)</th>
-                <th className="p-3">प्रकार व श्रेणी (Category)</th>
-                <th className="p-3">गाड़ी नंबर / टेंडर</th>
-                <th className="p-3">दुकानदार / वेंडर व रसीद संख्या</th>
-                <th className="p-3 text-right">राशि (Amount)</th>
-                <th className="p-3">स्थिति (Status)</th>
-                <th className="p-3">कार्रवाई</th>
+                <th className="px-4 py-3 font-bold normal-case tracking-normal sm:px-5">तारीख व समय</th>
+                <th className="px-4 py-3 font-bold normal-case tracking-normal sm:px-5">स्टाफ सदस्य (लड़का)</th>
+                <th className="px-4 py-3 font-bold normal-case tracking-normal sm:px-5">प्रकार व श्रेणी (Category)</th>
+                <th className="px-4 py-3 font-bold normal-case tracking-normal sm:px-5">गाड़ी नंबर / टेंडर</th>
+                <th className="px-4 py-3 font-bold normal-case tracking-normal sm:px-5">दुकानदार / वेंडर व रसीद संख्या</th>
+                <th className="px-4 py-3 text-right font-bold normal-case tracking-normal sm:px-5">राशि (Amount)</th>
+                <th className="px-4 py-3 font-bold normal-case tracking-normal sm:px-5">स्थिति (Status)</th>
+                <th className="px-4 py-3 font-bold normal-case tracking-normal sm:px-5">कार्रवाई</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[var(--color-line)]">
               {filteredTransactions.map((item) => {
                 const isInflow = item.type === 'cash_inflow';
                 const catInfo = getCategoryLabel(item.category);
 
                 return (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="p-3 whitespace-nowrap">
-                      <div className="font-semibold text-slate-900">{formatDate(item.date)}</div>
-                      <div className="text-[10px] text-slate-400">{item.time || '10:00 AM'}</div>
+                  <tr
+                    key={item.id}
+                    className="bg-[var(--color-surface)] transition-colors hover:bg-teal-50/40"
+                  >
+                    <td className="whitespace-nowrap px-4 py-3.5 sm:px-5">
+                      <div className="font-semibold text-[var(--color-ink)]">{formatDate(item.date)}</div>
+                      <div className="mt-0.5 text-[10px] text-[var(--color-muted)]">{item.time || '10:00 AM'}</div>
                     </td>
 
-                    <td className="p-3">
-                      <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5 text-slate-400" />
+                    <td className="px-4 py-3.5 sm:px-5">
+                      <div className="flex items-center gap-1.5 font-bold text-[var(--color-ink)]">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-ink)] text-[10px] font-black text-white">
+                          {(item.staffUserName || '?').charAt(0)}
+                        </span>
                         <span>{item.staffUserName}</span>
                       </div>
-                      <span className="text-[10px] text-slate-400 block">{item.paymentMode}</span>
+                      <span className="mt-0.5 block pl-8 text-[10px] text-[var(--color-muted)]">{item.paymentMode}</span>
                     </td>
 
-                    <td className="p-3">
+                    <td className="px-4 py-3.5 sm:px-5">
                       {isInflow ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
-                          <ArrowDownLeft className="w-3 h-3 text-emerald-600" />
+                        <span className="inline-flex items-center gap-1 rounded-md border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-[10px] font-bold text-teal-800">
+                          <ArrowDownLeft className="h-3 w-3 text-[var(--color-copper)]" />
                           ऑफिस नकद अग्रिम (Cash Float)
                         </span>
                       ) : (
                         <div>
-                          <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded ${catInfo.color}`}>
+                          <span className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-semibold ${catInfo.color}`}>
                             {catInfo.label}
                           </span>
-                          <p className="text-[11px] text-slate-600 mt-1 max-w-xs leading-snug">
-                            {item.notes}
-                          </p>
+                          {item.notes && (
+                            <p className="mt-1.5 max-w-xs text-[11px] leading-snug text-[var(--color-muted)]">
+                              {item.notes}
+                            </p>
+                          )}
                         </div>
                       )}
                     </td>
 
-                    <td className="p-3">
+                    <td className="whitespace-nowrap px-4 py-3.5 sm:px-5">
                       {item.vehicleNumber ? (
-                        <div>
-                          <span className="font-mono font-bold text-xs text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                            {item.vehicleNumber}
-                          </span>
-                        </div>
+                        <span className="inline-flex whitespace-nowrap rounded-md border border-[var(--color-line-strong)] bg-[var(--color-surface-muted)] px-2.5 py-1 font-mono text-[11px] font-bold tracking-wide text-[var(--color-ink)]">
+                          {item.vehicleNumber}
+                        </span>
                       ) : (
-                        <span className="text-slate-400 italic text-[11px]">कार्यालय / सामान्य</span>
+                        <span className="text-[11px] italic text-[var(--color-muted)]">कार्यालय / सामान्य</span>
                       )}
                     </td>
 
-                    <td className="p-3">
+                    <td className="px-4 py-3.5 sm:px-5">
                       {item.payeeOrVendor ? (
                         <div>
-                          <div className="font-semibold text-slate-800">{item.payeeOrVendor}</div>
+                          <div className="font-semibold text-[var(--color-ink)]">{item.payeeOrVendor}</div>
                           {item.billSlipNumber && (
-                            <span className="font-mono text-[10px] text-slate-500">
+                            <span className="mt-0.5 block font-mono text-[10px] text-[var(--color-muted)]">
                               Slip: {item.billSlipNumber}
                             </span>
                           )}
                         </div>
                       ) : (
-                        <span className="text-slate-400">-</span>
+                        <span className="text-[var(--color-muted)]">—</span>
                       )}
                     </td>
 
-                    <td className="p-3 text-right whitespace-nowrap">
-                      <span className={`font-mono font-bold text-sm ${isInflow ? 'text-emerald-700' : 'text-slate-900'}`}>
-                        {isInflow ? `+${formatCurrency(item.amount)}` : `-${formatCurrency(item.amount)}`}
-                      </span>
-                    </td>
-
-                    <td className="p-3 whitespace-nowrap">
+                    <td className="whitespace-nowrap px-4 py-3.5 text-right sm:px-5">
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 w-max ${
-                          item.approvalStatus === 'approved'
-                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                            : 'bg-amber-100 text-amber-800 border border-amber-200'
+                        className={`font-mono text-sm font-bold tabular-nums ${
+                          isInflow ? 'text-[var(--color-copper)]' : 'text-[var(--color-ink)]'
                         }`}
                       >
-                        {item.approvalStatus === 'approved' ? (
-                          <>
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            पास (Approved)
-                          </>
-                        ) : (
-                          <>
-                            <Clock className="w-3 h-3 text-amber-600" />
-                            सत्यापन बाकी
-                          </>
-                        )}
+                        {isInflow ? `+${formatCurrency(item.amount)}` : `−${formatCurrency(item.amount)}`}
                       </span>
                     </td>
 
-                    <td className="p-3 whitespace-nowrap">
+                    <td className="whitespace-nowrap px-4 py-3.5 sm:px-5">
+                      {item.approvalStatus === 'approved' ? (
+                        <span className="badge badge-success inline-flex w-max items-center gap-1 !text-[10px]">
+                          <CheckCircle2 className="h-3 w-3" />
+                          पास (Approved)
+                        </span>
+                      ) : (
+                        <span className="badge badge-warning inline-flex w-max items-center gap-1 !text-[10px]">
+                          <Clock className="h-3 w-3" />
+                          सत्यापन बाकी
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="whitespace-nowrap px-4 py-3.5 sm:px-5">
                       {item.type === 'cash_expense' && (
                         <button
+                          type="button"
                           onClick={() => handleToggleApproval(item)}
-                          className={`px-2.5 py-1 rounded text-[11px] font-semibold border transition-colors ${
+                          className={
                             item.approvalStatus === 'approved'
-                              ? 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                              : 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-500 shadow-2xs'
-                          }`}
+                              ? 'btn btn-secondary !px-2.5 !py-1 !text-[11px]'
+                              : 'btn btn-accent !px-2.5 !py-1 !text-[11px]'
+                          }
                         >
-                          {item.approvalStatus === 'approved' ? 'Unapprove' : 'बिल पास करें ✓'}
+                          {item.approvalStatus === 'approved' ? 'Unapprove' : 'बिल पास करें'}
                         </button>
                       )}
                     </td>
@@ -644,7 +657,7 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
               </h3>
               <button
                 onClick={() => setIsGiveCashModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -754,12 +767,12 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-indigo-600" />
+                <Receipt className="w-5 h-5 text-teal-700" />
                 <span>दैनिक खर्च दर्ज करें (Record Field Expense)</span>
               </h3>
               <button
                 onClick={() => setIsRecordExpenseModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -924,7 +937,7 @@ export const PettyCashManagerView: React.FC<PettyCashManagerViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold shadow-2xs"
+                  className="btn btn-primary"
                 >
                   खर्च दर्ज करें (Save Expense)
                 </button>

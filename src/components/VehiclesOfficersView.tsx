@@ -587,13 +587,13 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner & Control Bar */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Car className="w-5 h-5 text-indigo-600" />
+            <Car className="w-5 h-5 text-teal-700" />
             <span>Vehicles &amp; Officers &bull; गाड़ी व अधिकारी अलॉटमेंट</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-[var(--color-muted)] mt-1">
             किस अधिकारी के साथ कौन सी गाड़ी चल रही है, कौन सा ड्राइवर लगा है व कब-कब बदला गया
           </p>
         </div>
@@ -649,7 +649,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => handleOpenOnboardingModal('owner_driver')}
-              className="px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all active:scale-[0.98]"
+              className="btn btn-success !text-xs"
               title="मालिक-चालक: गाड़ी भी अपनी और खुद ही चलाएगा"
             >
               <UserCheck className="w-4 h-4 text-emerald-200" />
@@ -658,16 +658,16 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
 
             <button
               onClick={() => handleOpenOnboardingModal('car_owner')}
-              className="px-3 py-2 bg-indigo-700 hover:bg-indigo-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all active:scale-[0.98]"
+              className="btn btn-primary !text-xs"
               title="केवल गाड़ी मालिक: गाड़ी वेंडर की, ड्राइवर अलग रहेगा"
             >
-              <Car className="w-4 h-4 text-indigo-200" />
+              <Car className="w-4 h-4 text-teal-200" />
               <span>+ केवल गाड़ी मालिक जोड़ें</span>
             </button>
 
             <button
               onClick={() => handleOpenOnboardingModal('company_vehicle')}
-              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors"
+              className="px-3 py-2 bg-[var(--color-sand-deep)] hover:bg-[var(--color-sand)] text-[var(--color-ink)] rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors"
               title="कंपनी की खुद की गाड़ी जोड़ें"
             >
               <Building2 className="w-3.5 h-3.5 text-amber-400" />
@@ -677,7 +677,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
             {/* Direct Add Officer Modal */}
             <button
               onClick={() => handleOpenAddOfficerModal()}
-              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors"
+              className="px-3 py-2 bg-[var(--color-sand-deep)] hover:bg-[var(--color-sand)] text-[var(--color-ink)] rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors"
               title="सरकारी अधिकारी का विवरण मैन्युअली जोड़ें"
             >
               <Briefcase className="w-3.5 h-3.5 text-amber-400" />
@@ -687,25 +687,25 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
             {/* Officer Excel Template Download */}
             <button
               onClick={downloadOfficerExcelTemplate}
-              className="px-2.5 py-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs"
+              className="btn btn-secondary !text-xs"
               title="सरकारी अधिकारियों की एक्सेल शीट (.xlsx) डाउनलोड करें"
             >
-              <Download className="w-3.5 h-3.5 text-amber-400" />
+              <Download className="h-3.5 w-3.5" />
               <span>अधिकारी शीट (.xlsx)</span>
             </button>
 
             <button
               onClick={() => handleOpenBulkModal('officers')}
-              className="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all active:scale-[0.98]"
+              className="btn btn-success !text-xs shadow-2xs transition-all active:scale-[0.98]"
               title="सरकारी अधिकारियों की एक्सेल शीट डाउनलोड करें या भरी हुई शीट अपलोड करके जोड़ें"
             >
-              <Briefcase className="w-4 h-4 text-amber-100" />
+              <Briefcase className="h-4 w-4" />
               <span>+ अधिकारी एक्सेल बल्क</span>
             </button>
 
             <button
               onClick={() => handleOpenBulkModal('vehicles')}
-              className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all active:scale-[0.98]"
+              className="btn btn-success !text-xs"
               title="एक्सेल शीट डाउनलोड करें या भरी हुई शीट अपलोड करके एक साथ दर्जनों गाड़ियाँ व ड्राइवर जोड़ें"
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-100" />
@@ -716,10 +716,10 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenProfileModal('driver')}
-                className="px-3.5 py-2 bg-indigo-700 hover:bg-indigo-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all active:scale-[0.98] cursor-pointer"
+                className="btn btn-primary !text-xs"
                 title="चालक, वेंडर, अधिकारी व गाड़ी प्रोफाइल सीधे एडिट व प्रबंधित करें (Manage / Edit Profiles)"
               >
-                <Edit2 className="w-4 h-4 text-indigo-200" />
+                <Edit2 className="w-4 h-4 text-teal-200" />
                 <span>👤 प्रोफाइल एडिट / प्रबंधन</span>
               </button>
             )}
@@ -730,7 +730,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
       {activeTab === 'roster' && (
         <>
           {/* Quick Bilingual Guidance Banner for Owner-Driver vs Attached Car Owner */}
-          <div className="bg-slate-900 text-white p-4 rounded-xl border border-slate-800 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-[var(--color-surface)] text-[var(--color-ink)] p-4 rounded-xl border border-[var(--color-line)] shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold shrink-0 text-sm">
                 1
@@ -747,29 +747,29 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                     + अभी जोड़ें
                   </button>
                 </div>
-                <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                <p className="text-[11px] text-[var(--color-muted)] mt-1 leading-relaxed">
                   अगर कोई ड्राइवर अपनी खुद की गाड़ी लेकर आया है और वह <strong>खुद ही गाड़ी चलाएगा</strong>, तो <strong>मालिक-चालक</strong> जोड़ें। इससे ड्राइवर, गाड़ी व वेंडर तीनों 1-क्लिक में एक साथ लिंक हो जाएंगे और 1% TDS या 194C(6) छूट लागू होगी।
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 border-t md:border-t-0 md:border-l border-slate-800 pt-3 md:pt-0 md:pl-4">
-              <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 font-bold shrink-0 text-sm">
+            <div className="flex items-start gap-3 border-t md:border-t-0 md:border-l border-[var(--color-line)] pt-3 md:pt-0 md:pl-4">
+              <div className="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-500 font-bold shrink-0 text-sm">
                 2
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-xs text-indigo-400 flex items-center gap-1.5">
+                  <h4 className="font-bold text-xs text-teal-500 flex items-center gap-1.5">
                     <span>केस B: केवल गाड़ी मालिक (Vehicle Owner Only)</span>
                   </h4>
                   <button
                     onClick={() => handleOpenOnboardingModal('car_owner')}
-                    className="text-[11px] bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-2 py-0.5 rounded shadow-2xs transition-colors"
+                    className="btn btn-primary !px-2 !py-0.5 !text-[11px]"
                   >
                     + अभी जोड़ें
                   </button>
                 </div>
-                <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                <p className="text-[11px] text-[var(--color-muted)] mt-1 leading-relaxed">
                   अगर किसी बंदे की केवल गाड़ी अटैच हो रही है और वह <strong>खुद गाड़ी नहीं चलाएगा</strong>, तो <strong>केवल गाड़ी मालिक</strong> जोड़ें। वेंडर के खाते में तयशुदा मासिक किराया जाएगा और गाड़ी पर कोई अन्य ड्राइवर तैनात रहेगा।
                 </p>
               </div>
@@ -777,29 +777,29 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
           </div>
 
           {/* Bulk Import Quick Banner Strip */}
-          <div className="bg-slate-800/80 border border-slate-700/80 px-4 py-3 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-300">
+          <div className="flex flex-col justify-between gap-3 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-4 py-3 text-xs text-[var(--color-muted)] sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
-              <FileSpreadsheet className="w-4 h-4 text-emerald-400 shrink-0" />
+              <FileSpreadsheet className="h-4 w-4 shrink-0 text-teal-700" />
               <span>
-                <strong>सरकारी अधिकारी, गाड़ियाँ या ड्राइवर थोक में जोड़ने हैं?</strong> हमारी एक्सेल शीट डाउनलोड करें, डेटा भरें और 1-क्लिक में अपलोड करें।
+                <strong className="text-[var(--color-ink)]">सरकारी अधिकारी, गाड़ियाँ या ड्राइवर थोक में जोड़ने हैं?</strong> हमारी एक्सेल शीट डाउनलोड करें, डेटा भरें और 1-क्लिक में अपलोड करें।
               </span>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex shrink-0 items-center gap-2">
               <button
                 type="button"
                 onClick={downloadOfficerExcelTemplate}
-                className="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg font-bold text-[11px] flex items-center gap-1 transition-colors"
+                className="btn btn-secondary !px-2.5 !py-1 !text-[11px]"
                 title="अधिकारी एक्सेल टेम्पलेट (.xlsx) डाउनलोड करें"
               >
-                <Download className="w-3 h-3" />
+                <Download className="h-3 w-3" />
                 <span>अधिकारी शीट (.xlsx)</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleOpenBulkModal('officers')}
-                className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[11px] transition-colors flex items-center gap-1 shadow-2xs"
+                className="btn btn-success !px-3 !py-1 !text-[11px]"
               >
-                <span>📥 एक्सेल बल्क अपलोड सेंटर</span>
+                <span>एक्सेल बल्क अपलोड सेंटर</span>
               </button>
             </div>
           </div>
@@ -823,16 +823,16 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
             return (
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+                  <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
                     Company Owned Fleet
                   </span>
                   <div className="mt-1 flex items-baseline justify-between">
                     <span className="text-xl font-bold text-slate-900 font-mono">
                       {companyVehicles.length} Cars
                     </span>
-                    <span className="text-[11px] text-indigo-600 font-semibold">Self-Owned</span>
+                    <span className="text-[11px] text-teal-700 font-semibold">Self-Owned</span>
                   </div>
-                  <p className="text-[10px] text-slate-500 mt-1 truncate">
+                  <p className="text-[10px] text-[var(--color-muted)] mt-1 truncate">
                     Asset Val: <strong>{formatCurrency(totalCompanyValuation || 250000000)}</strong>
                   </p>
                 </div>
@@ -868,7 +868,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                 </div>
 
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+                  <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
                     Insurance Renewals
                   </span>
                   <div className="mt-1 flex items-baseline justify-between">
@@ -879,13 +879,13 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                       {insAlertCount > 0 ? 'Due < 30 Days' : 'All Valid'}
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-500 mt-1 truncate">
+                  <p className="text-[10px] text-[var(--color-muted)] mt-1 truncate">
                     United India / ICICI
                   </p>
                 </div>
 
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+                  <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
                     PUC Pollution Expiries
                   </span>
                   <div className="mt-1 flex items-baseline justify-between">
@@ -896,22 +896,22 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                       {pucAlertCount > 0 ? 'Action Needed' : 'Valid'}
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-500 mt-1 truncate">
+                  <p className="text-[10px] text-[var(--color-muted)] mt-1 truncate">
                     Online RTO Parivahan
                   </p>
                 </div>
 
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+                  <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
                     Servicing Schedule Due
                   </span>
                   <div className="mt-1 flex items-baseline justify-between">
-                    <span className="text-xl font-bold text-purple-700 font-mono">
+                    <span className="text-xl font-bold text-sky-700 font-mono">
                       {serviceDueCount} Cars
                     </span>
-                    <span className="text-[10px] text-purple-600 font-semibold">Maintenance</span>
+                    <span className="text-[10px] text-sky-700 font-semibold">Maintenance</span>
                   </div>
-                  <p className="text-[10px] text-slate-500 mt-1 truncate">
+                  <p className="text-[10px] text-[var(--color-muted)] mt-1 truncate">
                     Due in &le; 1,000 KM
                   </p>
                 </div>
@@ -934,7 +934,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-hidden"
                 />
               </div>
 
@@ -1017,7 +1017,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2.5">
+            <div className="flex items-center justify-between text-xs text-[var(--color-muted)] border-t border-slate-100 pt-2.5">
               <span>
                 Found <strong>{filteredVehicles.length}</strong> vehicles matching filters (Total fleet: {vehicles.length})
               </span>
@@ -1031,7 +1031,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                     setExpiryFilter('all');
                     setCurrentPage(1);
                   }}
-                  className="text-indigo-600 hover:text-indigo-800 font-semibold"
+                  className="text-teal-700 hover:text-teal-800 font-semibold"
                 >
                   Reset All Filters &times;
                 </button>
@@ -1054,7 +1054,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
             return (
               <div
                 key={v.id}
-                className="bg-white rounded-xl border border-slate-200 shadow-xs hover:border-indigo-300 transition-all overflow-hidden flex flex-col justify-between"
+                className="bg-white rounded-xl border border-slate-200 shadow-xs hover:border-teal-300 transition-all overflow-hidden flex flex-col justify-between"
               >
                 <div className="p-5">
                   {/* Vehicle Halted / Officer Transferred Warning Alert */}
@@ -1120,7 +1120,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                     </div>
 
                     <div className="text-right">
-                      <span className="text-[11px] font-mono text-slate-500 block">
+                      <span className="text-[11px] font-mono text-[var(--color-muted)] block">
                         Odo: {v.currentOdometer.toLocaleString()} KM
                       </span>
                       <span className="text-[10px] text-emerald-700 font-semibold uppercase">
@@ -1131,13 +1131,13 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
 
                   {/* Tender & Department Tag */}
                   <div className="mt-3 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                    <div className="text-[10px] text-slate-400 uppercase font-semibold">
+                    <div className="text-[10px] text-[var(--color-muted)] uppercase font-semibold">
                       Tender / Work Order
                     </div>
                     <div className="font-semibold text-slate-900">
                       {tender?.departmentName || 'Not Assigned'}
                     </div>
-                    <div className="text-[11px] text-slate-500">
+                    <div className="text-[11px] text-[var(--color-muted)]">
                       {tender?.authorityOffice} &bull; {tender?.tenderNumber}
                     </div>
                   </div>
@@ -1146,16 +1146,16 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                   <div className={`mt-3 p-3 rounded-lg border ${
                     v.status === 'idle_officer_transferred'
                       ? 'border-rose-200 bg-rose-50/30'
-                      : 'border-indigo-100 bg-indigo-50/40'
+                      : 'border-teal-100 bg-teal-50/40'
                   }`}>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] uppercase font-bold text-indigo-800 flex items-center gap-1">
-                        <UserCheck className="w-3.5 h-3.5 text-indigo-600" />
+                      <span className="text-[10px] uppercase font-bold text-teal-800 flex items-center gap-1">
+                        <UserCheck className="w-3.5 h-3.5 text-teal-700" />
                         Assigned Govt Officer (संबंधित अधिकारी)
                       </span>
                       <div className="flex items-center gap-1.5">
                         {off && (
-                          <span className="text-[10px] text-slate-500">
+                          <span className="text-[10px] text-[var(--color-muted)]">
                             Rep: {off.reportingTime}
                           </span>
                         )}
@@ -1189,8 +1189,8 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                           )}
                         </div>
                         <div className="text-[11px] text-slate-600">{off.designation}</div>
-                        <div className="text-[11px] text-slate-500">{off.officeAddress}</div>
-                        <div className="text-xs font-semibold text-indigo-700 pt-1 flex items-center gap-1">
+                        <div className="text-[11px] text-[var(--color-muted)]">{off.officeAddress}</div>
+                        <div className="text-xs font-semibold text-teal-800 pt-1 flex items-center gap-1">
                           <Phone className="w-3 h-3" />
                           <span>{off.mobile}</span>
                         </div>
@@ -1216,7 +1216,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                       </span>
                       <button
                         onClick={() => handleOpenReplaceModal(v.id)}
-                        className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                        className="text-[11px] font-semibold text-teal-700 hover:text-teal-800 flex items-center gap-1"
                       >
                         <ArrowRightLeft className="w-3 h-3" />
                         Swap / Replace Driver
@@ -1229,14 +1229,14 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                           <div>
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="font-bold text-xs text-slate-900">{drv.name}</span>
-                              <span className="text-[10px] font-mono font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.2 rounded">
+                              <span className="text-[10px] font-mono font-bold text-teal-800 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded">
                                 {getDriverDisplayCode(drv)}
                               </span>
                               {onOpenProfileModal && (
                                 <button
                                   type="button"
                                   onClick={() => onOpenProfileModal('driver', drv.id)}
-                                  className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-0.5 hover:underline cursor-pointer"
+                                  className="text-[10px] font-bold text-teal-700 hover:text-teal-800 flex items-center gap-0.5 hover:underline cursor-pointer"
                                   title="चालक प्रोफ़ाइल एडिट करें"
                                 >
                                   <Edit2 className="w-2.5 h-2.5" />
@@ -1244,10 +1244,10 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                                 </button>
                               )}
                             </div>
-                            <div className="text-[11px] text-slate-500 mt-0.5">
+                            <div className="text-[11px] text-[var(--color-muted)] mt-0.5">
                               Mobile: {drv.phone} &bull; License: {drv.licenseNumber}
                             </div>
-                            <div className="text-[10px] text-slate-500 mt-0.5">
+                            <div className="text-[10px] text-[var(--color-muted)] mt-0.5">
                               Monthly Salary: {formatCurrency(drv.monthlySalary)} &bull; DA: ₹{drv.dailyDaRate}/night
                             </div>
                           </div>
@@ -1267,10 +1267,10 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                                 driverId: drv.id,
                               })
                             }
-                            className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-[11px] border border-indigo-200 flex items-center gap-1 transition-colors cursor-pointer"
+                            className="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold rounded-lg text-[11px] border border-teal-200 flex items-center gap-1 transition-colors cursor-pointer"
                             title="चालक को पिछला या नया भुगतान दर्ज करें"
                           >
-                            <CreditCard className="w-3 h-3 text-indigo-600" />
+                            <CreditCard className="w-3 h-3 text-teal-700" />
                             <span>💰 हिसाब व भुगतान</span>
                           </button>
 
@@ -1322,11 +1322,11 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
 
                   {/* Fuel Policy Badge */}
                   <div className="mt-3 flex items-center justify-between text-xs px-1">
-                    <span className="text-slate-500 flex items-center gap-1">
-                      <Fuel className="w-3.5 h-3.5 text-slate-400" /> Fuel Mode:
+                    <span className="text-[var(--color-muted)] flex items-center gap-1">
+                      <Fuel className="w-3.5 h-3.5 text-[var(--color-muted)]" /> Fuel Mode:
                     </span>
                     {v.fuelPolicy === 'monthly_fixed_budget' ? (
-                      <span className="font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200 text-[11px]">
+                      <span className="font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200 text-[11px]">
                         Fixed Budget: {formatCurrency(v.monthlyFixedFuelAmount || 0)} / mo
                       </span>
                     ) : (
@@ -1339,7 +1339,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                   {/* Compliance & Document Expiries Strip */}
                   <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-5 gap-1.5 text-[10px]">
                     <div className="p-1 rounded border text-center bg-slate-50 border-slate-200 text-slate-700">
-                      <span className="block text-slate-400 text-[8px] uppercase font-semibold">RC Book</span>
+                      <span className="block text-[var(--color-muted)] text-[8px] uppercase font-semibold">RC Book</span>
                       <span className="truncate block font-mono text-[9px]">{v.rcNumber || 'Verified'}</span>
                     </div>
 
@@ -1350,7 +1350,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                           : 'bg-slate-50 border-slate-200 text-slate-700'
                       }`}
                     >
-                      <span className="block text-slate-400 text-[8px] uppercase font-semibold">Insurance</span>
+                      <span className="block text-[var(--color-muted)] text-[8px] uppercase font-semibold">Insurance</span>
                       <span className="text-[9px]">{formatDate(v.insuranceExpiry).slice(0, 6)}</span>
                     </div>
 
@@ -1361,7 +1361,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                           : 'bg-slate-50 border-slate-200 text-slate-700'
                       }`}
                     >
-                      <span className="block text-slate-400 text-[8px] uppercase font-semibold">PUC</span>
+                      <span className="block text-[var(--color-muted)] text-[8px] uppercase font-semibold">PUC</span>
                       <span className="text-[9px]">{formatDate(v.pucExpiry).slice(0, 6)}</span>
                     </div>
 
@@ -1372,12 +1372,12 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                           : 'bg-slate-50 border-slate-200 text-slate-700'
                       }`}
                     >
-                      <span className="block text-slate-400 text-[8px] uppercase font-semibold">Fitness</span>
+                      <span className="block text-[var(--color-muted)] text-[8px] uppercase font-semibold">Fitness</span>
                       <span className="text-[9px]">{formatDate(v.rtoFitnessExpiry).slice(0, 6)}</span>
                     </div>
 
                     <div className="p-1 rounded border text-center bg-slate-50 border-slate-200 text-slate-700">
-                      <span className="block text-slate-400 text-[8px] uppercase font-semibold">Road Tax</span>
+                      <span className="block text-[var(--color-muted)] text-[8px] uppercase font-semibold">Road Tax</span>
                       <span className="text-[9px]">{v.roadTaxExpiry ? formatDate(v.roadTaxExpiry).slice(0, 6) : 'Paid'}</span>
                     </div>
                   </div>
@@ -1392,16 +1392,16 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                         className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold border border-slate-300 rounded-lg flex items-center gap-1 shadow-2xs text-[11px] transition-colors cursor-pointer"
                         title="गाड़ी की पूरी प्रोफ़ाइल व विवरण एडिट करें"
                       >
-                        <Edit2 className="w-3.5 h-3.5 text-indigo-600" />
+                        <Edit2 className="w-3.5 h-3.5 text-teal-700" />
                         <span>✏️ गाड़ी एडिट</span>
                       </button>
                     )}
 
                     <button
                       onClick={() => setSelectedVehicleForDocs(v)}
-                      className="px-2.5 py-1.5 bg-white hover:bg-indigo-50 text-indigo-700 font-semibold border border-indigo-200 rounded-lg flex items-center gap-1.5 shadow-2xs text-[11px] transition-colors"
+                      className="px-2.5 py-1.5 bg-white hover:bg-teal-50 text-teal-800 font-semibold border border-teal-200 rounded-lg flex items-center gap-1.5 shadow-2xs text-[11px] transition-colors"
                     >
-                      <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                      <FileText className="w-3.5 h-3.5 text-teal-700" />
                       <span>RC / Documents ({v.documents?.length || 6})</span>
                     </button>
 
@@ -1429,7 +1429,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                       setSelectedVehicleForHistory(v.id);
                       setActiveTab('history');
                     }}
-                    className="text-slate-600 hover:text-indigo-600 font-medium text-xs flex items-center gap-1"
+                    className="text-slate-600 hover:text-teal-700 font-medium text-xs flex items-center gap-1"
                   >
                     History &rarr;
                   </button>
@@ -1442,7 +1442,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
         {/* Pagination Navigation Bar */}
         {totalPages > 1 && (
           <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <span className="text-slate-500">
+            <span className="text-[var(--color-muted)]">
               Showing <strong>{(currentPage - 1) * pageSize + 1}</strong> to{' '}
               <strong>{Math.min(currentPage * pageSize, filteredVehicles.length)}</strong> of{' '}
               <strong>{filteredVehicles.length}</strong> vehicles (Page {currentPage} of {totalPages})
@@ -1463,7 +1463,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
               >
                 &lsaquo; Prev
               </button>
-              <span className="px-3 py-1.5 bg-indigo-50 text-indigo-700 font-bold rounded border border-indigo-100">
+              <span className="px-3 py-1.5 bg-teal-50 text-teal-800 font-bold rounded border border-teal-100">
                 {currentPage} / {totalPages}
               </span>
               <button
@@ -1494,13 +1494,13 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
               <h3 className="font-bold text-sm text-slate-900">
                 Driver Allocation &amp; Replacement Audit Trail (ड्राइवर बदलाव का संपूर्ण रिकॉर्ड)
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--color-muted)]">
                 कौन सा ड्राइवर किस तारीख को लगा, किस तारीख को हटा और हटाने का क्या कारण था
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              <label className="text-xs text-slate-500 font-medium">Filter by Vehicle:</label>
+              <label className="text-xs text-[var(--color-muted)] font-medium">Filter by Vehicle:</label>
               <select
                 value={selectedVehicleForHistory}
                 onChange={(e) => setSelectedVehicleForHistory(e.target.value)}
@@ -1536,7 +1536,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                     <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="py-3 px-4">
                         <div className="font-bold text-slate-900 font-mono">{item.vehicleNumber}</div>
-                        <div className="text-[11px] text-slate-500">{item.tenderName}</div>
+                        <div className="text-[11px] text-[var(--color-muted)]">{item.tenderName}</div>
                       </td>
 
                       <td className="py-3 px-4">
@@ -1544,7 +1544,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                       </td>
 
                       <td className="py-3 px-4">
-                        <div className="font-semibold text-indigo-900">{item.driverName}</div>
+                        <div className="font-semibold text-[var(--color-ink)]">{item.driverName}</div>
                         {isCurrent && (
                           <span className="inline-block text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.2 rounded border border-emerald-200 mt-0.5">
                             Currently Active
@@ -1556,7 +1556,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                         <div className="font-medium">
                           From: <span className="text-slate-900">{formatDate(item.assignedDate)}</span>
                         </div>
-                        <div className="text-slate-500 text-[11px]">
+                        <div className="text-[var(--color-muted)] text-[11px]">
                           To: {item.releasedDate ? formatDate(item.releasedDate) : 'Till Date (वर्तमान)'}
                         </div>
                       </td>
@@ -1569,7 +1569,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                               : item.reasonForChange === 'leave'
                               ? 'bg-amber-100 text-amber-800'
                               : item.reasonForChange === 'discipline'
-                              ? 'bg-purple-100 text-purple-800'
+                              ? 'bg-sky-100 text-sky-800'
                               : 'bg-slate-100 text-slate-700'
                           }`}
                         >
@@ -1600,7 +1600,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                 <ArrowRightLeft className="w-4 h-4 text-amber-600" />
                 <span>गाड़ी बदलाव इतिहास (Kaun Si Gadi Kab Hati, Kiski Lagi)</span>
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--color-muted)]">
                 टेंडर में किसी भी अफ़सर के साथ कौन सी गाड़ी कब हटी, किसकी जगह कौन सी नई गाड़ी लगी और उसका कारण क्या था
               </p>
             </div>
@@ -1632,8 +1632,8 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                       <span className="font-mono font-bold text-slate-900 block">
                         {item.vehicleNumber}
                       </span>
-                      <span className="text-slate-500 text-[11px]">{item.makeModel}</span>
-                      <span className="text-[10px] text-slate-400 block">{item.ownershipType}</span>
+                      <span className="text-[var(--color-muted)] text-[11px]">{item.makeModel}</span>
+                      <span className="text-[10px] text-[var(--color-muted)] block">{item.ownershipType}</span>
                     </td>
                     <td className="p-3">
                       <span className="font-medium text-slate-800 line-clamp-2">
@@ -1644,7 +1644,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                       <span className="font-semibold text-slate-800 block">
                         {item.officerName || 'Unassigned'}
                       </span>
-                      <span className="text-indigo-600 text-[11px]">
+                      <span className="text-teal-700 text-[11px]">
                         ड्राइवर: {item.driverName || 'N/A'}
                       </span>
                     </td>
@@ -1687,7 +1687,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                           </span>
                         </div>
                       ) : (
-                        <span className="text-slate-400">-</span>
+                        <span className="text-[var(--color-muted)]">-</span>
                       )}
                     </td>
                     <td className="p-3 max-w-xs">
@@ -1712,12 +1712,12 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                 <UserX className="w-4 h-4 text-rose-600" />
                 <span>अधिकारी तबादला व गाड़ी बंद/री-असाइनमेंट इतिहास (Officer Transfer &amp; Vehicle Halt Audit Trail)</span>
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--color-muted)]">
                 जब किसी अधिकारी का ट्रांसफर होता है या पद रिक्त होने पर गाड़ी चलना बंद होती है, उसका शासकीय आदेश सहित संपूर्ण रिकॉर्ड
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <label className="text-xs text-slate-500 font-medium">Filter by Vehicle:</label>
+              <label className="text-xs text-[var(--color-muted)] font-medium">Filter by Vehicle:</label>
               <select
                 value={selectedVehicleForOfficerHistory}
                 onChange={(e) => setSelectedVehicleForOfficerHistory(e.target.value)}
@@ -1763,7 +1763,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                         <span className="font-mono font-bold text-slate-900 block">
                           {item.vehicleNumber}
                         </span>
-                        <span className="text-[11px] text-slate-500 line-clamp-1">
+                        <span className="text-[11px] text-[var(--color-muted)] line-clamp-1">
                           {item.tenderName}
                         </span>
                       </td>
@@ -1772,10 +1772,10 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                         <span className="font-semibold text-slate-900 block">
                           {item.officerName}
                         </span>
-                        <span className="text-[11px] text-slate-500 block">
+                        <span className="text-[11px] text-[var(--color-muted)] block">
                           {item.officerDesignation}
                         </span>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[10px] text-[var(--color-muted)]">
                           {item.department}
                         </span>
                       </td>
@@ -1784,7 +1784,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                         <div className="font-medium text-slate-800">
                           {formatDate(item.relievedDate || item.assignedDate)}
                         </div>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[10px] text-[var(--color-muted)]">
                           {item.relievedDate ? 'तबादला / कार्यमुक्त' : 'पदभार ग्रहण'}
                         </span>
                       </td>
@@ -1809,8 +1809,8 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                           </span>
                         )}
                         {item.vehicleAction === 'transferred_to_pool' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200">
-                            <Building2 className="w-3 h-3 text-purple-600" />
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800 border border-sky-200">
+                            <Building2 className="w-3 h-3 text-sky-700" />
                             स्टैंडबाय पूल
                           </span>
                         )}
@@ -1847,7 +1847,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                             </span>
                           </div>
                         ) : (
-                          <span className="text-slate-400 italic text-[11px]">कोई नहीं (पद रिक्त)</span>
+                          <span className="text-[var(--color-muted)] italic text-[11px]">कोई नहीं (पद रिक्त)</span>
                         )}
                       </td>
 
@@ -1868,12 +1868,12 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <ArrowRightLeft className="w-5 h-5 text-indigo-600" />
+                <ArrowRightLeft className="w-5 h-5 text-teal-700" />
                 <span>Replace Driver &bull; ड्राइवर बदलें</span>
               </h3>
               <button
                 onClick={() => setIsReplaceModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -1881,11 +1881,11 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
 
             <form onSubmit={handleConfirmReplacement} className="mt-4 space-y-4 text-xs">
               <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-                <span className="text-slate-500 block text-[11px]">Selected Vehicle:</span>
+                <span className="text-[var(--color-muted)] block text-[11px]">Selected Vehicle:</span>
                 <span className="font-bold text-slate-900 text-sm font-mono">
                   {vehicles.find((v) => v.id === replaceVehicleId)?.vehicleNumber}
                 </span>
-                <span className="text-slate-500 ml-2">
+                <span className="text-[var(--color-muted)] ml-2">
                   (Current Driver: {drivers.find((d) => d.id === vehicles.find((v) => v.id === replaceVehicleId)?.currentDriverId)?.name || 'None'})
                 </span>
               </div>
@@ -1906,7 +1906,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                   size={5}
                   value={newDriverId}
                   onChange={(e) => setNewDriverId(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-hidden text-xs"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-hidden text-xs"
                 >
                   <option value="">-- Choose from {drivers.length} drivers --</option>
                   {drivers
@@ -1982,7 +1982,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Confirm &amp; Record Change
                 </button>
@@ -2002,7 +2002,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
               </h3>
               <button
                 onClick={() => setIsVehicleModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -2198,7 +2198,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Save Vehicle
                 </button>
@@ -2245,13 +2245,13 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                   <UserX className="w-5 h-5 text-rose-600" />
                   <span>अधिकारी तबादला / गाड़ी बंद या री-असाइनमेंट</span>
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-[var(--color-muted)] mt-0.5">
                   तबादला होने पर गाड़ी चलना बंद करना या नवीन अधिकारी को सौंपना
                 </p>
               </div>
               <button
                 onClick={() => setIsOfficerTransferModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -2274,14 +2274,14 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                       <span className="font-mono font-bold text-sm text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-300">
                         {selectedVehicleForTransfer.vehicleNumber}
                       </span>
-                      <span className="text-[11px] font-semibold text-indigo-700">
+                      <span className="text-[11px] font-semibold text-teal-800">
                         {tender?.departmentName}
                       </span>
                     </div>
                     <div className="text-slate-700">
                       <strong>वर्तमान अधिकारी:</strong> {curOff ? `${curOff.name} (${curOff.designation})` : 'कोई नहीं (पद रिक्त)'}
                     </div>
-                    <div className="text-slate-500 text-[11px]">
+                    <div className="text-[var(--color-muted)] text-[11px]">
                       <strong>संबद्ध चालक:</strong> {curDrv ? `${curDrv.name} (${curDrv.phone})` : 'कोई नहीं'}
                     </div>
                   </div>
@@ -2361,15 +2361,15 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                     }}
                     className={`p-3 rounded-xl border cursor-pointer transition-all ${
                       transferAction === 'move_to_pool'
-                        ? 'bg-indigo-50 border-indigo-400 ring-2 ring-indigo-200'
+                        ? 'bg-teal-50 border-teal-400 ring-2 ring-teal-200'
                         : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <div className="flex items-center gap-1.5 font-bold text-indigo-800 text-xs">
-                      <Building2 className="w-4 h-4 text-indigo-600" />
+                    <div className="flex items-center gap-1.5 font-bold text-teal-800 text-xs">
+                      <Building2 className="w-4 h-4 text-teal-700" />
                       <span>स्टैंडबाय पूल में डालें</span>
                     </div>
-                    <p className="text-[11px] text-indigo-700 mt-1">
+                    <p className="text-[11px] text-teal-800 mt-1">
                       टेंडर के रिजर्व पूल में गाड़ी रखें ताकि आवश्यकता पड़ने पर इस्तेमाल हो
                     </p>
                   </div>
@@ -2614,13 +2614,13 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                   <PlayCircle className="w-5 h-5 text-emerald-600" />
                   <span>बंद गाड़ी पुनः शुरू करें (Reactivate Vehicle)</span>
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-[var(--color-muted)] mt-0.5">
                   नवीन अधिकारी की तैनाती उपरांत गाड़ी को पुनः सक्रिय व ड्यूटी पर लगाएं
                 </p>
               </div>
               <button
                 onClick={() => setIsReactivateModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -2852,7 +2852,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
               </h3>
               <button
                 onClick={() => setIsAddOfficerModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -2882,14 +2882,14 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setOfficerFormData({ ...officerFormData, officerCode: generateOfficerUniqueId(officers) })}
-                    className="px-3 py-2 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold shrink-0 flex items-center gap-1 shadow-2xs transition-colors"
+                    className="btn btn-success !text-xs shrink-0"
                     title="नया यूनिक कोड पुनः जनरेट करें"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>नया कोड</span>
                   </button>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1.5 leading-tight">
+                <p className="text-[10px] text-[var(--color-muted)] mt-1.5 leading-tight">
                   यह अद्वितीय अधिकारी कोड लॉगबुक, टेंडर अलॉटमेंट, बिलिंग और तबादला हिस्ट्री पर हमेशा दर्ज रहेगा।
                 </p>
               </div>
@@ -3068,7 +3068,7 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold shadow-xs flex items-center gap-1.5 transition-colors"
+                  className="btn btn-success !text-xs"
                 >
                   <Briefcase className="w-4 h-4" />
                   अधिकारी सुरक्षित करें (Save Officer)

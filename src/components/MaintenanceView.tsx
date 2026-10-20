@@ -82,10 +82,10 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
       <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Wrench className="w-5 h-5 text-indigo-600" />
+            <Wrench className="w-5 h-5 text-[var(--color-copper)]" />
             <span>Monthly Fleet Maintenance &amp; Repairs &bull; मेंटेनेंस व सर्विस रिपोर्ट</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-[var(--color-muted)] mt-1">
             गाड़ियों की सर्विसिंग, इंजन ऑयल, टायर, एसी रिपेयर व आरटीओ पासिंग खर्चों का संपूर्ण हिसाब
           </p>
         </div>
@@ -93,7 +93,7 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
+            className="px-3.5 py-2 bg-[var(--color-ink)] hover:bg-[var(--color-ink-soft)] text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
           >
             <Plus className="w-4 h-4" />
             + Add Service Record (सर्विस / रिपेयर दर्ज करें)
@@ -118,7 +118,7 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
               <div className="flex items-start justify-between">
                 <div>
                   <div className="font-mono font-bold text-sm text-slate-900">{v.vehicleNumber}</div>
-                  <div className="text-[11px] text-slate-500">{v.makeModel}</div>
+                  <div className="text-[11px] text-[var(--color-muted)]">{v.makeModel}</div>
                 </div>
                 <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded font-mono">
                   {v.currentOdometer.toLocaleString()} KM
@@ -137,7 +137,7 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
               </div>
 
               {lastService?.nextServiceDueKm && (
-                <div className="text-[11px] text-indigo-700 font-medium flex items-center justify-between pt-1">
+                <div className="text-[11px] text-[var(--color-copper)] font-medium flex items-center justify-between pt-1">
                   <span>Next Due At:</span>
                   <span className="font-mono font-bold">
                     {lastService.nextServiceDueKm.toLocaleString()} KM
@@ -156,13 +156,13 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
             <h4 className="font-bold text-sm text-slate-900">
               Maintenance History &amp; Garage Invoices
             </h4>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[var(--color-muted)]">
               सभी सर्विस बिल, बदले गए पुर्जे व वर्कशॉप का विवरण
             </p>
           </div>
 
           <div className="flex items-center gap-2 text-xs">
-            <label className="text-slate-500">Filter Vehicle:</label>
+            <label className="text-[var(--color-muted)]">Filter Vehicle:</label>
             <select
               value={selectedVehicleId}
               onChange={(e) => setSelectedVehicleId(e.target.value)}
@@ -205,7 +205,7 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
                 <tr key={rec.id} className="hover:bg-slate-50/70">
                   <td className="py-2.5 px-3 whitespace-nowrap">
                     <div className="font-semibold text-slate-900">{formatDate(rec.date)}</div>
-                    <div className="text-[10px] font-mono text-slate-500">{rec.invoiceNumber || '-'}</div>
+                    <div className="text-[10px] font-mono text-[var(--color-muted)]">{rec.invoiceNumber || '-'}</div>
                   </td>
 
                   <td className="py-2.5 px-3 font-mono font-bold text-slate-900">
@@ -225,7 +225,7 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
                   <td className="py-2.5 px-3 max-w-xs">
                     <div className="font-medium text-slate-900">{rec.description}</div>
                     {rec.partsReplaced && (
-                      <div className="text-[11px] text-slate-500 mt-0.5 truncate" title={rec.partsReplaced}>
+                      <div className="text-[11px] text-[var(--color-muted)] mt-0.5 truncate" title={rec.partsReplaced}>
                         Parts: {rec.partsReplaced}
                       </div>
                     )}
@@ -251,12 +251,12 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
           <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Wrench className="w-5 h-5 text-indigo-600" />
+                <Wrench className="w-5 h-5 text-[var(--color-copper)]" />
                 <span>Add Maintenance / Repair Record (सर्विस खर्च दर्ज करें)</span>
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -436,7 +436,7 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="px-5 py-2 bg-[var(--color-ink)] hover:bg-[var(--color-ink-soft)] text-white rounded-lg font-semibold shadow-xs"
                 >
                   Save Service Record
                 </button>

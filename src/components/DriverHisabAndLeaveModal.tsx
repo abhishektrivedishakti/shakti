@@ -491,147 +491,142 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
   const [showPrintSlip, setShowPrintSlip] = useState(false);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in duration-200">
-        
-        {/* MODAL HEADER WITH CONTEXT INDICATORS */}
-        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-5 flex-shrink-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-xs sm:p-5">
+      <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-2xl">
+        {/* Header */}
+        <div className="shrink-0 border-b border-white/10 bg-[var(--color-ink)] p-4 text-white sm:p-5">
           <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                  <IndianRupee className="w-3.5 h-3.5" />
+            <div className="min-w-0">
+              <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                <span className="page-kicker !text-teal-300">
+                  <IndianRupee className="h-3.5 w-3.5" />
                   चालक हिसाब, भुगतान व छुट्टी-बदली हब
                 </span>
-                <span className="text-xs text-slate-400">
-                  (Single-Window Contextual Entry)
-                </span>
+                <span className="badge badge-neutral !bg-white/10 !text-white/55">Single-Window Contextual Entry</span>
               </div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <h2 className="flex flex-wrap items-center gap-2 font-[family-name:var(--font-display)] text-xl font-bold tracking-tight">
                 <span>{selectedDriver?.name || 'चालक चुनें'}</span>
-                <span className="text-sm font-normal text-slate-300 bg-white/10 px-2 py-0.5 rounded">
+                <span className="rounded-lg bg-white/10 px-2 py-0.5 text-sm font-medium text-teal-200">
                   मासिक मूल वेतन: {formatCurrency(selectedDriver?.monthlySalary || 16500)}
                 </span>
               </h2>
-              <div className="flex items-center gap-3 text-xs text-slate-300 mt-2 flex-wrap">
-                <span className="flex items-center gap-1 bg-slate-800/80 px-2 py-1 rounded border border-slate-700">
-                  <Car className="w-3.5 h-3.5 text-amber-400" />
-                  <strong>गाड़ी:</strong> {selectedVehicle?.vehicleNumber || 'अनावंटित'} ({selectedVehicle?.makeModel || 'Model'})
+              <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs text-white/70">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1">
+                  <Car className="h-3.5 w-3.5 text-teal-300" />
+                  <strong className="text-white/90">वाहन</strong>
+                  {selectedVehicle?.vehicleNumber || 'असाइन नहीं'}
+                  {selectedVehicle?.makeModel ? ` · ${selectedVehicle.makeModel}` : ''}
                 </span>
-                <span className="flex items-center gap-1 bg-slate-800/80 px-2 py-1 rounded border border-slate-700">
-                  <UserCheck className="w-3.5 h-3.5 text-cyan-400" />
-                  <strong>अधिकारी:</strong> {selectedOfficer?.name || 'पद रिक्त / सामान्य'} ({selectedOfficer?.designation || 'Dept'})
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1">
+                  <UserCheck className="h-3.5 w-3.5 text-teal-300" />
+                  <strong className="text-white/90">अधिकारी</strong>
+                  {selectedOfficer?.name || 'रिक्त'}
+                  {selectedOfficer?.designation ? ` · ${selectedOfficer.designation}` : ''}
                 </span>
-                <span className="flex items-center gap-1 bg-slate-800/80 px-2 py-1 rounded border border-slate-700">
-                  <Building2 className="w-3.5 h-3.5 text-indigo-400" />
-                  <strong>टेंडर:</strong> {selectedTender?.departmentName || 'सामान्य फ्लीट'}
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1">
+                  <Building2 className="h-3.5 w-3.5 text-teal-300" />
+                  <strong className="text-white/90">टेंडर</strong>
+                  {selectedTender?.departmentName || 'सामान्य फ्लीट'}
                 </span>
               </div>
             </div>
 
             <button
+              type="button"
               onClick={onClose}
-              className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+              className="rounded-lg bg-white/10 p-1.5 text-white/55 transition-colors hover:bg-white/15 hover:text-white"
             >
-              <X className="w-6 h-6" />
+              <X className="h-5 w-5" />
             </button>
           </div>
 
-          {/* Quick Selectors bar if user wants to switch vehicle/driver inside the same tender */}
-          <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between gap-3 flex-wrap text-xs">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-slate-400 font-medium">वाहन बदलें:</span>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3 text-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-white/45">वाहन बदलें</span>
               <select
                 value={selectedVehicleId}
                 onChange={(e) => handleVehicleChange(e.target.value)}
-                className="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-indigo-400 focus:outline-none"
+                className="rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-teal-500/40"
               >
                 {vehicles.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.vehicleNumber} - {v.makeModel} {v.assignedOfficerId ? `(${officers.find(o => o.id === v.assignedOfficerId)?.name})` : ''}
+                  <option key={v.id} value={v.id} className="text-slate-900">
+                    {v.vehicleNumber} - {v.makeModel}
+                    {v.assignedOfficerId ? ` (${officers.find((o) => o.id === v.assignedOfficerId)?.name})` : ''}
                   </option>
                 ))}
               </select>
 
-              <span className="text-slate-400 font-medium ml-2">चालक बदलें:</span>
+              <span className="ml-1 text-white/45">चालक बदलें</span>
               <select
                 value={selectedDriverId}
                 onChange={(e) => setSelectedDriverId(e.target.value)}
-                className="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-indigo-400 focus:outline-none"
+                className="rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-teal-500/40"
               >
                 {drivers.map((d) => (
-                  <option key={d.id} value={d.id}>
+                  <option key={d.id} value={d.id} className="text-slate-900">
                     {d.name} ({formatCurrency(d.monthlySalary)}/माह) - {d.phone}
                   </option>
                 ))}
               </select>
             </div>
 
-            <div className="text-slate-300">
-              संपर्क: <strong>{selectedDriver?.phone || 'N/A'}</strong> | ज्वाइनिंग:{' '}
-              {selectedDriver?.joiningDate ? formatDate(selectedDriver.joiningDate) : '2026-01-01'}
+            <div className="text-white/55">
+              संपर्क <strong className="text-white/85">{selectedDriver?.phone || 'N/A'}</strong>
+              {' · '}
+              जॉइनिंग {selectedDriver?.joiningDate ? formatDate(selectedDriver.joiningDate) : '—'}
             </div>
           </div>
         </div>
 
-        {/* TAB NAVIGATION STRIP */}
-        <div className="bg-slate-50 border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between gap-2 overflow-x-auto">
-          <div className="flex space-x-1 sm:space-x-2 py-2">
+        {/* Tabs */}
+        <div className="shrink-0 border-b border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2.5 sm:px-5">
+          <div className="segmented overflow-x-auto scrollbar-none">
             <button
+              type="button"
               onClick={() => setActiveTab('payments')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-                activeTab === 'payments'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
-              }`}
+              className={`segmented-btn inline-flex items-center gap-2 ${activeTab === 'payments' ? 'is-active' : ''}`}
             >
-              <IndianRupee className="w-4 h-4" />
-              <span>💰 चालक को भुगतान व पिछला हिसाब</span>
-              <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeTab === 'payments' ? 'bg-indigo-700 text-white' : 'bg-slate-200 text-slate-700'}`}>
+              <IndianRupee className="h-4 w-4" />
+              चालक को भुगतान व पिछला हिसाब
+              <span
+                className={`rounded-full px-1.5 py-0.5 font-mono text-[10px] font-bold ${
+                  activeTab === 'payments' ? 'bg-teal-700 text-white' : 'bg-[var(--color-sand-deep)] text-[var(--color-ink-soft)]'
+                }`}
+              >
                 {driverTransactions.length}
               </span>
             </button>
-
             <button
+              type="button"
               onClick={() => setActiveTab('leaves')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-                activeTab === 'leaves'
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
-              }`}
+              className={`segmented-btn inline-flex items-center gap-2 ${activeTab === 'leaves' ? 'is-active' : ''}`}
             >
-              <Calendar className="w-4 h-4" />
-              <span>🗓️ छुट्टी व बदली ड्राइवर ("उस दिन का हिसाब")</span>
-              <span className={`px-1.5 py-0.2 rounded-full text-xs ${activeTab === 'leaves' ? 'bg-amber-700 text-white' : 'bg-slate-200 text-slate-700'}`}>
+              <Calendar className="h-4 w-4" />
+              छुट्टी व बदली ड्राइवर
+              <span
+                className={`rounded-full px-1.5 py-0.5 font-mono text-[10px] font-bold ${
+                  activeTab === 'leaves' ? 'bg-teal-700 text-white' : 'bg-[var(--color-sand-deep)] text-[var(--color-ink-soft)]'
+                }`}
+              >
                 {driverLeavesList.length}
               </span>
             </button>
-
             <button
+              type="button"
               onClick={() => setActiveTab('monthly_hisab')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-                activeTab === 'monthly_hisab'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
-              }`}
+              className={`segmented-btn inline-flex items-center gap-2 ${activeTab === 'monthly_hisab' ? 'is-active' : ''}`}
             >
-              <FileText className="w-4 h-4" />
-              <span>📊 मासिक हिसाब-किताब व पर्ची</span>
+              <FileText className="h-4 w-4" />
+              मासिक हिसाब-किताब व पर्ची
               {remainingDueToDriver > 0 && (
-                <span className="px-1.5 py-0.5 rounded-full text-xs bg-rose-500 text-white font-bold animate-pulse">
-                  देय: ₹{remainingDueToDriver}
-                </span>
+                <span className="badge badge-danger">Due: ₹{remainingDueToDriver}</span>
               )}
             </button>
           </div>
-
-          <div className="hidden sm:flex items-center text-xs text-slate-500">
-            <span>✨ टेंडर व अधिकारी में रहते हुए तुरंत एंट्री</span>
-          </div>
         </div>
 
-        {/* MODAL MAIN CONTENT */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50">
+        {/* Content */}
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--color-sand)]/70 p-4 sm:p-6">
 
           {/* ============================================================== */}
           {/* TAB 1: PAYMENTS & PAST RECORD ENTRY */}
@@ -639,34 +634,31 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
           {activeTab === 'payments' && (
             <div className="space-y-6">
               {paymentSuccessMsg && (
-                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-sm flex items-center gap-2 animate-in fade-in">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-                  <span>{paymentSuccessMsg}</span>
+                <div className="alert-banner">
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-[var(--color-success)]" />
+                  <span className="text-sm font-semibold text-[var(--color-ink)]">{paymentSuccessMsg}</span>
                 </div>
               )}
 
               {/* RECORD PAYMENT FORM CARD */}
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+              <div className="panel panel-pad">
+                <div className="mb-4 flex flex-col gap-2 border-b border-[var(--color-line)] pb-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="font-bold text-slate-800 text-base flex items-center gap-2">
-                      <Plus className="w-4 h-4 text-indigo-600" />
-                      <span>चालक को भुगतान / पिछला रिकॉर्ड दर्ज करें</span>
+                    <h3 className="flex items-center gap-2 font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-ink)]">
+                      <Plus className="h-4 w-4 text-teal-700" />
+                      + चालक को भुगतान / पिछला रिकॉर्ड दर्ज करें
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      (यदि आपने पहले कभी भी ड्राइवर को किसी भी चीज़ के लिए पैसा दिया हो, तो पिछली तारीख चुनकर तुरंत हिसाब में जोड़ें)
+                    <p className="mt-0.5 text-xs text-[var(--color-muted)]">
+                      चालक के खाते में नया या पिछली तारीख का भुगतान जोड़ें।
                     </p>
                   </div>
-                  <span className="text-xs bg-indigo-50 text-indigo-700 font-medium px-2.5 py-1 rounded-full border border-indigo-100">
-                    चालक: {selectedDriver?.name}
-                  </span>
+                  <span className="badge badge-neutral">चालक: {selectedDriver?.name}</span>
                 </div>
 
                 <form onSubmit={handleSavePayment} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {/* Date */}
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                         भुगतान तारीख (Date) *
                       </label>
                       <input
@@ -674,14 +666,13 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                         required
                         value={paymentDate}
                         onChange={(e) => setPaymentDate(e.target.value)}
-                        className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                       />
-                      <span className="text-[11px] text-slate-400">पिछली तारीख भी चुन सकते हैं</span>
+                      <span className="text-[11px] text-[var(--color-muted)]">पिछली तारीख भी चुन सकते हैं</span>
                     </div>
 
-                    {/* Category / Reason ("Kis cheez ke liye") */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                         किस चीज़ के लिए दिया? (Purpose / Reason) *
                       </label>
                       <select
@@ -692,7 +683,7 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                           const opt = paymentCategoryOptions.find((o) => o.value === cat);
                           if (opt) setPaymentDesc(opt.label);
                         }}
-                        className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-medium"
+                        className="w-full rounded-lg border border-[var(--color-line)] bg-white p-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                       >
                         {paymentCategoryOptions.map((opt) => (
                           <option key={opt.value} value={opt.value}>
@@ -702,13 +693,12 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                       </select>
                     </div>
 
-                    {/* Amount */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                         दी गई राशि (Amount ₹) *
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400 font-bold">₹</span>
+                        <span className="absolute left-3 top-2.5 font-bold text-[var(--color-muted)]">₹</span>
                         <input
                           type="number"
                           required
@@ -716,32 +706,30 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                           placeholder="2000"
                           value={paymentAmount}
                           onChange={(e) => setPaymentAmount(e.target.value ? Number(e.target.value) : '')}
-                          className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 pl-7 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 pl-7 text-xs font-bold text-[var(--color-ink)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                         />
                       </div>
                     </div>
 
-                    {/* Payment Mode */}
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                         भुगतान का माध्यम (Mode) *
                       </label>
                       <select
                         value={paymentMode}
                         onChange={(e) => setPaymentMode(e.target.value as any)}
-                        className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
+                        className="w-full rounded-lg border border-[var(--color-line)] bg-white p-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                       >
-                        <option value="cash">💵 नकद (Cash)</option>
-                        <option value="upi">📱 UPI / PhonePe / GPay</option>
-                        <option value="bank_transfer">🏦 बैंक ट्रांसफर / NEFT</option>
+                        <option value="cash">नकद (Cash)</option>
+                        <option value="upi">UPI / PhonePe / GPay</option>
+                        <option value="bank_transfer">बैंक ट्रांसफर / NEFT</option>
                       </select>
                     </div>
                   </div>
 
-                  {/* Description & Reference */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                  <div className="grid grid-cols-1 gap-4 pt-1 sm:grid-cols-3">
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                         विवरण / टिप्पणी (Details / Notes)
                       </label>
                       <input
@@ -749,17 +737,16 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                         value={paymentDesc}
                         onChange={(e) => setPaymentDesc(e.target.value)}
                         placeholder="जैसे: त्योहार अग्रिम, रास्ते का खाना-खर्चा, या पूर्ण वेतन चुकता"
-                        className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                       />
-                      {/* Quick chips */}
-                      <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
-                        <span className="text-[11px] text-slate-400">त्वरित विवरण:</span>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                        <span className="text-[11px] text-[var(--color-muted)]">त्वरित विवरण:</span>
                         {quickDescriptions.map((desc, idx) => (
                           <button
                             key={idx}
                             type="button"
                             onClick={() => setPaymentDesc(desc)}
-                            className="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-0.5 rounded border border-slate-200 transition-colors"
+                            className="rounded-md border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-2 py-0.5 text-[11px] text-[var(--color-ink)] transition-colors hover:border-teal-600/40 hover:bg-teal-50"
                           >
                             {desc}
                           </button>
@@ -768,7 +755,7 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                         UTR / ट्रांजैक्शन संदर्भ # (वैकल्पिक)
                       </label>
                       <input
@@ -776,76 +763,71 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                         value={paymentRef}
                         onChange={(e) => setPaymentRef(e.target.value)}
                         placeholder="e.g. UPI-9218204 or Cash Receipt"
-                        className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                       />
                     </div>
                   </div>
 
-                  {/* Submit Button */}
-                  <div className="pt-2 flex items-center justify-between flex-wrap gap-3">
-                    <div className="text-xs text-slate-500 flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                    <div className="flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
+                      <CheckCircle2 className="h-4 w-4 text-teal-600" />
                       <span>यह भुगतान चालक के खाते व मुख्य डेली पेमेंट जर्नल दोनों में स्वतः दर्ज हो जाएगा।</span>
                     </div>
 
-                    <button
-                      type="submit"
-                      className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>भुगतान दर्ज करें (Save Payment)</span>
+                    <button type="submit" className="btn btn-primary">
+                      <Plus className="h-4 w-4" />
+                      + भुगतान दर्ज करें (Save Payment)
                     </button>
                   </div>
                 </form>
               </div>
 
-              {/* PAYMENT HISTORY FOR THIS DRIVER */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-                <div className="p-4 border-b border-slate-200 flex items-center justify-between gap-4 flex-wrap bg-slate-50/70">
-                  <div className="flex items-center gap-2">
-                    <IndianRupee className="w-4 h-4 text-slate-600" />
-                    <h3 className="font-bold text-slate-800 text-sm">
+              {/* PAYMENT HISTORY */}
+              <div className="panel overflow-hidden">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-line)] bg-[var(--color-surface-muted)] p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <IndianRupee className="h-4 w-4 text-teal-700" />
+                    <h3 className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--color-ink)]">
                       {selectedDriver?.name} को अब तक दिए गए भुगतानों का इतिहास
                     </h3>
-                    <span className="text-xs text-slate-500 font-normal">
+                    <span className="text-xs text-[var(--color-muted)]">
                       (कुल {filteredTransactions.length} एंट्रियां)
                     </span>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-slate-600">माह चुनें:</span>
+                    <span className="text-xs text-[var(--color-muted)]">माह चुनें:</span>
                     <input
                       type="month"
                       value={filterMonthPayHistory === 'all' ? '' : filterMonthPayHistory}
                       onChange={(e) => setFilterMonthPayHistory(e.target.value || 'all')}
-                      className="text-xs border border-slate-300 rounded-lg p-1.5 focus:ring-1 focus:ring-indigo-500 bg-white"
+                      className="rounded-lg border border-[var(--color-line)] bg-white p-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                     />
                     {filterMonthPayHistory !== 'all' && (
                       <button
+                        type="button"
                         onClick={() => setFilterMonthPayHistory('all')}
-                        className="text-xs text-indigo-600 hover:underline"
+                        className="text-xs font-semibold text-teal-700 hover:underline"
                       >
                         सभी देखें
                       </button>
                     )}
-                    <span className="bg-emerald-100 text-emerald-800 font-bold text-xs px-2.5 py-1 rounded-lg border border-emerald-200">
+                    <span className="badge badge-success">
                       कुल दिया: ₹{totalFilteredPaid.toLocaleString('en-IN')}
                     </span>
                   </div>
                 </div>
 
                 {filteredTransactions.length === 0 ? (
-                  <div className="text-center py-12 text-slate-400">
-                    <IndianRupee className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm font-medium">इस चालक के लिए कोई पिछला भुगतान रिकॉर्ड नहीं मिला।</p>
-                    <p className="text-xs text-slate-400 mt-1">
-                      ऊपर दिए गए फॉर्म से पुराना या नया भुगतान दर्ज करें।
-                    </p>
+                  <div className="px-4 py-12 text-center text-[var(--color-muted)]">
+                    <IndianRupee className="mx-auto mb-2 h-10 w-10 opacity-30" />
+                    <p className="text-sm font-medium text-[var(--color-ink)]">इस चालक के लिए कोई पिछला भुगतान रिकॉर्ड नहीं मिला।</p>
+                    <p className="mt-1 text-xs">ऊपर दिए गए फॉर्म से पुराना या नया भुगतान दर्ज करें।</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs sm:text-sm">
-                      <thead className="bg-slate-100/70 text-slate-700 text-xs uppercase font-bold border-b border-slate-200">
+                      <thead className="border-b border-[var(--color-line)] bg-[var(--color-surface-muted)] text-[11px] font-bold uppercase tracking-wide text-[var(--color-muted)]">
                         <tr>
                           <th className="p-3">तारीख (Date)</th>
                           <th className="p-3">किस चीज़ के लिए (Purpose)</th>
@@ -855,26 +837,26 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                           <th className="p-3 text-center">कार्रवाई</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-200 text-slate-700">
+                      <tbody className="divide-y divide-[var(--color-line)] text-[var(--color-ink)]">
                         {filteredTransactions.map((tx) => {
                           const isPenalty = tx.type === 'penalty_deduction';
                           const isSalary = tx.type === 'salary_payment';
                           return (
-                            <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
-                              <td className="p-3 font-medium whitespace-nowrap text-slate-900">
+                            <tr key={tx.id} className="transition-colors hover:bg-[var(--color-surface-muted)]">
+                              <td className="whitespace-nowrap p-3 font-medium">
                                 {formatDate(tx.date)}
                               </td>
                               <td className="p-3">
                                 <span
-                                  className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${
+                                  className={
                                     isSalary
-                                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                      ? 'badge badge-success'
                                       : isPenalty
-                                      ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                                      ? 'badge badge-danger'
                                       : tx.type === 'trip_expense' || tx.type === 'da_food_expense'
-                                      ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                                      : 'bg-amber-100 text-amber-800 border border-amber-200'
-                                  }`}
+                                      ? 'badge badge-info'
+                                      : 'badge badge-warning'
+                                  }
                                 >
                                   {tx.type === 'salary_payment'
                                     ? 'मासिक वेतन'
@@ -893,20 +875,20 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                                     : 'अग्रिम/व्यय'}
                                 </span>
                               </td>
-                              <td className="p-3 uppercase text-xs font-semibold text-slate-500 whitespace-nowrap">
+                              <td className="whitespace-nowrap p-3 text-xs font-semibold uppercase text-[var(--color-muted)]">
                                 {tx.paymentMode} {tx.referenceNumber ? `(${tx.referenceNumber})` : ''}
                               </td>
-                              <td className="p-3 text-slate-600 max-w-xs truncate">
+                              <td className="max-w-xs truncate p-3 text-[var(--color-muted)]">
                                 {tx.description || '-'}
                                 {tx.vehicleNumber && (
-                                  <span className="text-[10px] text-slate-400 block">
+                                  <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">
                                     वाहन: {tx.vehicleNumber}
                                   </span>
                                 )}
                               </td>
                               <td
-                                className={`p-3 text-right font-bold whitespace-nowrap ${
-                                  isPenalty ? 'text-rose-600' : 'text-slate-900'
+                                className={`whitespace-nowrap p-3 text-right font-bold ${
+                                  isPenalty ? 'text-[var(--color-danger)]' : 'text-[var(--color-ink)]'
                                 }`}
                               >
                                 {isPenalty ? `-₹${tx.amount.toLocaleString('en-IN')}` : `₹${tx.amount.toLocaleString('en-IN')}`}
@@ -914,11 +896,12 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                               <td className="p-3 text-center">
                                 {onDeleteTransaction && (
                                   <button
+                                    type="button"
                                     onClick={() => onDeleteTransaction(tx.id)}
                                     title="हटाएं"
-                                    className="text-slate-400 hover:text-rose-600 p-1 rounded hover:bg-slate-100 transition-colors"
+                                    className="rounded p-1 text-[var(--color-muted)] transition-colors hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)]"
                                   >
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <Trash2 className="h-3.5 w-3.5" />
                                   </button>
                                 )}
                               </td>
@@ -939,34 +922,33 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
           {activeTab === 'leaves' && (
             <div className="space-y-6">
               {leaveSuccessMsg && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm flex items-center gap-2 animate-in fade-in">
-                  <CheckCircle2 className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                  <span>{leaveSuccessMsg}</span>
+                <div className="alert-banner">
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-[var(--color-success)]" />
+                  <span className="text-sm font-semibold text-[var(--color-ink)]">{leaveSuccessMsg}</span>
                 </div>
               )}
 
               {/* RECORD LEAVE & SUBSTITUTE FORM CARD */}
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+              <div className="panel panel-pad">
+                <div className="mb-4 flex flex-col gap-2 border-b border-[var(--color-line)] pb-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="font-bold text-slate-800 text-base flex items-center gap-2">
-                      <UserX className="w-4 h-4 text-amber-600" />
+                    <h3 className="flex items-center gap-2 font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-ink)]">
+                      <UserX className="h-4 w-4 text-teal-700" />
                       <span>चालक छुट्टी व बदली ड्राइवर दर्ज करें ("उस दिन का हिसाब व कौन गया")</span>
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="mt-0.5 text-xs text-[var(--color-muted)]">
                       ड्राइवर ने कब छुट्टी ली, उसकी जगह बदली में कौन गया, और उस दिन का क्या हिसाब (वेतन कटौती / बदली भुगतान) रहा।
                     </p>
                   </div>
-                  <span className="text-xs bg-amber-50 text-amber-700 font-semibold px-2.5 py-1 rounded-full border border-amber-200">
+                  <span className="badge badge-neutral">
                     मुख्य चालक: {selectedDriver?.name}
                   </span>
                 </div>
 
                 <form onSubmit={handleSaveLeaveRecord} className="space-y-4">
-                  {/* Dates & Duration */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                         छुट्टी प्रारंभ तारीख (From Date) *
                       </label>
                       <input
@@ -974,12 +956,12 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                         required
                         value={leaveStartDate}
                         onChange={(e) => handleStartDateChange(e.target.value)}
-                        className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                        className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                         छुट्टी समाप्ति तारीख (To Date) *
                       </label>
                       <input
@@ -987,12 +969,12 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                         required
                         value={leaveEndDate}
                         onChange={(e) => handleEndDateChange(e.target.value)}
-                        className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                        className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                         कुल अनुपस्थित दिन (Total Days) *
                       </label>
                       <div className="relative">
@@ -1006,30 +988,29 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                             setLeaveTotalDays(d);
                             updateDeductionEstimate(d);
                           }}
-                          className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 font-bold text-slate-900 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                          className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-xs font-bold text-[var(--color-ink)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                         />
-                        <span className="absolute right-3 top-2.5 text-xs text-slate-400">दिन</span>
+                        <span className="absolute right-3 top-2.5 text-xs text-[var(--color-muted)]">दिन</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Reason for Leave */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                       छुट्टी का कारण (Reason for Absence) *
                     </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <select
                         value={leaveReason}
                         onChange={(e) => setLeaveReason(e.target.value)}
-                        className="text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white font-medium"
+                        className="rounded-lg border border-[var(--color-line)] bg-white p-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                       >
-                        <option value="बीमारी / स्वास्थ्य अवकाश">🏥 बीमारी / स्वास्थ्य अवकाश (Sick Leave)</option>
-                        <option value="घरेलू / पारिवारिक कार्य">🏠 घरेलू / पारिवारिक कार्य (Personal Work)</option>
-                        <option value="शादी / समारोह में गए">🎉 शादी / मांगलिक समारोह (Wedding/Function)</option>
-                        <option value="गांव प्रस्थान / आवश्यक कार्य">🌾 गांव गए हैं (Native Village Visit)</option>
-                        <option value="बिना पूर्व सूचना अनुपस्थित">⚠️ बिना पूर्व सूचना अनुपस्थित (Absent without info)</option>
-                        <option value="अधिकारी द्वारा अधिकृत अवकाश">📋 अधिकारी द्वारा स्वीकृत अवकाश (Sanctioned Leave)</option>
+                        <option value="बीमारी / स्वास्थ्य अवकाश">बीमारी / स्वास्थ्य अवकाश (Sick Leave)</option>
+                        <option value="घरेलू / पारिवारिक कार्य">घरेलू / पारिवारिक कार्य (Personal Work)</option>
+                        <option value="शादी / समारोह में गए">शादी / मांगलिक समारोह (Wedding/Function)</option>
+                        <option value="गांव प्रस्थान / आवश्यक कार्य">गांव गए हैं (Native Village Visit)</option>
+                        <option value="बिना पूर्व सूचना अनुपस्थित">बिना पूर्व सूचना अनुपस्थित (Absent without info)</option>
+                        <option value="अधिकारी द्वारा अधिकृत अवकाश">अधिकारी द्वारा स्वीकृत अवकाश (Sanctioned Leave)</option>
                         <option value="अन्य कारण">अन्य कारण (Other)</option>
                       </select>
 
@@ -1038,21 +1019,21 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                         value={leaveNotes}
                         onChange={(e) => setLeaveNotes(e.target.value)}
                         placeholder="विस्तृत टिप्पणी (जैसे: 2 दिन के लिए भाई की शादी में गए हैं)"
-                        className="text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                        className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                       />
                     </div>
                   </div>
 
-                  {/* "USKI JAGAH KAUN GAYA" - SUBSTITUTE DRIVER SECTION */}
-                  <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4 space-y-3">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <span className="text-xs font-bold text-amber-900 uppercase tracking-wide flex items-center gap-1.5">
-                        <ArrowRightLeft className="w-4 h-4 text-amber-700" />
+                  {/* Substitute driver */}
+                  <div className="space-y-3 rounded-xl border border-teal-200/70 bg-teal-50/50 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-teal-900">
+                        <ArrowRightLeft className="h-4 w-4 text-teal-700" />
                         <span>उसकी जगह कौन गया? (बदली ड्राइवर / Substitute Deployment)</span>
                       </span>
 
-                      <div className="flex items-center gap-4 text-xs">
-                        <label className="flex items-center gap-1.5 cursor-pointer font-medium text-slate-800">
+                      <div className="flex flex-wrap items-center gap-4 text-xs">
+                        <label className="flex cursor-pointer items-center gap-1.5 font-medium text-[var(--color-ink)]">
                           <input
                             type="radio"
                             name="subType"
@@ -1061,12 +1042,12 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                               setHasSubstitute(true);
                               setSubstituteType('registered_driver');
                             }}
-                            className="text-amber-600 focus:ring-amber-500"
+                            className="text-teal-600 focus:ring-teal-500"
                           />
                           <span>कंपनी का रजिस्टर्ड ड्राइवर</span>
                         </label>
 
-                        <label className="flex items-center gap-1.5 cursor-pointer font-medium text-slate-800">
+                        <label className="flex cursor-pointer items-center gap-1.5 font-medium text-[var(--color-ink)]">
                           <input
                             type="radio"
                             name="subType"
@@ -1075,12 +1056,12 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                               setHasSubstitute(true);
                               setSubstituteType('temporary_driver');
                             }}
-                            className="text-amber-600 focus:ring-amber-500"
+                            className="text-teal-600 focus:ring-teal-500"
                           />
                           <span>अस्थायी / बाहरी बदली चालक</span>
                         </label>
 
-                        <label className="flex items-center gap-1.5 cursor-pointer font-medium text-slate-500">
+                        <label className="flex cursor-pointer items-center gap-1.5 font-medium text-[var(--color-muted)]">
                           <input
                             type="radio"
                             name="subType"
@@ -1089,25 +1070,24 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                               setHasSubstitute(false);
                               setSubstituteType('none');
                             }}
-                            className="text-slate-400 focus:ring-slate-400"
+                            className="text-[var(--color-muted)] focus:ring-teal-500"
                           />
                           <span>कोई नहीं (गाड़ी बंद / खड़ी रही)</span>
                         </label>
                       </div>
                     </div>
 
-                    {/* Sub driver inputs */}
                     {substituteType === 'registered_driver' && (
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                      <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-3">
                         <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                             बदली में गए चालक का चयन करें *
                           </label>
                           <select
                             required
                             value={substituteRegisteredDriverId}
                             onChange={(e) => setSubstituteRegisteredDriverId(e.target.value)}
-                            className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white font-medium"
+                            className="w-full rounded-lg border border-[var(--color-line)] bg-white p-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                           >
                             <option value="">-- ड्राइवर चुनें --</option>
                             {drivers
@@ -1121,7 +1101,7 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                             दैनिक बदली दर (Daily Rate ₹)
                           </label>
                           <input
@@ -1129,17 +1109,17 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                             min="0"
                             value={dailySubstitutePay}
                             onChange={(e) => setDailySubstitutePay(Number(e.target.value))}
-                            className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                            className="w-full rounded-lg border border-[var(--color-line)] bg-white p-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                             कुल देय बदली भुगतान
                           </label>
-                          <div className="p-2 bg-white rounded-lg border border-amber-300 font-bold text-amber-900 text-xs sm:text-sm">
+                          <div className="rounded-lg border border-teal-300 bg-white p-2 text-xs font-bold text-teal-900 sm:text-sm">
                             ₹{computedTotalSubstituteCost.toLocaleString('en-IN')}{' '}
-                            <span className="text-[11px] font-normal text-slate-500">
+                            <span className="text-[11px] font-normal text-[var(--color-muted)]">
                               ({leaveTotalDays} दिन x ₹{dailySubstitutePay})
                             </span>
                           </div>
@@ -1148,9 +1128,9 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                     )}
 
                     {substituteType === 'temporary_driver' && (
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                      <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-3">
                         <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                             अस्थायी बदली चालक का नाम *
                           </label>
                           <input
@@ -1159,12 +1139,12 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                             placeholder="e.g. मनोज कुमार / सोनू"
                             value={substituteTempName}
                             onChange={(e) => setSubstituteTempName(e.target.value)}
-                            className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                            className="w-full rounded-lg border border-[var(--color-line)] bg-white p-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                             मोबाइल नंबर
                           </label>
                           <input
@@ -1172,12 +1152,12 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                             placeholder="98390XXXXX"
                             value={substituteTempPhone}
                             onChange={(e) => setSubstituteTempPhone(e.target.value)}
-                            className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                            className="w-full rounded-lg border border-[var(--color-line)] bg-white p-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
                             दैनिक भुगतान दर (₹/दिन)
                           </label>
                           <input
@@ -1185,170 +1165,167 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                             min="0"
                             value={dailySubstitutePay}
                             onChange={(e) => setDailySubstitutePay(Number(e.target.value))}
-                            className="w-full text-xs sm:text-sm border border-slate-300 rounded-lg p-2 font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                            className="w-full rounded-lg border border-[var(--color-line)] bg-white p-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                           />
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {/* "USS DIN KA HISAB" - MAIN DRIVER DEDUCTION CALCULATION */}
-                  <div className="bg-slate-100 rounded-xl p-4 border border-slate-200">
-                    <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+                  {/* Main driver deduction */}
+                  <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-4">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4 text-slate-700" />
-                        <span className="text-xs font-bold text-slate-800">
+                        <DollarSign className="h-4 w-4 text-teal-700" />
+                        <span className="text-xs font-bold text-[var(--color-ink)]">
                           उस दिन का हिसाब (मुख्य चालक से वेतन कटौती)
                         </span>
                       </div>
 
-                      <label className="flex items-center gap-2 text-xs font-semibold text-slate-800 cursor-pointer">
+                      <label className="flex cursor-pointer items-center gap-2 text-xs font-semibold text-[var(--color-ink)]">
                         <input
                           type="checkbox"
                           checked={deductFromMainDriver}
                           onChange={(e) => setDeductFromMainDriver(e.target.checked)}
-                          className="rounded text-amber-600 focus:ring-amber-500 h-4 w-4"
+                          className="h-4 w-4 rounded text-teal-600 focus:ring-teal-500"
                         />
                         <span>मुख्य ड्राइवर के मासिक वेतन से कटेगा</span>
                       </label>
                     </div>
 
                     {deductFromMainDriver ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div className="bg-white p-2.5 rounded-lg border border-slate-200">
-                          <span className="text-[11px] text-slate-500 block">दैनिक वेतन दर (अनुमानित)</span>
-                          <span className="font-bold text-slate-800 text-sm">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <div className="rounded-lg border border-[var(--color-line)] bg-white p-2.5">
+                          <span className="block text-[11px] text-[var(--color-muted)]">दैनिक वेतन दर (अनुमानित)</span>
+                          <span className="text-sm font-bold text-[var(--color-ink)]">
                             ₹{Math.round((selectedDriver?.monthlySalary || 16500) / 30)} / दिन
                           </span>
-                          <span className="text-[10px] text-slate-400 block mt-0.5">
+                          <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">
                             (मूल वेतन ₹{selectedDriver?.monthlySalary} / 30 दिन)
                           </span>
                         </div>
 
-                        <div className="bg-white p-2.5 rounded-lg border border-slate-200">
-                          <span className="text-[11px] text-slate-500 block">कुल काटी जाने वाली राशि</span>
-                          <div className="flex items-center gap-1 mt-0.5">
-                            <span className="text-sm font-bold text-rose-600">₹</span>
+                        <div className="rounded-lg border border-[var(--color-line)] bg-white p-2.5">
+                          <span className="block text-[11px] text-[var(--color-muted)]">कुल काटी जाने वाली राशि</span>
+                          <div className="mt-0.5 flex items-center gap-1">
+                            <span className="text-sm font-bold text-[var(--color-danger)]">₹</span>
                             <input
                               type="number"
                               value={computedDeductionAmount}
                               onChange={(e) => setCustomDeductionAmount(e.target.value ? Number(e.target.value) : '')}
-                              className="w-28 text-sm font-bold text-rose-600 border border-slate-300 rounded p-1 focus:outline-none"
+                              className="w-28 rounded border border-[var(--color-line)] p-1 text-sm font-bold text-[var(--color-danger)] focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                             />
                           </div>
-                          <span className="text-[10px] text-slate-400 block mt-0.5">
+                          <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">
                             (ज़रूरत अनुसार बदल भी सकते हैं)
                           </span>
                         </div>
 
-                        <div className="bg-white p-2.5 rounded-lg border border-slate-200 flex flex-col justify-center">
-                          <span className="text-[11px] text-slate-500 block">अंतिम स्थिति</span>
-                          <span className="text-xs font-semibold text-slate-700">
+                        <div className="flex flex-col justify-center rounded-lg border border-[var(--color-line)] bg-white p-2.5">
+                          <span className="block text-[11px] text-[var(--color-muted)]">अंतिम स्थिति</span>
+                          <span className="text-xs font-semibold text-[var(--color-ink)]">
                             मासिक हिसाब में से ₹{computedDeductionAmount} स्वतः कम हो जाएगा।
                           </span>
                         </div>
                       </div>
                     ) : (
-                      <div className="p-2 bg-emerald-50 rounded-lg text-emerald-800 text-xs">
+                      <div className="rounded-lg bg-[var(--color-success-soft)] p-2 text-xs text-[var(--color-success)]">
                         वेतन कटौती बंद है (ड्राइवर को सवेतन अवकाश / पेड लीव माना जाएगा)।
                       </div>
                     )}
                   </div>
 
-                  {/* Submit Button */}
-                  <div className="pt-2 flex items-center justify-end">
-                    <button
-                      type="submit"
-                      className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>छुट्टी व बदली रिकॉर्ड दर्ज करें (Save Leave & Substitute)</span>
+                  <div className="flex items-center justify-end pt-2">
+                    <button type="submit" className="btn btn-primary">
+                      <Plus className="h-4 w-4" />
+                      छुट्टी व बदली रिकॉर्ड दर्ज करें (Save Leave & Substitute)
                     </button>
                   </div>
                 </form>
               </div>
 
               {/* LEAVE & SUBSTITUTE HISTORY LOG */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-                <div className="p-4 border-b border-slate-200 flex items-center justify-between gap-4 flex-wrap bg-slate-50/70">
+              <div className="panel overflow-hidden">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-line)] bg-[var(--color-surface-muted)] p-4">
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-amber-600" />
-                    <h3 className="font-bold text-slate-800 text-sm">
+                    <Calendar className="h-4 w-4 text-teal-700" />
+                    <h3 className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--color-ink)]">
                       {selectedDriver?.name} की छुट्टी व बदली ड्राइवर का पूरा रिकॉर्ड
                     </h3>
                   </div>
-                  <span className="text-xs bg-amber-100 text-amber-800 font-semibold px-2.5 py-0.5 rounded-full">
+                  <span className="badge badge-warning">
                     कुल छुट्टियां: {driverLeavesList.length} बार (
                     {driverLeavesList.reduce((s, l) => s + l.totalDays, 0)} दिन)
                   </span>
                 </div>
 
                 {driverLeavesList.length === 0 ? (
-                  <div className="text-center py-10 text-slate-400">
-                    <UserCheck className="w-10 h-10 mx-auto mb-2 opacity-30 text-emerald-500" />
-                    <p className="text-sm font-medium">इस चालक का कोई अवकाश या बदली रिकॉर्ड नहीं है।</p>
-                    <p className="text-xs text-slate-400 mt-1">
+                  <div className="px-4 py-10 text-center text-[var(--color-muted)]">
+                    <UserCheck className="mx-auto mb-2 h-10 w-10 text-teal-600 opacity-30" />
+                    <p className="text-sm font-medium text-[var(--color-ink)]">इस चालक का कोई अवकाश या बदली रिकॉर्ड नहीं है।</p>
+                    <p className="mt-1 text-xs">
                       जब भी ड्राइवर छुट्टी पर जाए तो ऊपर से उसकी एंट्री करें।
                     </p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-[var(--color-line)]">
                     {driverLeavesList.map((leave) => (
                       <div
                         key={leave.id}
-                        className="p-4 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs sm:text-sm"
+                        className="flex flex-col items-start justify-between gap-4 p-4 text-xs transition-colors hover:bg-[var(--color-surface-muted)] sm:flex-row sm:items-center sm:text-sm"
                       >
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-slate-900 text-sm">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-bold text-[var(--color-ink)]">
                               {formatDate(leave.startDate)}{' '}
                               {leave.endDate !== leave.startDate ? `से ${formatDate(leave.endDate)}` : ''}
                             </span>
-                            <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 text-rose-800 border border-rose-200">
+                            <span className="badge badge-danger">
                               {leave.totalDays} दिन अनुपस्थित
                             </span>
-                            <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">
+                            <span className="badge badge-neutral">
                               कारण: {leave.leaveReason}
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-3 text-xs text-slate-600 flex-wrap">
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--color-muted)]">
                             <span>
-                              <strong>बदली ड्राइवर (Who replaced):</strong>{' '}
+                              <strong className="text-[var(--color-ink)]">बदली ड्राइवर (Who replaced):</strong>{' '}
                               {leave.hasSubstitute ? (
-                                <span className="text-amber-800 font-semibold">
+                                <span className="font-semibold text-teal-800">
                                   {leave.substituteDriverName || 'बदली चालक'}{' '}
                                   {leave.substituteDriverPhone ? `(${leave.substituteDriverPhone})` : ''}
                                   {leave.totalSubstitutePaid > 0 && ` - भुगतान ₹${leave.totalSubstitutePaid}`}
                                 </span>
                               ) : (
-                                <span className="text-slate-400">कोई नहीं (गाड़ी बंद)</span>
+                                <span className="text-[var(--color-muted)]">कोई नहीं (गाड़ी बंद)</span>
                               )}
                             </span>
 
                             <span>
-                              <strong>वेतन कटौती (Salary cut):</strong>{' '}
+                              <strong className="text-[var(--color-ink)]">वेतन कटौती (Salary cut):</strong>{' '}
                               {leave.deductFromMainDriverSalary ? (
-                                <span className="text-rose-600 font-bold">-₹{leave.deductionAmount}</span>
+                                <span className="font-bold text-[var(--color-danger)]">-₹{leave.deductionAmount}</span>
                               ) : (
-                                <span className="text-emerald-600 font-semibold">शून्य (सवेतन)</span>
+                                <span className="font-semibold text-[var(--color-success)]">शून्य (सवेतन)</span>
                               )}
                             </span>
                           </div>
 
                           {leave.notes && (
-                            <p className="text-xs text-slate-500 italic mt-0.5">"{leave.notes}"</p>
+                            <p className="mt-0.5 text-xs italic text-[var(--color-muted)]">"{leave.notes}"</p>
                           )}
                         </div>
 
-                        <div className="flex items-center gap-3 flex-shrink-0 self-end sm:self-center">
+                        <div className="flex shrink-0 items-center gap-3 self-end sm:self-center">
                           {onDeleteDriverLeave && (
                             <button
+                              type="button"
                               onClick={() => onDeleteDriverLeave(leave.id)}
-                              className="text-slate-400 hover:text-rose-600 p-1 rounded hover:bg-slate-100 transition-colors"
+                              className="rounded p-1 text-[var(--color-muted)] transition-colors hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)]"
                               title="हटाएं"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="h-4 w-4" />
                             </button>
                           )}
                         </div>
@@ -1366,127 +1343,118 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
           {activeTab === 'monthly_hisab' && (
             <div className="space-y-6">
               {/* Month Selector Bar */}
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between gap-4 flex-wrap">
+              <div className="panel panel-pad flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-indigo-600" />
+                  <Calendar className="h-5 w-5 text-teal-700" />
                   <div>
-                    <h3 className="font-bold text-slate-800 text-sm">
+                    <h3 className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--color-ink)]">
                       माह-वार ड्राइवर हिसाब व बैलेंस शीट (Monthly Account Sheet)
                     </h3>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[var(--color-muted)]">
                       महीने भर के दिन, छुट्टियां, बदली हिसाब, कुल अग्रिम व शुद्ध देय राशि
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <label className="text-xs font-semibold text-slate-700">माह चुनें:</label>
+                  <label className="text-xs font-semibold text-[var(--color-ink)]">माह चुनें:</label>
                   <input
                     type="month"
                     value={selectedHisabMonth}
                     onChange={(e) => setSelectedHisabMonth(e.target.value)}
-                    className="text-xs sm:text-sm font-bold border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-slate-50"
+                    className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
                   />
-                  <button
-                    onClick={() => setShowPrintSlip(true)}
-                    className="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-medium text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors"
-                  >
-                    <Printer className="w-3.5 h-3.5" />
-                    <span>पर्ची प्रिंट / WhatsApp</span>
+                  <button type="button" onClick={() => setShowPrintSlip(true)} className="btn btn-primary">
+                    <Printer className="h-3.5 w-3.5" />
+                    पर्ची प्रिंट / WhatsApp
                   </button>
                 </div>
               </div>
 
               {/* MONTHLY SUMMARY METRIC CARDS */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                {/* 1. Base Salary */}
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-[11px] font-semibold text-slate-500 block uppercase">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                <div className="panel p-3.5">
+                  <span className="block text-[11px] font-semibold uppercase text-[var(--color-muted)]">
                     1. मूल वेतन (Base)
                   </span>
-                  <div className="text-base sm:text-lg font-bold text-slate-900 mt-1">
+                  <div className="mt-1 text-base font-bold text-[var(--color-ink)] sm:text-lg">
                     ₹{baseSalary.toLocaleString('en-IN')}
                   </div>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">
+                  <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">
                     {monthDaysCount} दिन का तय मासिक वेतन
                   </span>
                 </div>
 
-                {/* 2. Leaves & Deductions */}
-                <div className="bg-white p-3.5 rounded-xl border border-amber-200 bg-amber-50/20 shadow-xs">
-                  <span className="text-[11px] font-semibold text-amber-700 block uppercase">
+                <div className="rounded-xl border border-[var(--color-warning)]/30 bg-[var(--color-warning-soft)] p-3.5">
+                  <span className="block text-[11px] font-semibold uppercase text-[var(--color-warning)]">
                     2. छुट्टियां (Leaves)
                   </span>
-                  <div className="text-base sm:text-lg font-bold text-rose-600 mt-1">
+                  <div className="mt-1 text-base font-bold text-[var(--color-danger)] sm:text-lg">
                     -{formatCurrency(monthlyLeaveDeductions)}
                   </div>
-                  <span className="text-[10px] text-amber-800 block mt-0.5">
+                  <span className="mt-0.5 block text-[10px] text-[var(--color-warning)]">
                     {monthlyLeavesDays} दिन अनुपस्थित
                   </span>
                 </div>
 
-                {/* 3. Extra Allowance / DA */}
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-[11px] font-semibold text-blue-700 block uppercase">
+                <div className="panel p-3.5">
+                  <span className="block text-[11px] font-semibold uppercase text-[var(--color-info)]">
                     3. भत्ते / बोनस (DA/Bonus)
                   </span>
-                  <div className="text-base sm:text-lg font-bold text-blue-600 mt-1">
+                  <div className="mt-1 text-base font-bold text-[var(--color-info)] sm:text-lg">
                     +{formatCurrency(monthlyDaFoodBonus)}
                   </div>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">
+                  <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">
                     ट्रिप, भोजन व अतिरिक्त कार्य
                   </span>
                 </div>
 
-                {/* 4. Net Earned Salary */}
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-[11px] font-semibold text-slate-700 block uppercase">
+                <div className="panel p-3.5">
+                  <span className="block text-[11px] font-semibold uppercase text-[var(--color-ink)]">
                     4. अर्जित वेतन (Net Earned)
                   </span>
-                  <div className="text-base sm:text-lg font-bold text-indigo-700 mt-1">
+                  <div className="mt-1 text-base font-bold text-teal-700 sm:text-lg">
                     ₹{netEarnedWage.toLocaleString('en-IN')}
                   </div>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">
+                  <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">
                     कटौती उपरांत वास्तविक वेतन
                   </span>
                 </div>
 
-                {/* 5. Payments / Advances Given */}
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-                  <span className="text-[11px] font-semibold text-slate-500 block uppercase">
+                <div className="panel p-3.5">
+                  <span className="block text-[11px] font-semibold uppercase text-[var(--color-muted)]">
                     5. कुल दिया भुगतान (Paid)
                   </span>
-                  <div className="text-base sm:text-lg font-bold text-slate-900 mt-1">
+                  <div className="mt-1 text-base font-bold text-[var(--color-ink)] sm:text-lg">
                     ₹{totalMonthlyOutflowToDriver.toLocaleString('en-IN')}
                   </div>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">
+                  <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">
                     अग्रिम + वेतन + फुटकर
                   </span>
                 </div>
 
-                {/* 6. NET BALANCE DUE */}
                 <div
-                  className={`p-3.5 rounded-xl border shadow-xs ${
+                  className={`rounded-xl border p-3.5 ${
                     remainingDueToDriver > 0
-                      ? 'bg-rose-50 border-rose-300 text-rose-950'
+                      ? 'border-[var(--color-danger)]/40 bg-[var(--color-danger-soft)]'
                       : remainingDueToDriver === 0
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
-                      : 'bg-amber-50 border-amber-300 text-amber-950'
+                      ? 'border-[var(--color-success)]/40 bg-[var(--color-success-soft)]'
+                      : 'border-[var(--color-warning)]/40 bg-[var(--color-warning-soft)]'
                   }`}
                 >
-                  <span className="text-[11px] font-bold uppercase block">
+                  <span className="block text-[11px] font-bold uppercase text-[var(--color-ink)]">
                     6. शुद्ध बकाया (Balance)
                   </span>
-                  <div className="text-base sm:text-lg font-black mt-1">
+                  <div className="mt-1 text-base font-black sm:text-lg">
                     {remainingDueToDriver > 0 ? (
-                      <span className="text-rose-600">₹{remainingDueToDriver.toLocaleString('en-IN')}</span>
+                      <span className="text-[var(--color-danger)]">₹{remainingDueToDriver.toLocaleString('en-IN')}</span>
                     ) : remainingDueToDriver === 0 ? (
-                      <span className="text-emerald-700">पूर्ण चुकता</span>
+                      <span className="text-[var(--color-success)]">पूर्ण चुकता</span>
                     ) : (
-                      <span className="text-amber-700">₹{Math.abs(remainingDueToDriver)} एडवांस</span>
+                      <span className="text-[var(--color-warning)]">₹{Math.abs(remainingDueToDriver)} एडवांस</span>
                     )}
                   </div>
-                  <span className="text-[10px] opacity-80 block mt-0.5">
+                  <span className="mt-0.5 block text-[10px] opacity-80 text-[var(--color-muted)]">
                     {remainingDueToDriver > 0
                       ? 'ड्राइवर को देना शेष'
                       : remainingDueToDriver === 0
@@ -1496,65 +1464,63 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                 </div>
               </div>
 
-              {/* QUICK SETTLEMENT BAR IF BALANCE DUE */}
               {remainingDueToDriver > 0 && (
-                <div className="p-4 bg-gradient-to-r from-rose-500 to-amber-600 text-white rounded-2xl shadow-sm flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-[var(--color-ink)] p-4 text-white">
                   <div>
-                    <h4 className="font-bold text-sm">
+                    <h4 className="text-sm font-bold">
                       चालक {selectedDriver?.name} का माह {selectedHisabMonth} का ₹{remainingDueToDriver.toLocaleString('en-IN')} बकाया है
                     </h4>
-                    <p className="text-xs opacity-90 mt-0.5">
+                    <p className="mt-0.5 text-xs text-white/75">
                       एक क्लिक में शेष राशि का वेतन भुगतान दर्ज करें और खाता क्लोज करें।
                     </p>
                   </div>
 
                   <button
+                    type="button"
                     onClick={handleQuickSettleBalance}
-                    className="px-4 py-2 bg-white text-rose-700 hover:bg-rose-50 font-bold text-xs sm:text-sm rounded-xl shadow-md transition-colors flex items-center gap-1.5"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-bold text-[var(--color-ink)] transition-colors hover:bg-teal-50 sm:text-sm"
                   >
-                    <IndianRupee className="w-4 h-4" />
-                    <span>शेष ₹{remainingDueToDriver} का भुगतान करें</span>
+                    <IndianRupee className="h-4 w-4" />
+                    शेष ₹{remainingDueToDriver} का भुगतान करें
                   </button>
                 </div>
               )}
 
-              {/* DETAILED MONTHLY STATEMENT: TWO COLUMNS */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                {/* Left: Monthly Leaves & Substitute Breakdown */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <h4 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-amber-600" />
+              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div className="panel panel-pad space-y-3">
+                  <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-2.5">
+                    <h4 className="flex items-center gap-2 text-sm font-bold text-[var(--color-ink)]">
+                      <Calendar className="h-4 w-4 text-teal-700" />
                       <span>माह की छुट्टियां व बदली विवरण</span>
                     </h4>
-                    <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                    <span className="badge badge-warning">
                       कुल {monthlyLeavesDays} दिन
                     </span>
                   </div>
 
                   {monthlyLeaves.length === 0 ? (
-                    <div className="text-center py-8 text-slate-400 text-xs">
+                    <div className="py-8 text-center text-xs text-[var(--color-muted)]">
                       इस माह चालक ने कोई छुट्टी नहीं ली (पूर्ण उपस्थिति)।
                     </div>
                   ) : (
                     <div className="space-y-2 text-xs">
                       {monthlyLeaves.map((l) => (
-                        <div key={l.id} className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-start justify-between gap-2">
+                        <div key={l.id} className="flex items-start justify-between gap-2 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2.5">
                           <div>
-                            <span className="font-bold text-slate-800 block">
+                            <span className="block font-bold text-[var(--color-ink)]">
                               {formatDate(l.startDate)} ({l.totalDays} दिन)
                             </span>
-                            <span className="text-slate-500 block">कारण: {l.leaveReason}</span>
-                            <span className="text-slate-600 block mt-0.5">
-                              बदली चालक: <strong>{l.substituteDriverName || 'कोई नहीं'}</strong>
+                            <span className="block text-[var(--color-muted)]">कारण: {l.leaveReason}</span>
+                            <span className="mt-0.5 block text-[var(--color-muted)]">
+                              बदली चालक: <strong className="text-[var(--color-ink)]">{l.substituteDriverName || 'कोई नहीं'}</strong>
                             </span>
                           </div>
-                          <div className="text-right flex-shrink-0">
-                            <span className="text-rose-600 font-bold block">
+                          <div className="shrink-0 text-right">
+                            <span className="block font-bold text-[var(--color-danger)]">
                               कटौती: -₹{l.deductionAmount}
                             </span>
                             {l.totalSubstitutePaid > 0 && (
-                              <span className="text-slate-500 text-[10px] block">
+                              <span className="block text-[10px] text-[var(--color-muted)]">
                                 बदली खर्च: ₹{l.totalSubstitutePaid}
                               </span>
                             )}
@@ -1565,30 +1531,29 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                   )}
                 </div>
 
-                {/* Right: Itemized Payments Made in this Month */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                    <h4 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                      <IndianRupee className="w-4 h-4 text-indigo-600" />
+                <div className="panel panel-pad space-y-3">
+                  <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-2.5">
+                    <h4 className="flex items-center gap-2 text-sm font-bold text-[var(--color-ink)]">
+                      <IndianRupee className="h-4 w-4 text-teal-700" />
                       <span>माह में दिए गए भुगतानों की तारीख-वार सूची</span>
                     </h4>
-                    <span className="text-xs font-semibold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">
+                    <span className="badge badge-neutral">
                       कुल: ₹{totalMonthlyOutflowToDriver.toLocaleString('en-IN')}
                     </span>
                   </div>
 
                   {monthlyTransactions.length === 0 ? (
-                    <div className="text-center py-8 text-slate-400 text-xs">
+                    <div className="py-8 text-center text-xs text-[var(--color-muted)]">
                       इस माह में अब तक कोई भुगतान दर्ज नहीं किया गया।
                     </div>
                   ) : (
-                    <div className="space-y-2 text-xs max-h-60 overflow-y-auto pr-1">
+                    <div className="max-h-60 space-y-2 overflow-y-auto pr-1 text-xs">
                       {monthlyTransactions.map((tx) => (
-                        <div key={tx.id} className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-2">
+                        <div key={tx.id} className="flex items-center justify-between gap-2 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2.5">
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-slate-800">{formatDate(tx.date)}</span>
-                              <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700">
+                              <span className="font-bold text-[var(--color-ink)]">{formatDate(tx.date)}</span>
+                              <span className="badge badge-info">
                                 {tx.type === 'advance'
                                   ? 'अग्रिम'
                                   : tx.type === 'salary_payment'
@@ -1598,14 +1563,14 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                                   : 'व्यय'}
                               </span>
                             </div>
-                            <span className="text-slate-500 block truncate max-w-[220px]">
+                            <span className="block max-w-[220px] truncate text-[var(--color-muted)]">
                               {tx.description}
                             </span>
                           </div>
 
-                          <div className="text-right font-bold text-slate-900 whitespace-nowrap">
+                          <div className="whitespace-nowrap text-right font-bold text-[var(--color-ink)]">
                             ₹{tx.amount.toLocaleString('en-IN')}
-                            <span className="text-[10px] text-slate-400 font-normal block uppercase">
+                            <span className="block text-[10px] font-normal uppercase text-[var(--color-muted)]">
                               {tx.paymentMode}
                             </span>
                           </div>
@@ -1619,19 +1584,20 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
           )}
         </div>
 
-        {/* MODAL FOOTER */}
-        <div className="bg-slate-100 px-4 sm:px-6 py-3 border-t border-slate-200 flex items-center justify-between gap-3 flex-wrap flex-shrink-0">
-          <div className="text-xs text-slate-500 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+        {/* Footer */}
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[var(--color-line)] bg-[var(--color-surface-muted)] px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
+            <span className="h-2 w-2 rounded-full bg-teal-600" />
             <span>
-              चालक: <strong>{selectedDriver?.name}</strong> | वाहन: <strong>{selectedVehicle?.vehicleNumber}</strong> | टेंडर: <strong>{selectedTender?.departmentName}</strong>
+              चालक: <strong className="text-[var(--color-ink)]">{selectedDriver?.name}</strong>
+              {' | '}
+              वाहन: <strong className="text-[var(--color-ink)]">{selectedVehicle?.vehicleNumber}</strong>
+              {' | '}
+              टेंडर: <strong className="text-[var(--color-ink)]">{selectedTender?.departmentName}</strong>
             </span>
           </div>
 
-          <button
-            onClick={onClose}
-            className="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-medium text-xs sm:text-sm rounded-xl transition-colors shadow-xs"
-          >
+          <button type="button" onClick={onClose} className="btn btn-primary">
             बंद करें (Close)
           </button>
         </div>
@@ -1650,7 +1616,7 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
               </h3>
               <button
                 onClick={() => setShowPrintSlip(false)}
-                className="text-slate-400 hover:text-slate-700 p-1"
+                className="text-[var(--color-muted)] hover:text-slate-700 p-1"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1704,7 +1670,7 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
               <div>
                 <span className="font-bold text-slate-800 block mb-1">दिए गए अग्रिम / भुगतान विवरण:</span>
                 {monthlyTransactions.length === 0 ? (
-                  <div className="text-slate-400 italic">कोई पूर्व भुगतान नहीं</div>
+                  <div className="text-[var(--color-muted)] italic">कोई पूर्व भुगतान नहीं</div>
                 ) : (
                   <div className="space-y-1">
                     {monthlyTransactions.map((t) => (
@@ -1728,7 +1694,7 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                 </span>
               </div>
 
-              <div className="pt-6 flex justify-between text-[10px] text-slate-500">
+              <div className="pt-6 flex justify-between text-[10px] text-[var(--color-muted)]">
                 <div className="border-t border-slate-400 pt-1 w-32 text-center">
                   चालक के हस्ताक्षर
                 </div>
@@ -1744,10 +1710,10 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                 onClick={() => {
                   window.print();
                 }}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs"
+                className="btn btn-primary"
               >
-                <Printer className="w-4 h-4" />
-                <span>प्रिंट निकालें (Print)</span>
+                <Printer className="h-4 w-4" />
+                प्रिंट निकालें (Print)
               </button>
 
               <button
@@ -1756,10 +1722,10 @@ export const DriverHisabAndLeaveModal: React.FC<DriverHisabAndLeaveModalProps> =
                   navigator.clipboard.writeText(text);
                   alert('व्हाट्सएप हेतु हिसाब टेक्स्ट कॉपी हो गया!');
                 }}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs"
+                className="btn btn-success"
               >
-                <Share2 className="w-4 h-4" />
-                <span>व्हाट्सएप कॉपी (Copy WhatsApp)</span>
+                <Share2 className="h-4 w-4" />
+                व्हाट्सएप कॉपी (Copy WhatsApp)
               </button>
             </div>
           </div>

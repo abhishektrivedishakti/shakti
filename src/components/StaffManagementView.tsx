@@ -67,7 +67,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
   const [newStaffMobile, setNewStaffMobile] = useState('');
   const [newStaffEmail, setNewStaffEmail] = useState('');
   const [newStaffPin, setNewStaffPin] = useState('1234');
-  const [newStaffColor, setNewStaffColor] = useState('bg-indigo-600');
+  const [newStaffColor, setNewStaffColor] = useState('bg-[var(--color-ink)]');
 
   // Permission Matrix Preset helper
   const applyRolePreset = (role: StaffRole, currentPerms: StaffUser['permissions']) => {
@@ -142,7 +142,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
   const getRoleBadge = (role: StaffRole) => {
     switch (role) {
       case 'admin':
-        return { label: 'मालिक / मुख्य प्रशासक (Admin)', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' };
+        return { label: 'मालिक / मुख्य प्रशासक (Admin)', color: 'bg-teal-100 text-teal-800 border-teal-200' };
       case 'fleet_manager':
         return { label: 'फ्लीट मैनेजर (Fleet Operations)', color: 'bg-blue-100 text-blue-800 border-blue-200' };
       case 'accountant':
@@ -150,7 +150,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
       case 'office_boy_cashier':
         return { label: 'पेटी कैश / ऑफिस बॉय (Cashier)', color: 'bg-amber-100 text-amber-800 border-amber-200' };
       case 'billing_clerk':
-        return { label: 'सरकारी बिलिंग क्लर्क (Billing)', color: 'bg-purple-100 text-purple-800 border-purple-200' };
+        return { label: 'सरकारी बिलिंग क्लर्क (Billing)', color: 'bg-sky-100 text-sky-800 border-sky-200' };
       default:
         return { label: 'कस्टम स्टाफ (Custom Staff)', color: 'bg-slate-100 text-slate-800 border-slate-200' };
     }
@@ -159,13 +159,13 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner Header */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Shield className="w-5 h-5 text-indigo-600" />
+            <Shield className="w-5 h-5 text-teal-700" />
             <span>Staff Accounts &amp; Role-Based Access Control (RBAC) &bull; स्टाफ व अनुमति नियंत्रण</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-[var(--color-muted)] mt-1">
             कार्यालय के प्रत्येक कर्मचारी (एडमिन, मुंशी, फ्लीट मैनेजर, पेटी कैश बॉय) का अलग खाता बनाएं और तय करें कि वह कौन से टैब देख व भर सकता है
           </p>
         </div>
@@ -173,7 +173,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsAddStaffModalOpen(true)}
-            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors"
+            className="btn btn-primary !text-xs"
           >
             <UserPlus className="w-4 h-4" />
             + नया स्टाफ जोड़ें (Add Staff Member)
@@ -192,7 +192,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
             <div
               key={staff.id}
               className={`bg-white rounded-xl border transition-all shadow-xs flex flex-col justify-between overflow-hidden ${
-                isCurrent ? 'border-indigo-500 ring-2 ring-indigo-200' : 'border-slate-200 hover:border-slate-300'
+                isCurrent ? 'border-teal-500 ring-2 ring-teal-200' : 'border-slate-200 hover:border-slate-300'
               }`}
             >
               <div className="p-5">
@@ -200,7 +200,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-11 h-11 rounded-full ${staff.avatarColor || 'bg-indigo-600'} text-white font-bold flex items-center justify-center text-sm shadow-2xs`}
+                      className={`w-11 h-11 rounded-full ${staff.avatarColor || 'bg-[var(--color-ink)]'} text-white font-bold flex items-center justify-center text-sm shadow-2xs`}
                     >
                       {staff.name.slice(0, 2).toUpperCase()}
                     </div>
@@ -213,7 +213,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-slate-500">{staff.designation}</div>
+                      <div className="text-xs text-[var(--color-muted)]">{staff.designation}</div>
                     </div>
                   </div>
 
@@ -221,7 +221,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                     className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                       staff.status === 'active'
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        : 'bg-slate-100 text-slate-500 border-slate-200'
+                        : 'bg-slate-100 text-[var(--color-muted)] border-slate-200'
                     }`}
                   >
                     {staff.status === 'active' ? 'Active' : 'Inactive'}
@@ -238,7 +238,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                 {/* Contact & PIN Details */}
                 <div className="mt-3 space-y-1 text-xs text-slate-600 border-t border-slate-100 pt-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 flex items-center gap-1 text-[11px]">
+                    <span className="text-[var(--color-muted)] flex items-center gap-1 text-[11px]">
                       <Phone className="w-3 h-3" /> मोबाइल:
                     </span>
                     <span className="font-mono font-semibold text-slate-800">{staff.mobile}</span>
@@ -246,7 +246,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
 
                   {staff.email && (
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-400 flex items-center gap-1 text-[11px]">
+                      <span className="text-[var(--color-muted)] flex items-center gap-1 text-[11px]">
                         <Mail className="w-3 h-3" /> ईमेल:
                       </span>
                       <span className="text-slate-700 truncate max-w-[170px]">{staff.email}</span>
@@ -254,10 +254,10 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                   )}
 
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 flex items-center gap-1 text-[11px]">
+                    <span className="text-[var(--color-muted)] flex items-center gap-1 text-[11px]">
                       <Key className="w-3 h-3" /> 4-Digit Login PIN:
                     </span>
-                    <span className="font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.2 rounded border border-indigo-200">
+                    <span className="font-mono font-bold text-teal-800 bg-teal-50 px-2 py-0.2 rounded border border-teal-200">
                       {staff.pin}
                     </span>
                   </div>
@@ -265,9 +265,9 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
 
                 {/* Accessible Modules Summary */}
                 <div className="mt-3 pt-3 border-t border-slate-100 text-xs">
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1.5">
+                  <div className="flex items-center justify-between text-[11px] text-[var(--color-muted)] mb-1.5">
                     <span>अनुमतियां (Permitted Modules):</span>
-                    <span className="font-bold text-indigo-700">
+                    <span className="font-bold text-teal-800">
                       {staff.role === 'admin' ? '14 / 14 (All Access)' : `${accessibleModulesCount} / 14 Modules`}
                     </span>
                   </div>
@@ -278,7 +278,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                       </span>
                     ))}
                     {accessibleModulesCount > 6 && (
-                      <span className="text-[10px] bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-semibold">
+                      <span className="text-[10px] bg-teal-50 text-teal-800 px-1.5 py-0.5 rounded font-semibold">
                         +{accessibleModulesCount - 6} more
                       </span>
                     )}
@@ -292,14 +292,14 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                   onClick={() => setSelectedStaffForEdit(staff)}
                   className="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 font-semibold border border-slate-200 rounded-lg flex items-center gap-1 shadow-2xs text-[11px]"
                 >
-                  <Settings className="w-3 h-3 text-indigo-600" />
+                  <Settings className="w-3 h-3 text-teal-700" />
                   अनुमतियां बदलें (Permissions)
                 </button>
 
                 {!isCurrent ? (
                   <button
                     onClick={() => onSwitchUser(staff)}
-                    className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg shadow-2xs text-[11px] flex items-center gap-1"
+                    className="btn btn-primary !text-[11px]"
                   >
                     <UserCheck className="w-3 h-3" />
                     इस रूप में लॉगिन करें &rarr;
@@ -322,16 +322,16 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <div>
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-indigo-600" />
+                  <Shield className="w-5 h-5 text-teal-700" />
                   <span>अनुमति नियंत्रण (Permissions Matrix): {selectedStaffForEdit.name}</span>
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-[var(--color-muted)] mt-0.5">
                   तय करें कि यह स्टाफ कौन-कौन सा मॉड्यूल देख सकता है व नया डाटा दर्ज/एडिट कर सकता है
                 </p>
               </div>
               <button
                 onClick={() => setSelectedStaffForEdit(null)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -358,7 +358,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                       }}
                       className={`px-2.5 py-1 rounded text-[11px] font-medium border transition-colors ${
                         selectedStaffForEdit.role === r
-                          ? 'bg-indigo-600 text-white border-indigo-600 font-bold'
+                          ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)] font-bold'
                           : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
                       }`}
                     >
@@ -394,7 +394,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                         <tr key={m.key} className="hover:bg-slate-50/80">
                           <td className="p-3">
                             <div className="font-bold text-slate-900">{m.hindiLabel} ({m.label})</div>
-                            <div className="text-[11px] text-slate-500">{m.desc}</div>
+                            <div className="text-[11px] text-[var(--color-muted)]">{m.desc}</div>
                           </td>
 
                           <td className="p-3 text-center">
@@ -411,7 +411,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                                 };
                                 setSelectedStaffForEdit({ ...selectedStaffForEdit, permissions: newPerms });
                               }}
-                              className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
+                              className="w-4 h-4 text-teal-700 rounded border-slate-300 focus:ring-teal-500 cursor-pointer"
                             />
                           </td>
 
@@ -430,7 +430,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                                 };
                                 setSelectedStaffForEdit({ ...selectedStaffForEdit, permissions: newPerms });
                               }}
-                              className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer disabled:opacity-30"
+                              className="w-4 h-4 text-teal-700 rounded border-slate-300 focus:ring-teal-500 cursor-pointer disabled:opacity-30"
                             />
                           </td>
                         </tr>
@@ -481,7 +481,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                 <button
                   type="button"
                   onClick={handleSavePermissionEdit}
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold shadow-2xs"
+                  className="btn btn-primary"
                 >
                   अनुमतियां सुरक्षित करें (Save Permissions)
                 </button>
@@ -497,12 +497,12 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-8">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-indigo-600" />
+                <UserPlus className="w-5 h-5 text-teal-700" />
                 <span>नया स्टाफ सदस्य जोड़ें (Add Staff User)</span>
               </h3>
               <button
                 onClick={() => setIsAddStaffModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -609,18 +609,18 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                 </label>
                 <div className="flex items-center gap-3">
                   {[
-                    { color: 'bg-indigo-600', label: 'Indigo' },
+                    { color: 'bg-[var(--color-ink)]', label: 'Indigo' },
                     { color: 'bg-blue-600', label: 'Blue' },
                     { color: 'bg-emerald-600', label: 'Green' },
                     { color: 'bg-amber-600', label: 'Amber' },
-                    { color: 'bg-purple-600', label: 'Purple' },
+                    { color: 'bg-[var(--color-info)]', label: 'Purple' },
                     { color: 'bg-rose-600', label: 'Rose' },
                   ].map((c) => (
                     <div
                       key={c.color}
                       onClick={() => setNewStaffColor(c.color)}
                       className={`w-7 h-7 rounded-full cursor-pointer transition-transform ${c.color} ${
-                        newStaffColor === c.color ? 'ring-4 ring-offset-2 ring-indigo-500 scale-110' : ''
+                        newStaffColor === c.color ? 'ring-4 ring-offset-2 ring-teal-500 scale-110' : ''
                       }`}
                     />
                   ))}
@@ -641,7 +641,7 @@ export const StaffManagementView: React.FC<StaffManagementViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold shadow-2xs"
+                  className="btn btn-primary"
                 >
                   स्टाफ खाता बनाएं (Create Account)
                 </button>

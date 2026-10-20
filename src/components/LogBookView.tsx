@@ -188,13 +188,13 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Controls Banner */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <FileSpreadsheet className="w-5 h-5 text-indigo-600" />
+            <FileSpreadsheet className="w-5 h-5 text-teal-700" />
             <span>Daily Log Book &amp; Duty Slips &bull; दैनिक लॉग बुक व ड्यूटी स्लिप</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-[var(--color-muted)] mt-1">
             गाड़ी का प्रारंभिक व अंतिम किलोमीटर, अधिकारी द्वारा प्रमाणित ड्यूटी स्लिप, टोल व रात्रि विश्राम
           </p>
         </div>
@@ -210,7 +210,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
 
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
+            className="btn btn-primary !text-xs"
           >
             <Plus className="w-4 h-4" />
             + New Duty Entry (नई एंट्री)
@@ -272,7 +272,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg"
               />
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+              <Search className="w-3.5 h-3.5 text-[var(--color-muted)] absolute left-2.5 top-2.5" />
             </div>
           </div>
         </div>
@@ -284,10 +284,10 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
               Total Days Logged: <strong className="text-slate-900">{filteredLogs.length} days</strong>
             </span>
 
-            <span className="bg-indigo-50 px-3 py-1 rounded-md text-indigo-800 font-medium border border-indigo-100">
-              Total KMs Run: <strong className="text-indigo-950">{totalKmRun} KM</strong>
+            <span className="bg-teal-50 px-3 py-1 rounded-md text-teal-800 font-medium border border-teal-100">
+              Total KMs Run: <strong className="text-[var(--color-ink)]">{totalKmRun} KM</strong>
               {currentTender && (
-                <span className="text-slate-500 font-normal ml-1">
+                <span className="text-[var(--color-muted)] font-normal ml-1">
                   (Quota: {currentTender.includedKms} KM)
                 </span>
               )}
@@ -302,13 +302,13 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
             </span>
 
             {nightHalts > 0 && (
-              <span className="bg-purple-50 px-3 py-1 rounded-md text-purple-800 font-medium border border-purple-100">
+              <span className="bg-sky-50 px-3 py-1 rounded-md text-sky-800 font-medium border border-sky-100">
                 Night Halts: <strong>{nightHalts} Nights</strong>
               </span>
             )}
           </div>
 
-          <div className="text-[11px] text-slate-500 italic">
+          <div className="text-[11px] text-[var(--color-muted)] italic">
             Click on &lsquo;Verified&rsquo; badge to toggle officer signature verification
           </div>
         </div>
@@ -333,7 +333,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-[var(--color-muted)]">
                     No log entries found for this vehicle and month. Click &quot;+ New Duty Entry&quot; to add one.
                   </td>
                 </tr>
@@ -342,7 +342,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
                   <tr key={log.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="py-3 px-3 whitespace-nowrap">
                       <div className="font-bold text-slate-900">{formatDate(log.date)}</div>
-                      <div className="text-[10px] font-mono text-indigo-700 font-medium">
+                      <div className="text-[10px] font-mono text-teal-800 font-medium">
                         {log.slipNumber}
                       </div>
                       <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-semibold">
@@ -363,7 +363,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
                       <div className="text-[11px] text-slate-600 truncate" title={log.purpose}>
                         {log.purpose}
                       </div>
-                      <div className="text-[10px] text-slate-400 mt-0.5 truncate">
+                      <div className="text-[10px] text-[var(--color-muted)] mt-0.5 truncate">
                         Route: {log.startLocation} &rarr; {log.endLocation}
                       </div>
                     </td>
@@ -381,7 +381,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
 
                     <td className="py-3 px-3 font-mono text-[11px]">
                       <div>{log.openingTime} - {log.closingTime}</div>
-                      <span className="text-indigo-700 font-semibold">{log.totalHours} Hrs</span>
+                      <span className="text-teal-800 font-semibold">{log.totalHours} Hrs</span>
                     </td>
 
                     <td className="py-3 px-3 text-xs">
@@ -390,10 +390,10 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
                           Toll: {formatCurrency(log.tollParkingCost)}
                         </div>
                       ) : (
-                        <span className="text-slate-400 text-[10px]">-</span>
+                        <span className="text-[var(--color-muted)] text-[10px]">-</span>
                       )}
                       {log.driverDaNightHalt > 0 && (
-                        <div className="text-[10px] text-purple-700 font-semibold">
+                        <div className="text-[10px] text-sky-700 font-semibold">
                           DA: ₹{log.driverDaNightHalt}
                         </div>
                       )}
@@ -413,7 +413,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
                         <span>{log.isVerifiedByOfficer ? 'Signed' : 'Pending'}</span>
                       </button>
                       {log.officerRemarks && (
-                        <div className="text-[9px] text-slate-500 mt-1 max-w-[120px] mx-auto truncate" title={log.officerRemarks}>
+                        <div className="text-[9px] text-[var(--color-muted)] mt-1 max-w-[120px] mx-auto truncate" title={log.officerRemarks}>
                           {log.officerRemarks}
                         </div>
                       )}
@@ -428,7 +428,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
         {/* Pagination Navigation Bar */}
         {totalLogPages > 1 && (
           <div className="bg-white px-4 py-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <span className="text-slate-500">
+            <span className="text-[var(--color-muted)]">
               Showing <strong>{(logPage - 1) * logsPerPage + 1}</strong> to{' '}
               <strong>{Math.min(logPage * logsPerPage, filteredLogs.length)}</strong> of{' '}
               <strong>{filteredLogs.length}</strong> entries (Page {logPage} of {totalLogPages})
@@ -449,7 +449,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
               >
                 &lsaquo; Prev
               </button>
-              <span className="px-3 py-1.5 bg-indigo-50 text-indigo-700 font-bold rounded border border-indigo-100">
+              <span className="px-3 py-1.5 bg-teal-50 text-teal-800 font-bold rounded border border-teal-100">
                 {logPage} / {totalLogPages}
               </span>
               <button
@@ -477,12 +477,12 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <FileSpreadsheet className="w-5 h-5 text-indigo-600" />
+                <FileSpreadsheet className="w-5 h-5 text-teal-700" />
                 <span>Add Daily Duty Slip (दैनिक ड्यूटी स्लिप दर्ज करें)</span>
               </h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -590,7 +590,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
               </div>
 
               {/* Run Calculation Preview */}
-              <div className="p-2.5 bg-indigo-50/60 rounded-lg border border-indigo-100 flex items-center justify-between text-xs font-semibold text-indigo-900">
+              <div className="p-2.5 bg-teal-50/60 rounded-lg border border-teal-100 flex items-center justify-between text-xs font-semibold text-[var(--color-ink)]">
                 <span>
                   Total Run:{' '}
                   <strong>
@@ -696,7 +696,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
                     id="isVerified"
                     checked={formData.isVerifiedByOfficer || false}
                     onChange={(e) => setFormData({ ...formData, isVerifiedByOfficer: e.target.checked })}
-                    className="w-4 h-4 text-indigo-600 rounded"
+                    className="w-4 h-4 text-teal-700 rounded"
                   />
                   <label htmlFor="isVerified" className="text-xs font-semibold text-slate-800">
                     Duty Slip Signed / Verified by Officer
@@ -727,7 +727,7 @@ export const LogBookView: React.FC<LogBookViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Save Duty Entry
                 </button>

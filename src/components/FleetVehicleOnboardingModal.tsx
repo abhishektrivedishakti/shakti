@@ -382,14 +382,14 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
         <div className="p-5 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between sticky top-0 z-10 backdrop-blur-md">
           <div>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
+              <div className="w-8 h-8 rounded-lg bg-[var(--color-ink)] flex items-center justify-center text-white">
                 <Car className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-slate-900">
                 नया वाहन व पार्टनर ऑनबोर्डिंग (Add Vehicle / Partner)
               </h3>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-[var(--color-muted)] mt-0.5">
               अपनी जरूरत के अनुसार सही विकल्प चुनें - सिस्टम ड्राइवर, गाड़ी व टीडीएस हिसाब स्वतः लिंक कर देगा
             </p>
           </div>
@@ -441,14 +441,14 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
               onClick={() => setActiveType('car_owner')}
               className={`p-3.5 rounded-xl border text-left transition-all relative ${
                 activeType === 'car_owner'
-                  ? 'bg-indigo-50/80 border-indigo-500 shadow-sm ring-2 ring-indigo-500/20'
+                  ? 'bg-teal-50/80 border-teal-500 shadow-sm ring-2 ring-teal-500/20'
                   : 'bg-white border-slate-200 hover:border-slate-300'
               }`}
             >
               <div className="flex items-center gap-2 mb-1.5">
                 <div
                   className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
-                    activeType === 'car_owner' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
+                    activeType === 'car_owner' ? 'bg-[var(--color-ink)] text-white' : 'bg-slate-100 text-slate-600'
                   }`}
                 >
                   <Car className="w-4 h-4" />
@@ -458,7 +458,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
               <p className="text-[11px] text-slate-600 leading-snug">
                 <strong>बंदे की केवल गाड़ी है</strong>, वह खुद नहीं चलाएगा। गाड़ी मालिक जुड़ेगा, ड्राइवर अलग तैनात होगा।
               </p>
-              <div className="mt-2 text-[10px] text-indigo-800 font-semibold flex items-center gap-1">
+              <div className="mt-2 text-[10px] text-teal-800 font-semibold flex items-center gap-1">
                 <span>वेंडर किराया + TDS 2%/1%</span>
               </div>
             </button>
@@ -476,7 +476,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
               <div className="flex items-center gap-2 mb-1.5">
                 <div
                   className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
-                    activeType === 'company_vehicle' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600'
+                    activeType === 'company_vehicle' ? 'bg-amber-600 text-[var(--color-ink)]' : 'bg-slate-100 text-slate-600'
                   }`}
                 >
                   <Building2 className="w-4 h-4" />
@@ -722,7 +722,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
               <div className="font-bold text-slate-800 text-xs flex items-center justify-between">
                 <span>3. व्यावसायिक शर्तें व टीडीएस नियम (Commercial &amp; TDS Terms)</span>
-                <span className="text-[11px] text-slate-500">मासिक किराया व आयकर धारा 194C</span>
+                <span className="text-[11px] text-[var(--color-muted)]">मासिक किराया व आयकर धारा 194C</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -731,7 +731,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
                     मासिक तयशुदा किराया (Monthly Agreed Rent) *
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2 text-slate-400 font-bold">₹</span>
+                    <span className="absolute left-3 top-2 text-[var(--color-muted)] font-bold">₹</span>
                     <input
                       type="number"
                       required
@@ -740,7 +740,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
                       className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg font-bold text-slate-900"
                     />
                   </div>
-                  <span className="text-[10px] text-slate-500 block mt-1">
+                  <span className="text-[10px] text-[var(--color-muted)] block mt-1">
                     मासिक सेटलमेंट में यह आधार किराया बनेगा
                   </span>
                 </div>
@@ -772,7 +772,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
                       }}
                       className={`px-3 py-2 rounded-lg border text-xs font-bold transition-all text-center ${
                         !odIsTdsApplicable
-                          ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                          ? 'bg-amber-600 text-[var(--color-ink)] border-amber-600 shadow-xs'
                           : 'bg-white text-slate-700 border-slate-300'
                       }`}
                     >
@@ -813,11 +813,11 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
         {/* TAB 2 CONTENT: CAR OWNER ONLY */}
         {activeType === 'car_owner' && (
           <form onSubmit={handleCarOwnerSubmit} className="p-6 space-y-5 text-xs">
-            <div className="bg-indigo-50/90 border border-indigo-200 p-3.5 rounded-xl flex items-start gap-3">
-              <div className="p-1.5 bg-indigo-600 text-white rounded-lg shrink-0 mt-0.5">
+            <div className="bg-teal-50/90 border border-teal-200 p-3.5 rounded-xl flex items-start gap-3">
+              <div className="p-1.5 bg-[var(--color-ink)] text-white rounded-lg shrink-0 mt-0.5">
                 <Car className="w-4 h-4" />
               </div>
-              <div className="text-[11px] text-indigo-900">
+              <div className="text-[11px] text-[var(--color-ink)]">
                 <span className="font-bold block text-xs">
                   केवल गाड़ी मालिक (Attached Car Owner Only):
                 </span>
@@ -831,14 +831,14 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
             <div className="space-y-3">
               <div className="font-bold text-slate-800 text-xs border-b border-slate-200 pb-1 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <Building2 className="w-3.5 h-3.5 text-indigo-600" />
+                  <Building2 className="w-3.5 h-3.5 text-teal-700" />
                   <span>1. गाड़ी मालिक / वेंडर का चयन या नया जोड़ें (Vendor Info)</span>
                 </div>
                 {vendors.length > 0 && (
                   <select
                     value={coExistingVendorId}
                     onChange={(e) => setCoExistingVendorId(e.target.value)}
-                    className="px-2 py-1 border border-indigo-300 rounded-md text-xs font-semibold bg-white text-indigo-900"
+                    className="px-2 py-1 border border-teal-300 rounded-md text-xs font-semibold bg-white text-[var(--color-ink)]"
                   >
                     <option value="new">+ नया वेंडर/मालिक दर्ज करें</option>
                     {vendors.map((v) => (
@@ -968,18 +968,18 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
                   </div>
                 </>
               ) : (
-                <div className="p-3 bg-indigo-50/60 rounded-xl border border-indigo-200 flex items-center justify-between">
+                <div className="p-3 bg-teal-50/60 rounded-xl border border-teal-200 flex items-center justify-between">
                   <div>
                     <span className="font-bold text-slate-900 block">
                       चयनित वेंडर:{' '}
                       {vendors.find((v) => v.id === coExistingVendorId)?.name}
                     </span>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-[var(--color-muted)]">
                       PAN: {vendors.find((v) => v.id === coExistingVendorId)?.panNumber} &bull; फ़ोन:{' '}
                       {vendors.find((v) => v.id === coExistingVendorId)?.phone}
                     </span>
                   </div>
-                  <span className="text-xs bg-indigo-200 text-indigo-900 font-bold px-2 py-0.5 rounded">
+                  <span className="text-xs bg-teal-200 text-[var(--color-ink)] font-bold px-2 py-0.5 rounded">
                     पहले से पंजीकृत
                   </span>
                 </div>
@@ -989,7 +989,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
             {/* Section 2: Attached Vehicle Details */}
             <div className="space-y-3 pt-2">
               <div className="font-bold text-slate-800 text-xs border-b border-slate-200 pb-1 flex items-center gap-1.5">
-                <Car className="w-3.5 h-3.5 text-indigo-600" />
+                <Car className="w-3.5 h-3.5 text-teal-700" />
                 <span>2. गाड़ी का विवरण (Attached Vehicle Details)</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
@@ -1077,7 +1077,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
             <div className="space-y-3 pt-2">
               <div className="font-bold text-slate-800 text-xs border-b border-slate-200 pb-1 flex items-center justify-between">
                 <span>3. गाड़ी पर ड्राइवर तैनाती (Driver Assignment)</span>
-                <span className="text-[11px] text-slate-500">मालिक गाड़ी नहीं चलाएगा, चालक चुनें</span>
+                <span className="text-[11px] text-[var(--color-muted)]">मालिक गाड़ी नहीं चलाएगा, चालक चुनें</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1085,7 +1085,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
                   onClick={() => setCoDriverAssignmentMode('assign_now')}
                   className={`p-3 rounded-xl border cursor-pointer transition-all ${
                     coDriverAssignmentMode === 'assign_now'
-                      ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20'
+                      ? 'bg-teal-50 border-teal-500 ring-2 ring-teal-500/20'
                       : 'bg-white border-slate-200 hover:border-slate-300'
                   }`}
                 >
@@ -1094,7 +1094,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
                       type="radio"
                       checked={coDriverAssignmentMode === 'assign_now'}
                       onChange={() => setCoDriverAssignmentMode('assign_now')}
-                      className="text-indigo-600"
+                      className="text-teal-700"
                     />
                     <span>अभी उपलब्ध ड्राइवर तैनात करें</span>
                   </div>
@@ -1151,7 +1151,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
               <div className="font-bold text-slate-800 text-xs flex items-center justify-between">
                 <span>4. वेंडर को मासिक किराया व TDS कटौती (Rent &amp; TDS)</span>
-                <span className="text-[11px] text-slate-500">आयकर धारा 194C</span>
+                <span className="text-[11px] text-[var(--color-muted)]">आयकर धारा 194C</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1160,7 +1160,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
                     मासिक तयशुदा किराया (Monthly Agreed Rent) *
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2 text-slate-400 font-bold">₹</span>
+                    <span className="absolute left-3 top-2 text-[var(--color-muted)] font-bold">₹</span>
                     <input
                       type="number"
                       required
@@ -1169,7 +1169,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
                       className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg font-bold text-slate-900"
                     />
                   </div>
-                  <span className="text-[10px] text-slate-500 block mt-1">
+                  <span className="text-[10px] text-[var(--color-muted)] block mt-1">
                     वेंडर को हर महीने इस दर से वाउचर बनेगा
                   </span>
                 </div>
@@ -1189,7 +1189,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
                         }}
                         className={`px-3 py-2 rounded-lg border text-xs font-bold transition-all ${
                           coTdsRate === rate
-                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                            ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)] shadow-2xs'
                             : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                         }`}
                       >
@@ -1197,7 +1197,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
                       </button>
                     ))}
                   </div>
-                  <span className="text-[10px] text-slate-500 block mt-1">
+                  <span className="text-[10px] text-[var(--color-muted)] block mt-1">
                     फर्म/कंपनी हेतु 2%, व्यक्तिगत हेतु 1%, 194C(6) घोषणा हेतु 0%
                   </span>
                 </div>
@@ -1215,7 +1215,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-indigo-700 hover:bg-indigo-600 text-white rounded-lg font-bold shadow-xs flex items-center gap-1.5"
+                className="btn btn-primary"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>गाड़ी मालिक व वाहन सुरक्षित करें (Save Car Owner &amp; Vehicle)</span>
@@ -1228,7 +1228,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
         {activeType === 'company_vehicle' && (
           <form onSubmit={handleCompanyVehicleSubmit} className="p-6 space-y-5 text-xs">
             <div className="bg-amber-50/90 border border-amber-200 p-3.5 rounded-xl flex items-start gap-3">
-              <div className="p-1.5 bg-amber-600 text-white rounded-lg shrink-0 mt-0.5">
+              <div className="p-1.5 bg-amber-600 text-[var(--color-ink)] rounded-lg shrink-0 mt-0.5">
                 <Building2 className="w-4 h-4" />
               </div>
               <div className="text-[11px] text-amber-900">
@@ -1419,7 +1419,7 @@ export const FleetVehicleOnboardingModal: React.FC<FleetVehicleOnboardingModalPr
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold shadow-xs flex items-center gap-1.5"
+                className="btn btn-success !text-xs"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>कंपनी वाहन सुरक्षित करें (Save Company Vehicle)</span>

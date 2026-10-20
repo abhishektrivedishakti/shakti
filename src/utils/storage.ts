@@ -138,12 +138,48 @@ function getFromStorage<T>(key: string, defaultValue: T): T {
   }
 }
 
-function saveToStorage<T>(key: string, value: T): void {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (err) {
-    console.error(`Error saving ${key} to storage:`, err);
+/** Debounce localStorage writes so CRUD UI never waits on JSON.stringify of large lists. */
+const pendingWrites = new Map<string, unknown>();
+let flushTimer: ReturnType<typeof setTimeout> | null = null;
+
+function flushPendingWrites(): void {
+  flushTimer = null;
+  const entries = Array.from(pendingWrites.entries());
+  pendingWrites.clear();
+  for (const [key, value] of entries) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (err) {
+      console.error(`Error saving ${key} to storage:`, err);
+    }
   }
+}
+
+function saveToStorage<T>(key: string, value: T): void {
+  pendingWrites.set(key, value);
+  if (flushTimer != null) return;
+  flushTimer = setTimeout(() => {
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(() => flushPendingWrites(), { timeout: 120 });
+    } else {
+      flushPendingWrites();
+    }
+  }, 40);
+}
+
+/** Force any queued saves before unload / logout. */
+export function flushStorageWrites(): void {
+  if (flushTimer != null) {
+    clearTimeout(flushTimer);
+    flushTimer = null;
+  }
+  flushPendingWrites();
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    flushStorageWrites();
+  });
 }
 
 export const StorageService = {

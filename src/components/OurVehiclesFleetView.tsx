@@ -36,6 +36,7 @@ import { Vehicle, Driver, Tender, Officer, DocumentAttachment, Vendor } from '..
 import { formatDate, getDaysDiff, formatCurrency, getAssignedDriverForVehicle } from '../utils/calculations';
 import { DocumentManagerModal } from './DocumentManagerModal';
 import { BulkImportModal } from './BulkImportModal';
+import { FleetVehicleEditModal } from './FleetVehicleEditModal';
 
 interface OurVehiclesFleetViewProps {
   vehicles: Vehicle[];
@@ -102,7 +103,7 @@ export const OurVehiclesFleetView: React.FC<OurVehiclesFleetViewProps> = ({
 
   // Helper to determine expiry status of a given date (with 30 days = 1 month window)
   const getExpiryDetails = (dateStr?: string) => {
-    if (!dateStr) return { status: 'none', label: 'Not Set', days: null, badgeColor: 'bg-slate-100 text-slate-500' };
+    if (!dateStr) return { status: 'none', label: 'Not Set', days: null, badgeColor: 'bg-slate-100 text-[var(--color-muted)]' };
     const days = getDaysDiff(dateStr);
     if (days < 0) {
       return {
@@ -314,16 +315,14 @@ export const OurVehiclesFleetView: React.FC<OurVehiclesFleetViewProps> = ({
     setIsAddEditModalOpen(true);
   };
 
-  const handleSaveVehicleForm = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingVehicle) return;
-    if (!editingVehicle.vehicleNumber.trim()) {
-      alert('Please enter vehicle registration number (e.g. UP32 AB 1234)');
-      return;
-    }
-    onSaveVehicle(editingVehicle);
+  const handleCloseVehicleForm = () => {
     setIsAddEditModalOpen(false);
     setEditingVehicle(null);
+  };
+
+  const handleSaveVehicleForm = (vehicle: Vehicle) => {
+    onSaveVehicle(vehicle);
+    handleCloseVehicleForm();
   };
 
   // Quick Document Renewal Handler
@@ -453,180 +452,189 @@ ${docList.join('\n')}
   return (
     <div className="space-y-6 pb-12">
       {/* Page Title & Actions */}
-      <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-xl border border-slate-800 relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-3 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-semibold text-xs tracking-wider uppercase flex items-center gap-1.5 border border-amber-400/30">
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                Fleet &amp; Document Expiry Tracker &bull; 1-Month Advance Alerts
+      <div className="panel panel-pad">
+        <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
+          <div className="min-w-0">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="page-kicker">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Fleet &amp; Document Expiry Tracker • 1-Month Advance Alerts
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
-              <Car className="w-8 h-8 text-amber-400" />
+            <h1 className="flex flex-wrap items-center gap-3 font-[family-name:var(--font-display)] text-2xl font-bold tracking-tight text-[var(--color-ink)] sm:text-3xl">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-ink)] text-teal-300">
+                <Car className="h-5 w-5" />
+              </span>
               <span>हमारी गाड़ियाँ व दस्तावेज़ एक्सपायरी ट्रैकर</span>
             </h1>
-            <p className="text-sm text-slate-300 mt-2 max-w-3xl leading-relaxed">
-              गाड़ियों की संपूर्ण सूची, कमर्शियल (पीली प्लेट) व प्राइवेट (सफ़ेद प्लेट) विभाजन, चालू ड्राइवर का नाम व फ़ोन नंबर, 
-              तथा <strong className="text-amber-300 font-bold">PUC, बीमा (Insurance), और RTO फिटनेस</strong> एक्सपायर होने से 
-              <strong className="text-amber-300 font-bold underline ml-1">1 महीना पहले स्वचालित अलर्ट</strong>।
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[var(--color-muted)]">
+              गाड़ियों की संपूर्ण सूची, कमर्शियल (पीली प्लेट) व प्राइवेट (सफ़ेद प्लेट) विभाजन, चालू ड्राइवर का नाम व फ़ोन नंबर,
+              तथा <strong className="font-bold text-teal-800">PUC, बीमा (Insurance), और RTO फिटनेस</strong> एक्सपायर होने से
+              <strong className="ml-1 font-bold text-teal-800 underline">1 महीना पहले स्वचालित अलर्ट</strong>।
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex shrink-0 flex-nowrap items-center gap-2 overflow-x-auto">
             <button
+              type="button"
               onClick={() => setIsBulkImportOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold shadow-md transition-all text-xs active:scale-95 border border-emerald-500/40"
+              className="btn btn-success shrink-0 whitespace-nowrap !text-xs"
               title="एक्सेल शीट डाउनलोड करें या भरी हुई शीट अपलोड करके गाड़ियां व ड्राइवर जोड़ें"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-200" />
-              <span>📥 एक्सेल बल्क अपलोड (Excel Import)</span>
+              <FileSpreadsheet className="h-4 w-4" />
+              एक्सेल बल्क अपलोड (Excel Import)
             </button>
 
             <button
+              type="button"
               onClick={handleOpenAddVehicle}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold shadow-lg shadow-amber-500/25 transition-all text-sm active:scale-95"
+              className="btn btn-primary shrink-0 whitespace-nowrap"
             >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span>नई गाड़ी जोड़ें (Add Vehicle)</span>
+              <Plus className="h-4 w-4" />
+              नई गाड़ी जोड़ें (Add Vehicle)
             </button>
           </div>
         </div>
 
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-6 pt-6 border-t border-slate-800">
-          <div className="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
-            <div className="text-xs text-slate-400 font-medium">कुल गाड़ियाँ</div>
-            <div className="text-2xl font-black text-white mt-1">{stats.total}</div>
-            <div className="text-[11px] text-slate-400 mt-0.5">Total Fleet</div>
+        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-[var(--color-line)] pt-6 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="metric-chip">
+            <span className="metric-chip-label">कुल गाड़ियाँ</span>
+            <span className="metric-chip-value">{stats.total}</span>
+            <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">Total Fleet</span>
           </div>
 
-          <div className="bg-amber-950/40 p-3.5 rounded-xl border border-amber-500/30">
-            <div className="text-xs text-amber-300 font-semibold flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-amber-400" />
-              <span>1 माह में एक्सपायरी</span>
-            </div>
-            <div className="text-2xl font-black text-amber-400 mt-1">{stats.expiring30Days}</div>
-            <div className="text-[11px] text-amber-200/80 mt-0.5">&le; 30 Days Due Alert</div>
+          <div className="metric-chip border-[var(--color-warning)]/30 bg-[var(--color-warning-soft)]">
+            <span className="metric-chip-label inline-flex items-center gap-1 text-[var(--color-warning)]">
+              <Clock className="h-3.5 w-3.5" />
+              1 माह में एक्सपायरी
+            </span>
+            <span className="metric-chip-value text-[var(--color-warning)]">{stats.expiring30Days}</span>
+            <span className="mt-0.5 block text-[10px] text-[var(--color-warning)]">&le; 30 Days Due Alert</span>
           </div>
 
-          <div className="bg-rose-950/40 p-3.5 rounded-xl border border-rose-500/30">
-            <div className="text-xs text-rose-300 font-semibold flex items-center gap-1">
-              <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-              <span>एक्सपायर दस्तावेज़</span>
-            </div>
-            <div className="text-2xl font-black text-rose-400 mt-1">{stats.expiredDocs}</div>
-            <div className="text-[11px] text-rose-200/80 mt-0.5">Expired (&lt; 0 Days)</div>
+          <div className="metric-chip border-[var(--color-danger)]/30 bg-[var(--color-danger-soft)]">
+            <span className="metric-chip-label inline-flex items-center gap-1 text-[var(--color-danger)]">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              एक्सपायर दस्तावेज़
+            </span>
+            <span className="metric-chip-value text-[var(--color-danger)]">{stats.expiredDocs}</span>
+            <span className="mt-0.5 block text-[10px] text-[var(--color-danger)]">Expired (&lt; 0 Days)</span>
           </div>
 
-          <div className="bg-yellow-950/30 p-3.5 rounded-xl border border-yellow-500/30">
-            <div className="text-xs text-yellow-300 font-semibold flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-sm bg-yellow-400 inline-block"></span>
-              <span>कमर्शियल (पीली प्लेट)</span>
-            </div>
-            <div className="text-2xl font-black text-yellow-300 mt-1">{stats.commercial}</div>
-            <div className="text-[11px] text-yellow-200/80 mt-0.5">Commercial Taxis</div>
+          <div className="metric-chip">
+            <span className="metric-chip-label inline-flex items-center gap-1">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm bg-amber-400" />
+              कमर्शियल (पीली प्लेट)
+            </span>
+            <span className="metric-chip-value">{stats.commercial}</span>
+            <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">Commercial Taxis</span>
           </div>
 
-          <div className="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
-            <div className="text-xs text-slate-300 font-semibold flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-sm bg-white border border-slate-400 inline-block"></span>
-              <span>प्राइवेट (सफ़ेद प्लेट)</span>
-            </div>
-            <div className="text-2xl font-black text-white mt-1">{stats.privateFleet}</div>
-            <div className="text-[11px] text-slate-400 mt-0.5">Private Vehicles</div>
+          <div className="metric-chip">
+            <span className="metric-chip-label inline-flex items-center gap-1">
+              <span className="inline-block h-2.5 w-2.5 rounded-sm border border-[var(--color-line-strong)] bg-white" />
+              प्राइवेट (सफ़ेद प्लेट)
+            </span>
+            <span className="metric-chip-value">{stats.privateFleet}</span>
+            <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">Private Vehicles</span>
           </div>
 
-          <div className="bg-indigo-950/40 p-3.5 rounded-xl border border-indigo-500/30">
-            <div className="text-xs text-indigo-300 font-semibold flex items-center gap-1">
-              <UserCheck className="w-3.5 h-3.5 text-indigo-400" />
-              <span>ड्राइवर अलॉटेड</span>
-            </div>
-            <div className="text-2xl font-black text-indigo-300 mt-1">{stats.driversAssigned}</div>
-            <div className="text-[11px] text-indigo-200/80 mt-0.5">{stats.unassignedDrivers} Standby/Empty</div>
+          <div className="metric-chip">
+            <span className="metric-chip-label inline-flex items-center gap-1 text-teal-800">
+              <UserCheck className="h-3.5 w-3.5" />
+              ड्राइवर अलॉटेड
+            </span>
+            <span className="metric-chip-value text-teal-800">{stats.driversAssigned}</span>
+            <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">{stats.unassignedDrivers} Standby/Empty</span>
           </div>
         </div>
       </div>
 
       {/* 1-Month Early Warning Notification Banner */}
       {(stats.expiring30Days > 0 || stats.expiredDocs > 0) && (
-        <div className="bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-amber-500/15 border-2 border-amber-400/50 rounded-2xl p-5 shadow-md">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="panel overflow-hidden">
+          <div className="h-1 w-full bg-gradient-to-r from-[var(--color-ink)] via-[var(--color-copper)] to-amber-400" />
+          <div className="flex flex-col justify-between gap-4 border-b border-[var(--color-line)] bg-[var(--color-surface)] p-5 md:flex-row md:items-center">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md">
-                <AlertTriangle className="w-6 h-6 animate-pulse" />
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--color-ink)] text-teal-300 shadow-sm ring-2 ring-teal-100">
+                <AlertTriangle className="h-5 w-5" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-black text-slate-900">
-                    ⚠️ 1 महीने पहले का एक्सपायरी अलर्ट (Document Expiry Warning)
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-ink)]">
+                    1 महीने पहले का एक्सपायरी अलर्ट (Document Expiry Warning)
                   </h3>
-                  <span className="px-2 py-0.5 bg-amber-500 text-slate-950 text-xs font-black rounded-full">
+                  <span className="inline-flex items-center gap-1 rounded-md border border-teal-200 bg-teal-50 px-2 py-0.5 text-[11px] font-bold text-teal-800">
+                    <ShieldAlert className="h-3 w-3" />
                     {stats.expiring30Days + stats.expiredDocs} गाड़ियाँ प्रभावित
                   </span>
+                  {stats.expiredDocs > 0 && (
+                    <span className="badge badge-danger !text-[10px]">{stats.expiredDocs} expired</span>
+                  )}
                 </div>
-                <p className="text-xs text-slate-700 mt-1">
-                  निम्न गाड़ियों का <strong>PUC, इंश्योरेंस या RTO फिटनेस 30 दिन (1 माह) के अंदर एक्सपायर</strong> हो रहा है या हो चुका है। 
-                  तत्काल रिन्यू कराएं या ड्राइवर को व्हाट्सएप चेतावनी भेजें ताकि सरकारी चालान व ज़ब्ती से बचा जा सके।
+                <p className="mt-1 max-w-3xl text-xs leading-relaxed text-[var(--color-muted)]">
+                  निम्न गाड़ियों का{' '}
+                  <strong className="text-[var(--color-ink)]">
+                    PUC, इंश्योरेंस या RTO फिटनेस 30 दिन (1 माह) के अंदर एक्सपायर
+                  </strong>{' '}
+                  हो रहा है या हो चुका है। तत्काल रिन्यू कराएं या ड्राइवर को व्हाट्सएप चेतावनी भेजें ताकि सरकारी चालान व ज़ब्ती से बचा जा सके।
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => {
-                  setFilterExpiry('expiring_30');
-                  setFilterDocType('all');
-                }}
-                className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-xs transition-colors flex items-center gap-1.5"
-              >
-                <span>अलर्ट वाली गाड़ियाँ देखें ({stats.expiring30Days + stats.expiredDocs})</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setFilterExpiry('expiring_30');
+                setFilterDocType('all');
+              }}
+              className="btn btn-primary shrink-0 !text-xs"
+            >
+              अलर्ट वाली गाड़ियाँ देखें ({stats.expiring30Days + stats.expiredDocs})
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
           </div>
 
-          {/* Quick alert vehicle pills */}
-          <div className="mt-4 flex flex-wrap gap-2 pt-3 border-t border-amber-200/60">
+          <div className="flex flex-wrap gap-2 bg-[var(--color-sand)]/40 p-4 sm:p-5">
             {urgentAlertVehicles.map((v) => {
               const alerts = checkVehicleAlerts(v);
               const driver = v.currentDriverId ? driverMap.get(v.currentDriverId) : null;
               return (
                 <div
                   key={`urg-${v.id}`}
-                  className="bg-white/90 border border-amber-300 rounded-lg px-2.5 py-1.5 flex items-center gap-2 text-xs shadow-2xs hover:border-amber-500 transition-colors"
+                  className="flex items-center gap-2 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-2.5 py-2 text-xs shadow-[0_1px_2px_rgba(11,28,44,0.03)] transition-all hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-md"
                 >
-                  <span className="font-mono font-black text-slate-900 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">
+                  <span className="rounded-md border border-[var(--color-line-strong)] bg-[var(--color-surface-muted)] px-1.5 py-0.5 font-mono text-[11px] font-bold text-[var(--color-ink)]">
                     {v.vehicleNumber}
                   </span>
-                  <span className="text-slate-600 font-medium truncate max-w-[130px]">
-                    {driver ? `👨‍✈️ ${driver.name}` : '❌ कोई ड्राइवर नहीं'}
+                  <span className="max-w-[130px] truncate font-medium text-[var(--color-muted)]">
+                    {driver ? driver.name : 'कोई ड्राइवर नहीं'}
                   </span>
-                  <div className="flex items-center gap-1 text-[11px]">
+                  <div className="flex flex-wrap items-center gap-1 text-[11px]">
                     {alerts.puc.is1MonthAlert && (
-                      <span className={`px-1.5 py-0.5 rounded font-bold ${alerts.puc.status === 'expired' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}`}>
+                      <span className={alerts.puc.status === 'expired' ? 'badge badge-danger' : 'badge badge-warning'}>
                         PUC: {alerts.puc.label}
                       </span>
                     )}
                     {alerts.ins.is1MonthAlert && (
-                      <span className={`px-1.5 py-0.5 rounded font-bold ${alerts.ins.status === 'expired' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}`}>
+                      <span className={alerts.ins.status === 'expired' ? 'badge badge-danger' : 'badge badge-warning'}>
                         बीमा: {alerts.ins.label}
                       </span>
                     )}
                     {alerts.fit.is1MonthAlert && (
-                      <span className={`px-1.5 py-0.5 rounded font-bold ${alerts.fit.status === 'expired' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}`}>
+                      <span className={alerts.fit.status === 'expired' ? 'badge badge-danger' : 'badge badge-warning'}>
                         फिटनेस: {alerts.fit.label}
                       </span>
                     )}
                   </div>
                   <button
+                    type="button"
                     onClick={() => handleOpenWhatsAppAlert(v)}
                     title="Send WhatsApp Alert to Driver"
-                    className="p-1 rounded hover:bg-emerald-100 text-emerald-700 transition-colors ml-1"
+                    className="ml-0.5 rounded-lg p-1.5 text-[var(--color-copper)] transition-colors hover:bg-teal-50"
                   >
-                    <Send className="w-3 h-3" />
+                    <Send className="h-3.5 w-3.5" />
                   </button>
                 </div>
               );
@@ -640,18 +648,18 @@ ${docList.join('\n')}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[var(--color-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="गाड़ी नंबर (e.g. UP32 AB 1234), मॉडल, ड्राइवर का नाम, मोबाइल नंबर, या टेंडर विभाग खोजें..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
+              className="w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-muted)] py-2.5 pl-10 pr-4 text-sm transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)] hover:text-slate-600 p-1"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -688,7 +696,7 @@ ${docList.join('\n')}
                 setFilterOwnership('all');
                 setFilterDriverStatus('all');
               }}
-              className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+              className="p-2 text-[var(--color-muted)] hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
               title="Reset Filters"
             >
               <RotateCcw className="w-4 h-4" />
@@ -699,7 +707,7 @@ ${docList.join('\n')}
         {/* Filter Badges Row 1: Expiry Alert Filters */}
         <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 text-xs">
           <span className="font-bold text-slate-700 flex items-center gap-1 mr-1">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
+            <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--color-muted)]" />
             <span>एक्सपायरी स्थिति:</span>
           </span>
 
@@ -707,7 +715,7 @@ ${docList.join('\n')}
             onClick={() => setFilterExpiry('all')}
             className={`px-3 py-1.5 rounded-lg transition-colors font-medium ${
               filterExpiry === 'all'
-                ? 'bg-slate-900 text-white font-bold shadow-xs'
+                ? 'bg-[var(--color-ink)] text-white font-bold shadow-xs'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
@@ -718,8 +726,8 @@ ${docList.join('\n')}
             onClick={() => setFilterExpiry('expiring_30')}
             className={`px-3 py-1.5 rounded-lg transition-colors font-semibold flex items-center gap-1.5 ${
               filterExpiry === 'expiring_30'
-                ? 'bg-amber-500 text-slate-950 shadow-xs'
-                : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200'
+                ? 'bg-[var(--color-copper)] text-white shadow-xs'
+                : 'bg-teal-50 text-teal-900 hover:bg-teal-100 border border-teal-200'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -768,7 +776,7 @@ ${docList.join('\n')}
               <button
                 onClick={() => setFilterRegType('Commercial')}
                 className={`px-2.5 py-1 rounded-md transition-colors flex items-center gap-1.5 ${
-                  filterRegType === 'Commercial' ? 'bg-amber-300 text-slate-950 font-black shadow-2xs' : 'text-slate-700'
+                  filterRegType === 'Commercial' ? 'bg-teal-600 text-white font-black shadow-2xs' : 'text-slate-700'
                 }`}
               >
                 <span className="w-2.5 h-2 rounded-xs bg-amber-400 border border-slate-900"></span>
@@ -792,7 +800,7 @@ ${docList.join('\n')}
             <select
               value={filterDocType}
               onChange={(e) => setFilterDocType(e.target.value as any)}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-teal-500"
             >
               <option value="all">सभी दस्तावेज़ (PUC, बीमा, फिटनेस)</option>
               <option value="puc">केवल PUC (प्रदूषण)</option>
@@ -807,7 +815,7 @@ ${docList.join('\n')}
             <select
               value={filterDriverStatus}
               onChange={(e) => setFilterDriverStatus(e.target.value as any)}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-teal-500"
             >
               <option value="all">सभी (अलॉटेड व खाली)</option>
               <option value="assigned">ड्राइवर अलॉटेड (Assigned)</option>
@@ -821,7 +829,7 @@ ${docList.join('\n')}
             <select
               value={filterOwnership}
               onChange={(e) => setFilterOwnership(e.target.value)}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-teal-500"
             >
               <option value="all">All Ownership Types</option>
               <option value="Company Owned">Company Owned (कंपनी की)</option>
@@ -833,25 +841,26 @@ ${docList.join('\n')}
       </div>
 
       {/* Results Count Banner */}
-      <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+      <div className="flex flex-col gap-1 px-1 text-xs text-[var(--color-muted)] sm:flex-row sm:items-center sm:justify-between">
         <div>
-          कुल <strong className="text-slate-900 font-bold">{filteredVehicles.length}</strong> गाड़ियाँ प्रदर्शित
+          कुल <strong className="font-bold text-[var(--color-ink)]">{filteredVehicles.length}</strong> गाड़ियाँ प्रदर्शित
           {searchQuery && ` ("${searchQuery}" के लिए)`}
           {filterRegType !== 'all' && ` • ${filterRegType === 'Commercial' ? 'पीली प्लेट (कमर्शियल)' : 'सफ़ेद प्लेट (प्राइवेट)'}`}
           {filterExpiry === 'expiring_30' && ' • 1 माह में एक्सपायर होने वाले'}
           {filterExpiry === 'expired' && ' • एक्सपायर हो चुके'}
         </div>
-        <div className="text-[11px] text-slate-400">
-          * 30 दिन (&le; 30d) के भीतर एक्सपायर होने पर 1-माह पूर्व चेतावनी दिखाई जाती है
+        <div className="flex items-center gap-1 text-[11px] text-[var(--color-warning)]">
+          <AlertTriangle className="h-3 w-3 shrink-0" />
+          <span>30 दिन (≤ 30d) के भीतर एक्सपायर होने पर 1-माह पूर्व चेतावनी दिखाई जाती है</span>
         </div>
       </div>
 
       {/* Empty State */}
       {filteredVehicles.length === 0 && (
         <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-xs">
-          <Car className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <Car className="w-12 h-12 text-[var(--color-muted)] mx-auto mb-3" />
           <h3 className="text-base font-bold text-slate-800">कोई गाड़ी नहीं मिली</h3>
-          <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+          <p className="text-xs text-[var(--color-muted)] mt-1 max-w-md mx-auto">
             आपके चुने गए फिल्टर या खोज शब्दों के अनुसार कोई गाड़ी उपलब्ध नहीं है। फिल्टर रीसेट करें या नई गाड़ी जोड़ें।
           </p>
           <div className="mt-4 flex items-center justify-center gap-2">
@@ -870,7 +879,7 @@ ${docList.join('\n')}
             </button>
             <button
               onClick={handleOpenAddVehicle}
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl text-xs font-bold transition-colors"
+              className="btn btn-success !text-xs"
             >
               नई गाड़ी जोड़ें
             </button>
@@ -880,7 +889,7 @@ ${docList.join('\n')}
 
       {/* CARD VIEW */}
       {viewMode === 'cards' && filteredVehicles.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filteredVehicles.map((v) => {
             const driver =
               (v.currentDriverId ? driverMap.get(v.currentDriverId) : null) ||
@@ -890,292 +899,277 @@ ${docList.join('\n')}
             const alerts = checkVehicleAlerts(v);
             const isCommercial = (v.registrationType || 'Commercial') === 'Commercial';
 
+            const docRows: Array<{
+              key: 'puc' | 'insurance' | 'fitness';
+              code: string;
+              title: string;
+              expiry: string;
+              meta?: string;
+              alert: typeof alerts.puc;
+            }> = [
+              { key: 'puc', code: 'PUC', title: 'प्रदूषण (PUC)', expiry: v.pucExpiry, alert: alerts.puc },
+              {
+                key: 'insurance',
+                code: 'INS',
+                title: 'बीमा (Insurance)',
+                expiry: v.insuranceExpiry,
+                meta: v.insuranceCompany || 'Policy',
+                alert: alerts.ins,
+              },
+              { key: 'fitness', code: 'FIT', title: 'फिटनेस (Fitness)', expiry: v.rtoFitnessExpiry, alert: alerts.fit },
+            ];
+
             return (
-              <div
+              <article
                 key={v.id}
-                className={`bg-white rounded-2xl border transition-all duration-200 hover:shadow-lg flex flex-col justify-between overflow-hidden ${
+                className={`panel group relative flex flex-col overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(11,28,44,0.08)] ${
                   alerts.hasExpired
-                    ? 'border-rose-300 ring-2 ring-rose-200'
+                    ? 'border-rose-300 ring-2 ring-rose-100'
                     : alerts.hasExpiringIn30
-                    ? 'border-amber-300 ring-2 ring-amber-200'
-                    : 'border-slate-200'
+                      ? 'border-amber-300 ring-2 ring-amber-100'
+                      : ''
                 }`}
               >
-                {/* Card Top: Number Plate & Registration Badge */}
-                <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+                <div
+                  className={`h-1 w-full ${
+                    alerts.hasExpired
+                      ? 'bg-rose-500'
+                      : alerts.hasExpiringIn30
+                        ? 'bg-[var(--color-warning)]'
+                        : 'bg-gradient-to-r from-[var(--color-ink)] via-[var(--color-copper)] to-teal-400'
+                  }`}
+                />
+
+                {/* Header: plate + meta */}
+                <div className="border-b border-[var(--color-line)] bg-[var(--color-surface-muted)]/60 p-4">
                   <div className="flex items-start justify-between gap-3">
-                    {/* Realistic Indian Number Plate Display */}
-                    <div className="flex flex-col">
+                    <div className="min-w-0 flex-1">
                       <div
-                        className={`inline-flex items-center px-3 py-1.5 rounded-lg border-2 shadow-xs font-mono font-black tracking-wider text-base ${
+                        className={`inline-flex max-w-full items-center rounded-lg border-2 px-3 py-1.5 font-mono text-base font-black tracking-wider shadow-sm ${
                           isCommercial
-                            ? 'bg-amber-300 text-slate-950 border-amber-400'
-                            : 'bg-white text-slate-950 border-slate-400'
+                            ? 'border-[#c9a227] bg-[#f5d76e] text-[var(--color-ink)]'
+                            : 'border-[var(--color-line-strong)] bg-white text-[var(--color-ink)]'
                         }`}
                       >
-                        <span className="text-[10px] mr-1.5 font-bold px-1 rounded bg-black/10 text-slate-800">
-                          IND
-                        </span>
-                        <span>{v.vehicleNumber}</span>
-                      </div>
-                      
-                      {/* Sub-label under plate */}
-                      <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                         <span
-                          className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full tracking-wide ${
-                            isCommercial
-                              ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                              : 'bg-slate-200 text-slate-800 border border-slate-300'
+                          className={`mr-1.5 rounded px-1 text-[10px] font-bold ${
+                            isCommercial ? 'bg-black/10 text-[var(--color-ink)]' : 'bg-[var(--color-ink)] text-white'
                           }`}
                         >
-                          {isCommercial ? '🟨 Commercial' : '⬜ Private'}
+                          IND
                         </span>
-                        <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-300 shadow-2xs">
-                          👨‍✈️ चालक: {driver?.name || v.driverName || 'अनावंटित'}
+                        <span className="truncate">{v.vehicleNumber}</span>
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        <span
+                          className={`rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wide ${
+                            isCommercial
+                              ? 'border border-amber-300 bg-amber-50 text-amber-900'
+                              : 'border border-[var(--color-line)] bg-white text-[var(--color-ink)]'
+                          }`}
+                        >
+                          {isCommercial ? 'Commercial' : 'Private'}
                         </span>
-                        <span className="text-[10px] text-slate-500 font-medium">
-                          {v.ownershipType}
+                        <span className="inline-flex items-center gap-1 rounded-md border border-teal-200 bg-teal-50 px-2 py-0.5 text-[10px] font-bold text-teal-800">
+                          <UserCheck className="h-3 w-3" />
+                          चालक: {driver?.name || v.driverName || 'अनावंटित'}
                         </span>
+                        <span className="text-[10px] font-medium text-[var(--color-muted)]">{v.ownershipType}</span>
                       </div>
                     </div>
 
-                    {/* Quick Edit and Menu */}
-                    <div className="flex items-center gap-1">
+                    <div className="flex shrink-0 items-center gap-1">
                       <button
+                        type="button"
                         onClick={() => handleOpenWhatsAppAlert(v)}
                         title="Send WhatsApp 1-Month Expiry Alert to Driver"
-                        className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors"
+                        className="rounded-lg p-1.5 text-[var(--color-copper)] transition-colors hover:bg-teal-50"
                       >
-                        <Send className="w-4 h-4" />
+                        <Send className="h-4 w-4" />
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleOpenEditVehicle(v)}
                         title="Edit Vehicle"
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                        className="rounded-lg p-1.5 text-[var(--color-muted)] transition-colors hover:bg-[var(--color-sand)] hover:text-[var(--color-ink)]"
                       >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Make Model & Fuel */}
-                  <div className="mt-3 flex items-center justify-between text-xs text-slate-600">
-                    <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                      <Car className="w-3.5 h-3.5 text-slate-500" />
-                      <span>{v.makeModel}</span>
+                  <div className="mt-3 flex items-center justify-between gap-2 text-xs">
+                    <div className="flex min-w-0 items-center gap-1.5 font-bold text-[var(--color-ink)]">
+                      <Car className="h-3.5 w-3.5 shrink-0 text-[var(--color-copper)]" />
+                      <span className="truncate">{v.makeModel}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[11px] font-semibold">
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      <span className="rounded-md bg-[var(--color-sand)] px-1.5 py-0.5 text-[11px] font-semibold text-[var(--color-ink)]">
                         {v.vehicleType}
                       </span>
-                      <span className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[11px] font-semibold flex items-center gap-1">
-                        <Fuel className="w-3 h-3 text-amber-600" />
-                        <span>{v.fuelType}</span>
+                      <span className="inline-flex items-center gap-1 rounded-md border border-teal-200 bg-white px-1.5 py-0.5 text-[11px] font-semibold text-teal-800">
+                        <Fuel className="h-3 w-3" />
+                        {v.fuelType}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Card Body: Driver Section ("KISME KAUN DRIVER ABHI CHALA RAHA HAI") */}
-                <div className="p-4 bg-white border-b border-slate-100">
-                  <div className="text-[11px] uppercase tracking-wider font-bold text-slate-400 mb-2 flex items-center justify-between">
-                    <span className="flex items-center gap-1">
-                      <UserCheck className="w-3.5 h-3.5 text-indigo-500" />
-                      <span>चालू ड्राइवर (Current Driver)</span>
+                {/* Driver */}
+                <div className="border-b border-[var(--color-line)] bg-[var(--color-surface)] p-4">
+                  <div className="mb-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[var(--color-muted)]">
+                    <span className="inline-flex items-center gap-1 normal-case tracking-normal">
+                      <UserCheck className="h-3.5 w-3.5 text-[var(--color-copper)]" />
+                      चालू ड्राइवर (Current Driver)
                     </span>
                     <button
+                      type="button"
                       onClick={() => handleOpenAssignDriverModal(v)}
-                      className="text-indigo-600 hover:text-indigo-800 hover:underline font-semibold lowercase flex items-center gap-0.5"
+                      className="inline-flex items-center gap-0.5 font-semibold normal-case tracking-normal text-[var(--color-copper)] hover:underline"
                     >
-                      <span>{driver ? 'बदलें (Change)' : 'अलॉट करें (Assign)'}</span>
-                      <ChevronRight className="w-3 h-3" />
+                      {driver ? 'बदलें (Change)' : 'अलॉट करें (Assign)'}
+                      <ChevronRight className="h-3 w-3" />
                     </button>
                   </div>
 
                   {driver ? (
-                    <div className="flex items-center justify-between bg-indigo-50/60 rounded-xl p-2.5 border border-indigo-100">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-full bg-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                    <div className="flex items-center justify-between gap-2 rounded-xl border border-teal-100 bg-gradient-to-br from-teal-50/80 to-white p-2.5">
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-ink)] text-sm font-black text-white shadow-sm ring-2 ring-teal-100">
                           {driver.name.charAt(0)}
                         </div>
-                        <div>
-                          <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                            <span>{driver.name}</span>
-                            <span className="px-1.5 py-0.2 rounded text-[10px] font-medium bg-emerald-100 text-emerald-800">
-                              Active
-                            </span>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-1.5 text-xs font-bold text-[var(--color-ink)]">
+                            <span className="truncate">{driver.name}</span>
+                            <span className="badge badge-success !px-1.5 !py-0 !text-[10px]">Active</span>
                           </div>
-                          <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                            <Phone className="w-3 h-3 text-slate-400" />
-                            <a href={`tel:${driver.phone}`} className="hover:text-indigo-600 font-mono">
-                              {driver.phone}
-                            </a>
-                          </div>
+                          <a
+                            href={`tel:${driver.phone}`}
+                            className="mt-0.5 inline-flex items-center gap-1 font-mono text-[11px] text-[var(--color-muted)] hover:text-[var(--color-copper)]"
+                          >
+                            <Phone className="h-3 w-3" />
+                            {driver.phone}
+                          </a>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => handleOpenWhatsAppAlert(v)}
-                          className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center gap-1 shadow-2xs transition-colors"
-                          title="WhatsApp Expiry Reminder to Driver"
-                        >
-                          <Send className="w-3 h-3" />
-                          <span>व्हाट्सएप</span>
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenWhatsAppAlert(v)}
+                        className="btn btn-accent !px-2.5 !py-1.5 !text-[11px] shrink-0"
+                        title="WhatsApp Expiry Reminder to Driver"
+                      >
+                        <Send className="h-3 w-3" />
+                        व्हाट्सएप
+                      </button>
                     </div>
                   ) : (
-                    <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-2.5 text-center">
-                      <div className="text-xs font-bold text-amber-900">
-                        ⚠️ कोई ड्राइवर अलॉट नहीं है (Standby)
+                    <div className="rounded-xl border border-amber-200 bg-[var(--color-warning-soft)] p-3 text-center">
+                      <div className="inline-flex items-center gap-1 text-xs font-bold text-amber-900">
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                        कोई ड्राइवर अलॉट नहीं है (Standby)
                       </div>
-                      <p className="text-[11px] text-amber-700 mt-0.5">
-                        यह गाड़ी बिना ड्राइवर के खड़ी है।
-                      </p>
+                      <p className="mt-0.5 text-[11px] text-amber-800">यह गाड़ी बिना ड्राइवर के खड़ी है।</p>
                       <button
+                        type="button"
                         onClick={() => handleOpenAssignDriverModal(v)}
-                        className="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-indigo-700 hover:text-indigo-900 bg-white px-2.5 py-1 rounded-lg border border-indigo-200 shadow-2xs"
+                        className="btn btn-secondary mt-2 !text-xs"
                       >
-                        <UserCheck className="w-3 h-3" />
-                        <span>ड्राइवर अलॉट करें</span>
+                        <UserCheck className="h-3 w-3" />
+                        ड्राइवर अलॉट करें
                       </button>
                     </div>
                   )}
 
-                  {/* Assigned Officer / Tender Info */}
-                  <div className="mt-2.5 flex items-center justify-between text-[11px] text-slate-500 bg-slate-50 rounded-lg px-2.5 py-1.5">
-                    <span className="truncate max-w-[170px]" title={tender?.departmentName}>
-                      🏛️ {tender ? tender.departmentName.split('(')[0] : 'No Tender'}
+                  <div className="mt-2.5 flex items-center justify-between gap-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-2.5 py-2 text-[11px] text-[var(--color-muted)]">
+                    <span className="inline-flex min-w-0 max-w-[55%] items-center gap-1 truncate" title={tender?.departmentName}>
+                      <Building2 className="h-3 w-3 shrink-0 text-[var(--color-copper)]" />
+                      <span className="truncate">{tender ? tender.departmentName.split('(')[0] : 'No Tender'}</span>
                     </span>
-                    <span className="truncate max-w-[120px] font-medium text-slate-700" title={officer?.name}>
-                      👤 {officer ? officer.name : 'No Officer'}
+                    <span className="inline-flex min-w-0 max-w-[40%] items-center gap-1 truncate font-medium text-[var(--color-ink)]" title={officer?.name}>
+                      <Users className="h-3 w-3 shrink-0 text-[var(--color-muted)]" />
+                      <span className="truncate">{officer ? officer.name : 'No Officer'}</span>
                     </span>
                   </div>
                 </div>
 
-                {/* Card Body: Compliance & Expiry Watch Grid (PUC, Insurance, Fitness) */}
-                <div className="p-4 bg-slate-50/40 space-y-2.5">
-                  <div className="text-[11px] uppercase tracking-wider font-bold text-slate-400 flex items-center justify-between">
-                    <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
-                      <span>दस्तावेज़ एक्सपायरी (PUC, बीमा व फिटनेस)</span>
+                {/* Compliance */}
+                <div className="flex-1 space-y-2 bg-[var(--color-sand)]/35 p-4">
+                  <div className="flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-wider text-[var(--color-muted)]">
+                    <span className="inline-flex items-center gap-1 normal-case tracking-normal">
+                      <ShieldCheck className="h-3.5 w-3.5 text-[var(--color-copper)]" />
+                      दस्तावेज़ एक्सपायरी (PUC, बीमा व फिटनेस)
                     </span>
-                    <span className="text-[10px] text-amber-600 font-semibold">
-                      1-Month Alert Mode
+                    <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-[var(--color-warning)]">
+                      <Clock className="h-3 w-3" />
+                      1-Month Alert
                     </span>
                   </div>
 
-                  {/* 1. PUC Pollution Certificate */}
-                  <div className="bg-white rounded-xl p-2.5 border border-slate-200 shadow-2xs flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black ${
-                        alerts.puc.status === 'expired' ? 'bg-rose-100 text-rose-700' : alerts.puc.status === 'expiring_soon' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
-                      }`}>
-                        PUC
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                          <span>प्रदूषण (PUC)</span>
-                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-black border ${alerts.puc.badgeColor}`}>
-                            {alerts.puc.label}
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">
-                          Exp: <span className="font-semibold text-slate-700">{formatDate(v.pucExpiry)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => handleOpenRenewModal(v, 'puc')}
-                      className="px-2 py-1 rounded bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 text-[11px] font-bold transition-colors"
+                  {docRows.map((row) => (
+                    <div
+                      key={row.key}
+                      className="flex items-center justify-between gap-2 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] p-2.5 shadow-[0_1px_2px_rgba(11,28,44,0.03)]"
                     >
-                      रिन्यू करें
-                    </button>
-                  </div>
-
-                  {/* 2. Commercial / Private Insurance */}
-                  <div className="bg-white rounded-xl p-2.5 border border-slate-200 shadow-2xs flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black ${
-                        alerts.ins.status === 'expired' ? 'bg-rose-100 text-rose-700' : alerts.ins.status === 'expiring_soon' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
-                      }`}>
-                        INS
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                          <span>बीमा (Insurance)</span>
-                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-black border ${alerts.ins.badgeColor}`}>
-                            {alerts.ins.label}
-                          </span>
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-black ${
+                            row.alert.status === 'expired'
+                              ? 'bg-rose-100 text-rose-700'
+                              : row.alert.status === 'expiring_soon'
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-teal-50 text-teal-800'
+                          }`}
+                        >
+                          {row.code}
                         </div>
-                        <div className="text-[11px] text-slate-500 mt-0.5 truncate max-w-[160px]" title={v.insuranceCompany}>
-                          {v.insuranceCompany || 'Policy'}: <span className="font-semibold text-slate-700">{formatDate(v.insuranceExpiry)}</span>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-1.5 text-xs font-bold text-[var(--color-ink)]">
+                            <span>{row.title}</span>
+                            <span className={`rounded px-1.5 py-0.5 text-[10px] font-black border ${row.alert.badgeColor}`}>
+                              {row.alert.label}
+                            </span>
+                          </div>
+                          <div className="mt-0.5 truncate text-[11px] text-[var(--color-muted)]">
+                            {row.meta ? `${row.meta}: ` : 'Exp: '}
+                            <span className="font-semibold text-[var(--color-ink)]">{formatDate(row.expiry)}</span>
+                          </div>
                         </div>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenRenewModal(v, row.key)}
+                        className="btn btn-secondary shrink-0 !px-2 !py-1 !text-[11px]"
+                      >
+                        रिन्यू करें
+                      </button>
                     </div>
-
-                    <button
-                      onClick={() => handleOpenRenewModal(v, 'insurance')}
-                      className="px-2 py-1 rounded bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 text-[11px] font-bold transition-colors"
-                    >
-                      रिन्यू करें
-                    </button>
-                  </div>
-
-                  {/* 3. RTO Commercial Fitness */}
-                  <div className="bg-white rounded-xl p-2.5 border border-slate-200 shadow-2xs flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black ${
-                        alerts.fit.status === 'expired' ? 'bg-rose-100 text-rose-700' : alerts.fit.status === 'expiring_soon' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
-                      }`}>
-                        FIT
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                          <span>फिटनेस (Fitness)</span>
-                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-black border ${alerts.fit.badgeColor}`}>
-                            {alerts.fit.label}
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">
-                          Exp: <span className="font-semibold text-slate-700">{formatDate(v.rtoFitnessExpiry)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => handleOpenRenewModal(v, 'fitness')}
-                      className="px-2 py-1 rounded bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 text-[11px] font-bold transition-colors"
-                    >
-                      रिन्यू करें
-                    </button>
-                  </div>
+                  ))}
                 </div>
 
-                {/* Card Footer: Action Buttons */}
-                <div className="p-3 bg-white border-t border-slate-100 flex items-center justify-between gap-2">
+                {/* Footer */}
+                <div className="flex items-center gap-2 border-t border-[var(--color-line)] bg-[var(--color-surface)] p-3">
                   <button
+                    type="button"
                     onClick={() => {
                       setSelectedVehicleForDocs(v);
                       setIsDocModalOpen(true);
                     }}
-                    className="flex-1 py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition-colors"
+                    className="btn btn-secondary flex-1 !text-xs"
                   >
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>दस्तावेज़ कॉपी ({v.documents?.length || 0})</span>
+                    <FileText className="h-3.5 w-3.5" />
+                    दस्तावेज़ कॉपी ({v.documents?.length || 0})
                   </button>
-
                   <button
+                    type="button"
                     onClick={() => handleOpenWhatsAppAlert(v)}
-                    className="flex-1 py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition-colors"
+                    className="btn btn-accent flex-1 !text-xs"
                   >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>व्हाट्सएप अलर्ट</span>
+                    <Send className="h-3.5 w-3.5" />
+                    व्हाट्सएप अलर्ट
                   </button>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
@@ -1186,7 +1180,7 @@ ${docList.join('\n')}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-900 text-white font-semibold uppercase tracking-wider text-[11px]">
+              <thead className="bg-[var(--color-surface)] text-[var(--color-ink)] font-semibold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="py-3.5 px-4">गाड़ी नंबर व मॉडल</th>
                   <th className="py-3.5 px-4">रजिस्ट्रेशन प्रकार</th>
@@ -1218,13 +1212,13 @@ ${docList.join('\n')}
                           <span
                             className={`font-mono font-black px-2 py-0.5 rounded border text-xs ${
                               isCommercial
-                                ? 'bg-amber-300 text-slate-950 border-amber-400'
+                                ? 'bg-teal-100 text-teal-950 border-teal-400'
                                 : 'bg-white text-slate-950 border-slate-400'
                             }`}
                           >
                             {v.vehicleNumber}
                           </span>
-                          <span className="text-[11px] text-slate-500 font-medium">{v.makeModel}</span>
+                          <span className="text-[11px] text-[var(--color-muted)] font-medium">{v.makeModel}</span>
                         </div>
                       </td>
 
@@ -1239,7 +1233,7 @@ ${docList.join('\n')}
                         >
                           {isCommercial ? '🟨 Commercial (पीली)' : '⬜ Private (सफ़ेद)'}
                         </span>
-                        <div className="text-[10px] text-slate-400 mt-0.5">{v.ownershipType}</div>
+                        <div className="text-[10px] text-[var(--color-muted)] mt-0.5">{v.ownershipType}</div>
                       </td>
 
                       {/* Assigned Driver */}
@@ -1251,17 +1245,17 @@ ${docList.join('\n')}
                               <a
                                 href={`tel:${driver.phone}`}
                                 title={`Call ${driver.phone}`}
-                                className="text-indigo-600 hover:text-indigo-800"
+                                className="text-teal-700 hover:text-teal-800"
                               >
                                 <Phone className="w-3 h-3" />
                               </a>
                             </div>
-                            <div className="text-[11px] text-slate-500 font-mono">{driver.phone}</div>
+                            <div className="text-[11px] text-[var(--color-muted)] font-mono">{driver.phone}</div>
                           </div>
                         ) : (
                           <button
                             onClick={() => handleOpenAssignDriverModal(v)}
-                            className="text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2 py-0.5 rounded font-bold text-[11px]"
+                            className="text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-2 py-0.5 rounded font-bold text-[11px]"
                           >
                             + ड्राइवर अलॉट करें
                           </button>
@@ -1322,7 +1316,7 @@ ${docList.join('\n')}
                           </button>
                           <button
                             onClick={() => handleOpenEditVehicle(v)}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                            className="p-1.5 rounded-lg text-[var(--color-muted)] hover:text-slate-800 hover:bg-slate-100"
                             title="Edit Vehicle"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
@@ -1340,282 +1334,13 @@ ${docList.join('\n')}
 
       {/* ================= MODAL: ADD / EDIT VEHICLE ================= */}
       {isAddEditModalOpen && editingVehicle && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <Car className="w-5 h-5 text-indigo-600" />
-                <span>{editingVehicle.vehicleNumber ? 'गाड़ी विवरण संशोधित करें (Edit Vehicle)' : 'नई गाड़ी जोड़ें (Add New Vehicle)'}</span>
-              </h2>
-              <button
-                onClick={() => setIsAddEditModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveVehicleForm} className="space-y-4 mt-4">
-              {/* Row 1: Vehicle Number & Registration Type (Commercial vs Private) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    गाड़ी रजिस्ट्रेशन नंबर (Vehicle No.) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. UP32 AB 1234"
-                    value={editingVehicle.vehicleNumber}
-                    onChange={(e) =>
-                      setEditingVehicle({ ...editingVehicle, vehicleNumber: e.target.value.toUpperCase() })
-                    }
-                    className="w-full uppercase font-mono font-bold px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    रजिस्ट्रेशन प्रकार (Commercial / Private) *
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setEditingVehicle({ ...editingVehicle, registrationType: 'Commercial' })}
-                      className={`py-2 px-3 rounded-lg border-2 text-xs font-black flex items-center justify-center gap-1.5 transition-all ${
-                        (editingVehicle.registrationType || 'Commercial') === 'Commercial'
-                          ? 'bg-amber-300 border-amber-500 text-slate-950 shadow-xs'
-                          : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                      }`}
-                    >
-                      <span className="w-3 h-2 bg-amber-400 border border-slate-900 rounded-xs"></span>
-                      <span>कमर्शियल (पीली)</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setEditingVehicle({ ...editingVehicle, registrationType: 'Private' })}
-                      className={`py-2 px-3 rounded-lg border-2 text-xs font-black flex items-center justify-center gap-1.5 transition-all ${
-                        editingVehicle.registrationType === 'Private'
-                          ? 'bg-white border-slate-600 text-slate-950 shadow-xs'
-                          : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                      }`}
-                    >
-                      <span className="w-3 h-2 bg-white border border-slate-500 rounded-xs"></span>
-                      <span>प्राइवेट (सफ़ेद)</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 2: Make & Model, Vehicle Type */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    गाड़ी का नाम व मॉडल (Make &amp; Model) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Maruti Swift Dzire ZXi / Innova Crysta"
-                    value={editingVehicle.makeModel}
-                    onChange={(e) => setEditingVehicle({ ...editingVehicle, makeModel: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">बॉडी टाइप</label>
-                  <select
-                    value={editingVehicle.vehicleType}
-                    onChange={(e) => setEditingVehicle({ ...editingVehicle, vehicleType: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
-                  >
-                    <option value="Sedan">Sedan (Dzire, Amaze)</option>
-                    <option value="SUV">SUV (Scorpio, Bolero)</option>
-                    <option value="MUV">MUV (Innova, Ertiga)</option>
-                    <option value="Hatchback">Hatchback (WagonR)</option>
-                    <option value="EV">EV (Tiago/Nexon EV)</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Row 3: Fuel Type & Current Odometer */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">ईंधन (Fuel)</label>
-                  <select
-                    value={editingVehicle.fuelType}
-                    onChange={(e) => setEditingVehicle({ ...editingVehicle, fuelType: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
-                  >
-                    <option value="Diesel">Diesel</option>
-                    <option value="Petrol">Petrol</option>
-                    <option value="CNG">CNG</option>
-                    <option value="Electric">Electric</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">स्वामित्व (Ownership)</label>
-                  <select
-                    value={editingVehicle.ownershipType}
-                    onChange={(e) => setEditingVehicle({ ...editingVehicle, ownershipType: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
-                  >
-                    <option value="Company Owned">Company Owned (कंपनी की)</option>
-                    <option value="Attached / Market Hire">Attached / Market Hire (वेंडर)</option>
-                    <option value="Owner-Driver">Owner-Driver (मालिक-ड्राइवर)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">ओडोमीटर (KM)</label>
-                  <input
-                    type="number"
-                    value={editingVehicle.currentOdometer}
-                    onChange={(e) =>
-                      setEditingVehicle({ ...editingVehicle, currentOdometer: Number(e.target.value) || 0 })
-                    }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Driver & Tender Assignment */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-200">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    चालू ड्राइवर (Assigned Driver)
-                  </label>
-                  <select
-                    value={editingVehicle.currentDriverId || ''}
-                    onChange={(e) =>
-                      setEditingVehicle({ ...editingVehicle, currentDriverId: e.target.value || undefined })
-                    }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
-                  >
-                    <option value="">-- कोई ड्राइवर नहीं (Standby Pool) --</option>
-                    {drivers.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name} ({d.phone}) {d.currentVehicleId === editingVehicle.id ? '★ वर्तमान' : ''}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    संलग्न टेंडर / विभाग (Tender)
-                  </label>
-                  <select
-                    value={editingVehicle.tenderId}
-                    onChange={(e) => setEditingVehicle({ ...editingVehicle, tenderId: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
-                  >
-                    {tenders.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.departmentName} ({t.workOrderNumber})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Document Expiry Dates Section (PUC, Insurance, Fitness) */}
-              <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-200 space-y-3">
-                <div className="text-xs font-bold text-amber-900 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <ShieldAlert className="w-4 h-4 text-amber-600" />
-                    <span>दस्तावेज़ एक्सपायरी तिथियां (1-Month Auto Alert Active)</span>
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                      PUC एक्सपायरी (प्रदूषण)
-                    </label>
-                    <input
-                      type="date"
-                      value={editingVehicle.pucExpiry || ''}
-                      onChange={(e) => setEditingVehicle({ ...editingVehicle, pucExpiry: e.target.value })}
-                      className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                      इंश्योरेंस एक्सपायरी (बीमा)
-                    </label>
-                    <input
-                      type="date"
-                      value={editingVehicle.insuranceExpiry || ''}
-                      onChange={(e) => setEditingVehicle({ ...editingVehicle, insuranceExpiry: e.target.value })}
-                      className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                      RTO फिटनेस एक्सपायरी
-                    </label>
-                    <input
-                      type="date"
-                      value={editingVehicle.rtoFitnessExpiry || ''}
-                      onChange={(e) => setEditingVehicle({ ...editingVehicle, rtoFitnessExpiry: e.target.value })}
-                      className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      बीमा कंपनी (Insurance Co.)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. United India / ICICI Lombard"
-                      value={editingVehicle.insuranceCompany || ''}
-                      onChange={(e) => setEditingVehicle({ ...editingVehicle, insuranceCompany: e.target.value })}
-                      className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      बीमा पॉलिसी नंबर (Policy No.)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 0823003126P100234"
-                      value={editingVehicle.insurancePolicyNo || ''}
-                      onChange={(e) => setEditingVehicle({ ...editingVehicle, insurancePolicyNo: e.target.value })}
-                      className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs bg-white font-mono"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Form Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
-                <button
-                  type="button"
-                  onClick={() => setIsAddEditModalOpen(false)}
-                  className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                >
-                  रद्द करें (Cancel)
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition-colors"
-                >
-                  सुरक्षित करें (Save Vehicle)
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <FleetVehicleEditModal
+          initialVehicle={editingVehicle}
+          drivers={drivers}
+          tenders={tenders}
+          onClose={handleCloseVehicleForm}
+          onSave={handleSaveVehicleForm}
+        />
       )}
 
       {/* ================= MODAL: QUICK DOCUMENT RENEWAL ================= */}
@@ -1629,7 +1354,7 @@ ${docList.join('\n')}
               </h3>
               <button
                 onClick={() => setIsRenewModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-[var(--color-muted)] hover:text-slate-600"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1642,7 +1367,7 @@ ${docList.join('\n')}
                 </div>
                 <div className="text-slate-600 mt-1">
                   दस्तावेज़:{' '}
-                  <strong className="text-indigo-600 uppercase">
+                  <strong className="text-teal-700 uppercase">
                     {vehicleToRenew.docType === 'puc'
                       ? 'PUC (प्रदूषण प्रमाणपत्र)'
                       : vehicleToRenew.docType === 'insurance'
@@ -1665,7 +1390,7 @@ ${docList.join('\n')}
                 />
                 {/* Date presets */}
                 <div className="flex items-center gap-1.5 mt-2">
-                  <span className="text-[11px] text-slate-500">त्वरित जोड़ें:</span>
+                  <span className="text-[11px] text-[var(--color-muted)]">त्वरित जोड़ें:</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -1749,7 +1474,7 @@ ${docList.join('\n')}
               </h3>
               <button
                 onClick={() => setIsWhatsAppModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-[var(--color-muted)] hover:text-slate-600"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1843,12 +1568,12 @@ ${docList.join('\n')}
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <UserCheck className="w-5 h-5 text-indigo-600" />
+                <UserCheck className="w-5 h-5 text-teal-700" />
                 <span>ड्राइवर अलॉटमेंट (Assign Driver)</span>
               </h3>
               <button
                 onClick={() => setIsAssignDriverModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-[var(--color-muted)] hover:text-slate-600"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1910,7 +1635,7 @@ ${docList.join('\n')}
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition-colors"
+                  className="btn btn-primary !text-xs"
                 >
                   अलॉटमेंट सुरक्षित करें
                 </button>

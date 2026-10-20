@@ -361,10 +361,10 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5 text-indigo-600" />
+            <CreditCard className="w-5 h-5 text-teal-700" />
             <h2 className="text-lg font-bold text-slate-900">
               Universal Daily Payments &amp; Expense Journal
             </h2>
@@ -372,34 +372,37 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
               Smart Auto-Routing Active
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-[var(--color-muted)] mt-1">
             Single entry point: Record any payment (Driver Advance, Vendor Rent, Fuel, Fastag, Workshop), and it automatically posts to that Driver&apos;s Khata, Vehicle&apos;s Cost, or Vendor&apos;s Payout Ledger!
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex shrink-0 flex-nowrap items-center gap-2 overflow-x-auto">
           <button
+            type="button"
             onClick={() => window.print()}
-            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-200"
+            className="btn btn-secondary shrink-0 !text-xs whitespace-nowrap"
           >
-            <Printer className="w-4 h-4" />
+            <Printer className="h-4 w-4" />
             Print Payment Sheet
           </button>
 
           <button
+            type="button"
             onClick={() => setIsBatchModalOpen(true)}
-            className="px-3.5 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
+            className="btn btn-primary shrink-0 !text-xs whitespace-nowrap"
           >
-            <FileSpreadsheet className="w-4 h-4" />
-            + Multi-Payment Batch Sheet (एक साथ कई पेमेंट)
+            <FileSpreadsheet className="h-4 w-4" />
+            Multi-Payment Batch (एक साथ कई पेमेंट)
           </button>
 
           <button
+            type="button"
             onClick={() => setIsAddModalOpen(true)}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
+            className="btn btn-accent shrink-0 !text-xs whitespace-nowrap"
           >
-            <Plus className="w-4 h-4" />
-            + Record Single Payment
+            <Plus className="h-4 w-4" />
+            Record Single Payment
           </button>
         </div>
       </div>
@@ -407,21 +410,21 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
       {/* Auto-Routing Smart Explanation Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
         <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center space-x-2 text-indigo-700 font-semibold">
+          <div className="flex items-center space-x-2 text-teal-800 font-semibold">
             <Users className="w-4 h-4" />
             <span>Driver Advances</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1 leading-snug">
             Automatically deducts from the driver&apos;s monthly salary slip.
           </p>
         </div>
 
         <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-          <div className="flex items-center space-x-2 text-purple-700 font-semibold">
+          <div className="flex items-center space-x-2 text-sky-700 font-semibold">
             <Car className="w-4 h-4" />
             <span>Vendor Vehicle Rent</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1 leading-snug">
             Automatically posts to Vendor / Owner-Driver monthly settlement voucher.
           </p>
         </div>
@@ -431,7 +434,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
             <Fuel className="w-4 h-4" />
             <span>Fuel &amp; Fastag</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1 leading-snug">
             Links to vehicle odometer and reconciles driver fixed fuel budget.
           </p>
         </div>
@@ -441,7 +444,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
             <Wrench className="w-4 h-4" />
             <span>Garage Repairs</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+          <p className="text-[11px] text-[var(--color-muted)] mt-1 leading-snug">
             Updates vehicle service history and monthly maintenance report.
           </p>
         </div>
@@ -463,9 +466,9 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-hidden"
               />
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+              <Search className="w-3.5 h-3.5 text-[var(--color-muted)] absolute left-2.5 top-2.5" />
             </div>
           </div>
 
@@ -514,7 +517,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
             <span>
               Showing <strong>{filteredPayments.length}</strong> payments
             </span>
-            <span className="text-slate-300">|</span>
+            <span className="text-[var(--color-muted)]">|</span>
             <span>
               Total Disbursed: <strong className="text-slate-900 font-bold">{formatCurrency(totalAmountFiltered)}</strong>
             </span>
@@ -528,7 +531,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                 setDateFilter('');
                 setCurrentPage(1);
               }}
-              className="text-indigo-600 hover:text-indigo-800 font-semibold"
+              className="text-teal-700 hover:text-teal-800 font-semibold"
             >
               Clear Filters &times;
             </button>
@@ -554,7 +557,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {filteredPayments.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={7} className="py-12 text-center text-[var(--color-muted)]">
                     No payment entries found matching your search. Click &ldquo;+ Record Daily Payment&rdquo; to add one.
                   </td>
                 </tr>
@@ -564,7 +567,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                     <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="py-3 px-3 whitespace-nowrap">
                         <div className="font-bold text-slate-900">{formatDate(p.date)}</div>
-                        <div className="text-[10px] font-mono text-slate-400">{p.id}</div>
+                        <div className="text-[10px] font-mono text-[var(--color-muted)]">{p.id}</div>
                       </td>
 
                       <td className="py-3 px-3">
@@ -573,7 +576,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                             p.category === 'driver_advance'
                               ? 'bg-rose-100 text-rose-800'
                               : p.category === 'vendor_rent'
-                              ? 'bg-purple-100 text-purple-800'
+                              ? 'bg-sky-100 text-sky-800'
                               : p.category === 'fuel'
                               ? 'bg-blue-100 text-blue-800'
                               : p.category === 'maintenance'
@@ -590,7 +593,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                       <td className="py-3 px-3">
                         <div className="font-bold text-slate-900">{p.payeeName}</div>
                         {p.vehicleNumber && (
-                          <div className="text-[11px] font-mono text-indigo-700 font-semibold">
+                          <div className="text-[11px] font-mono text-teal-800 font-semibold">
                             {p.vehicleNumber}
                           </div>
                         )}
@@ -607,7 +610,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                           {p.paymentMode}
                         </span>
                         {p.referenceNumber && (
-                          <div className="text-[10px] font-mono text-slate-400 mt-0.5">
+                          <div className="text-[10px] font-mono text-[var(--color-muted)] mt-0.5">
                             {p.referenceNumber}
                           </div>
                         )}
@@ -634,7 +637,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
         {/* Pagination Bar */}
         {totalPages > 1 && (
           <div className="bg-white px-4 py-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <span className="text-slate-500">
+            <span className="text-[var(--color-muted)]">
               Showing {(currentPage - 1) * pageSize + 1} to{' '}
               {Math.min(currentPage * pageSize, filteredPayments.length)} of {filteredPayments.length} payments
             </span>
@@ -654,7 +657,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
               >
                 &lsaquo; Prev
               </button>
-              <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-bold rounded">
+              <span className="px-2.5 py-1 bg-teal-50 text-teal-800 font-bold rounded">
                 {currentPage} / {totalPages}
               </span>
               <button
@@ -682,12 +685,12 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
           <div className="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-indigo-600" />
+                <CreditCard className="w-5 h-5 text-teal-700" />
                 <span>Record Daily Payment &bull; भुगतान दर्ज करें</span>
               </h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -807,7 +810,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                         <div className="mt-1 text-[11px] text-slate-600 flex items-center justify-between bg-slate-50 p-2 rounded border border-slate-200">
                           <span>
                             TDS नियम:{' '}
-                            <strong className="text-indigo-700">
+                            <strong className="text-teal-800">
                               {selectedV.isTdsApplicable === false || selectedV.tdsRate === 0
                                 ? '0% छूट (Nil TDS)'
                                 : `${selectedV.tdsRate}% u/s ${selectedV.tdsSection || '194C'}`}
@@ -911,7 +914,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Post Payment &amp; Auto-Update
                 </button>
@@ -923,32 +926,32 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
 
       {/* Batch Payment Daybook Sheet Modal */}
       {isBatchModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-[var(--color-ink)]/50 backdrop-blur-xs flex items-center justify-center p-3 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full border border-slate-200 overflow-hidden my-8">
-            <div className="bg-linear-to-r from-purple-900 to-indigo-900 text-white p-5 flex items-center justify-between">
+            <div className="bg-[var(--color-surface)] text-[var(--color-ink)] border-b border-[var(--color-line)] p-5 flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <FileSpreadsheet className="w-5 h-5 text-purple-300" />
+                  <FileSpreadsheet className="w-5 h-5 text-teal-700" />
                   <h3 className="text-base font-bold">
                     Daily Multi-Payment Daybook Sheet (दैनिक रोकड़ व बहु-भुगतान प्रविष्टि)
                   </h3>
                 </div>
-                <p className="text-xs text-purple-200 mt-1">
+                <p className="text-xs text-[var(--color-muted)] mt-1">
                   Enter today&apos;s disbursements in one unified sheet. Each entry automatically updates that driver&apos;s Khata, vehicle maintenance/fuel records, or vendor payout account!
                 </p>
               </div>
               <button
                 onClick={() => setIsBatchModalOpen(false)}
-                className="text-white/80 hover:text-white text-lg font-bold p-1"
+                className="text-[var(--color-muted)] hover:text-[var(--color-ink)] text-lg font-bold p-1"
               >
                 ✕
               </button>
             </div>
 
             <form onSubmit={handleSaveBatchSubmit} className="p-6 space-y-5">
-              <div className="flex flex-wrap items-center justify-between gap-4 bg-purple-50/70 p-4 rounded-xl border border-purple-100">
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-sky-50/70 p-4 rounded-xl border border-sky-100">
                 <div className="flex items-center gap-3">
-                  <label className="text-xs font-bold text-purple-950">
+                  <label className="text-xs font-bold text-[var(--color-ink)]">
                     Daybook Posting Date:
                   </label>
                   <input
@@ -956,18 +959,18 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                     value={batchDate}
                     onChange={(e) => setBatchDate(e.target.value)}
                     required
-                    className="px-3 py-1.5 border border-purple-300 rounded-lg text-xs bg-white font-medium"
+                    className="px-3 py-1.5 border border-sky-300 rounded-lg text-xs bg-white font-medium"
                   />
                 </div>
 
                 <div className="flex items-center gap-4 text-xs">
                   <div>
-                    <span className="text-purple-700">Total Rows: </span>
-                    <strong className="text-purple-950 font-bold">{batchRows.length}</strong>
+                    <span className="text-sky-700">Total Rows: </span>
+                    <strong className="text-[var(--color-ink)] font-bold">{batchRows.length}</strong>
                   </div>
-                  <div className="h-4 w-px bg-purple-200" />
+                  <div className="h-4 w-px bg-sky-200" />
                   <div>
-                    <span className="text-purple-700">Total Outflow: </span>
+                    <span className="text-sky-700">Total Outflow: </span>
                     <strong className="text-emerald-700 font-bold text-sm">
                       {formatCurrency(batchRows.reduce((sum, r) => sum + (Number(r.amount) || 0), 0))}
                     </strong>
@@ -994,7 +997,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                   <tbody className="divide-y divide-slate-100">
                     {batchRows.map((row, idx) => (
                       <tr key={row.id} className="hover:bg-slate-50/60">
-                        <td className="py-2 px-3 text-center text-slate-400 font-mono">
+                        <td className="py-2 px-3 text-center text-[var(--color-muted)] font-mono">
                           {idx + 1}
                         </td>
                         <td className="py-2 px-3">
@@ -1135,7 +1138,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                             type="button"
                             onClick={() => handleRemoveBatchRow(row.id)}
                             disabled={batchRows.length <= 1}
-                            className="text-slate-400 hover:text-rose-600 font-bold p-1 disabled:opacity-30"
+                            className="text-[var(--color-muted)] hover:text-rose-600 font-bold p-1 disabled:opacity-30"
                             title="Remove row"
                           >
                             ✕
@@ -1167,7 +1170,7 @@ export const DailyPaymentsJournalView: React.FC<DailyPaymentsJournalViewProps> =
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded-lg text-xs font-bold shadow-sm transition-colors flex items-center gap-1.5"
+                    className="btn btn-primary !text-xs"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     Post All {batchRows.length} Payments &amp; Auto-Update Accounts
