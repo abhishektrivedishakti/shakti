@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Building2,
   Car,
@@ -18,6 +18,7 @@ import {
   IndianRupee,
   X,
   CreditCard,
+  ChevronLeft,
   ChevronRight,
   Filter,
   Sparkles,
@@ -46,6 +47,68 @@ import {
 } from '../types';
 import { formatCurrency, formatDate, getAssignedDriverForVehicle } from '../utils/calculations';
 import { DriverHisabAndLeaveModal } from './DriverHisabAndLeaveModal';
+
+const actionFieldClass =
+  'w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2 text-xs text-[var(--color-ink)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm';
+const actionSelectClass =
+  'w-full rounded-lg border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium text-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm';
+const actionLabelClass = 'mb-1 block font-semibold text-[var(--color-ink)]';
+
+const ActionModalShell: React.FC<{
+  title: string;
+  subtitle?: string;
+  kickerIcon?: React.ReactNode;
+  kickerLabel?: string;
+  onClose: () => void;
+  maxWidthClass?: string;
+  children: React.ReactNode;
+  footer: React.ReactNode;
+}> = ({
+  title,
+  subtitle,
+  kickerIcon,
+  kickerLabel,
+  onClose,
+  maxWidthClass = 'max-w-md',
+  children,
+  footer,
+}) => (
+  <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-3 backdrop-blur-xs sm:p-4">
+    <div
+      className={`flex max-h-[92vh] w-full ${maxWidthClass} flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-2xl`}
+    >
+      <div className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--color-line)] bg-[var(--color-ink)] px-4 py-4 text-white sm:px-5">
+        <div className="min-w-0">
+          {(kickerIcon || kickerLabel) && (
+            <div className="mb-1 flex items-center gap-2">
+              <span className="page-kicker !text-teal-300">
+                {kickerIcon}
+                {kickerLabel}
+              </span>
+            </div>
+          )}
+          <h3 className="font-[family-name:var(--font-display)] text-base font-bold tracking-tight">
+            {title}
+          </h3>
+          {subtitle && <p className="mt-1 text-[11px] text-white/65">{subtitle}</p>}
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-lg bg-white/10 p-1.5 text-white/55 transition-colors hover:bg-white/15 hover:text-white"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[var(--color-sand)]/50 p-4 text-xs sm:p-5">
+        {children}
+        <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--color-line)] pt-3">
+          {footer}
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 interface TenderDetailHubModalProps {
   tender: Tender;
@@ -178,6 +241,21 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
     | 'officers'
     | 'terms';
   const [activeTab, setActiveTab] = useState<HubTab>('roster');
+  const hubTabsRef = useRef<HTMLDivElement>(null);
+  const [canScrollTabsLeft, setCanScrollTabsLeft] = useState(false);
+  const [canScrollTabsRight, setCanScrollTabsRight] = useState(false);
+
+  const updateHubTabsScroll = useCallback(() => {
+    const el = hubTabsRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setCanScrollTabsLeft(el.scrollLeft > 4);
+    setCanScrollTabsRight(max > 4 && el.scrollLeft < max - 4);
+  }, []);
+
+  const scrollHubTabs = (dir: 'left' | 'right') => {
+    hubTabsRef.current?.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
+  };
 
   // Unified In-Place Driver Hisab & Leave Modal State
   const [hisabModalConfig, setHisabModalConfig] = useState<{
@@ -192,6 +270,24 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
   const tenderVehicles = vehicles.filter((v) => v.tenderId === tender.id);
   const tenderOfficers = officers.filter((o) => o.tenderId === tender.id);
   const tenderVehicleIds = new Set(tenderVehicles.map((v) => v.id));
+
+  useEffect(() => {
+    const el = hubTabsRef.current;
+    if (!el) return;
+    updateHubTabsScroll();
+    const onScroll = () => updateHubTabsScroll();
+    el.addEventListener('scroll', onScroll, { passive: true });
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateHubTabsScroll) : null;
+    ro?.observe(el);
+    window.addEventListener('resize', updateHubTabsScroll);
+    const t = window.setTimeout(updateHubTabsScroll, 100);
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      ro?.disconnect();
+      window.removeEventListener('resize', updateHubTabsScroll);
+      window.clearTimeout(t);
+    };
+  }, [updateHubTabsScroll, activeTab, tenderVehicles.length]);
 
   // Robust Tender Drivers resolution using getAssignedDriverForVehicle
   const tenderDrivers = tenderVehicles
@@ -828,387 +924,286 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-4 backdrop-blur-xs overflow-y-auto">
       <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[96vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200">
         {/* Top Header Banner */}
-        <div className="bg-slate-900 text-white p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800">
-          <div className="space-y-1">
+        <div className="flex shrink-0 flex-col gap-4 border-b border-white/10 bg-[var(--color-ink)] p-4 text-white sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div className="min-w-0 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="bg-indigo-600 text-[11px] font-mono font-bold px-2 py-0.5 rounded text-white uppercase">
+              <span className="rounded-md bg-teal-600/90 px-2 py-0.5 font-mono text-[11px] font-bold uppercase text-white">
                 WO: {tender.workOrderNumber || tender.tenderNumber}
               </span>
-              <span className="text-xs text-amber-400 font-semibold bg-amber-950/70 border border-amber-800/80 px-2 py-0.5 rounded">
-                ⚡ टेंडर 360° कंट्रोल हब
+              <span className="badge badge-neutral !bg-white/10 !text-teal-200">
+                Tender 360° hub
               </span>
               <span
-                className={`text-[11px] font-semibold px-2 py-0.5 rounded uppercase ${
-                  tender.status === 'active'
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                    : 'bg-slate-700 text-slate-300'
+                className={`badge ${
+                  tender.status === 'active' ? 'badge-success' : 'badge-neutral'
                 }`}
               >
                 {tender.status}
               </span>
             </div>
-            <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
+            <h2 className="font-[family-name:var(--font-display)] text-base font-bold leading-tight tracking-tight sm:text-lg">
               {tender.departmentName}
             </h2>
-            <p className="text-xs text-slate-300 line-clamp-1">{tender.authorityOffice}</p>
+            <p className="line-clamp-1 text-xs text-white/50">{tender.authorityOffice}</p>
           </div>
 
           <div className="flex items-center gap-3 self-end sm:self-center">
-            <div className="text-right hidden md:block">
-              <span className="text-[10px] text-slate-400 block">Base Rate / Vehicle</span>
-              <span className="text-sm font-bold text-emerald-400">
+            <div className="hidden text-right md:block">
+              <span className="block text-[10px] uppercase tracking-wide text-white/40">Base rate / vehicle</span>
+              <span className="text-sm font-bold text-teal-300">
                 {formatCurrency(tender.baseMonthlyRate)}
-                <span className="text-[10px] text-slate-300"> /mo</span>
+                <span className="text-[10px] text-white/45"> /mo</span>
               </span>
             </div>
             <button
+              type="button"
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors"
+              className="rounded-lg bg-white/10 p-1.5 text-white/60 transition-colors hover:bg-white/15 hover:text-white"
             >
-              <X className="w-5 h-5" />
+              <X className="h-5 w-5" />
             </button>
           </div>
         </div>
 
-        {/* Action Bar: Create any entry / log directly inside Tender */}
-        <div className="bg-slate-50 border-b border-slate-200 p-3 sm:px-5 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-700 uppercase tracking-wide flex items-center gap-1.5">
-              <span>➕ क्विक एंट्री बनाएं (Quick Action):</span>
-            </span>
+        {/* Quick actions — clear grid, no rainbow clutter */}
+        <div className="shrink-0 border-b border-[var(--color-line)] bg-[var(--color-surface-muted)] px-4 py-3.5 sm:px-5">
+          <div className="mb-2.5 flex items-center justify-between gap-2">
+            <div>
+              <span className="page-kicker">Quick actions</span>
+              <p className="mt-0.5 text-xs text-[var(--color-muted)]">
+                Create entries for this tender without leaving the hub.
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5">
-            <button
-              onClick={() => setActiveActionModal('add_officer')}
-              className="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-2xs transition-all"
-            >
-              <Users className="w-3.5 h-3.5 text-indigo-600" />
-              <span>+ ऑफिसर</span>
-            </button>
-
-            <button
-              onClick={() => setActiveActionModal('add_vehicle')}
-              className="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-2xs transition-all"
-            >
-              <Car className="w-3.5 h-3.5 text-blue-600" />
-              <span>+ गाड़ी जोड़ें</span>
-            </button>
-
-            <button
-              onClick={() => setActiveActionModal('add_driver')}
-              className="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-2xs transition-all"
-            >
-              <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>+ ड्राइवर</span>
-            </button>
-
-            <button
-              onClick={() => setActiveActionModal('replace_vehicle')}
-              className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
-              title="गाड़ी बदलें: कौन सी गाड़ी कब हटी, किसकी लगी"
-            >
-              <ArrowRightLeft className="w-3.5 h-3.5 text-slate-950" />
-              <span>🔄 गाड़ी बदलें (हटी/लगी)</span>
-            </button>
-
-            <button
-              onClick={() => setActiveActionModal('replace_driver')}
-              className="px-2.5 py-1.5 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
-              title="ड्राइवर बदलें: कौन कब हटा, कौन लगा"
-            >
-              <ArrowRightLeft className="w-3.5 h-3.5 text-white" />
-              <span>🔀 ड्राइवर बदलें</span>
-            </button>
-
-            <button
-              onClick={() => setActiveActionModal('add_log')}
-              className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
-            >
-              <FileText className="w-3.5 h-3.5 text-white" />
-              <span>📝 दैनिक ड्यूटी लॉग</span>
-            </button>
-
-            <button
-              onClick={() => setActiveActionModal('add_fuel')}
-              className="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-800 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-2xs transition-all"
-            >
-              <Fuel className="w-3.5 h-3.5 text-amber-600" />
-              <span>⛽ ईंधन पर्ची</span>
-            </button>
-
-            <button
-              onClick={() => setActiveActionModal('add_bill')}
-              className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
-            >
-              <Receipt className="w-3.5 h-3.5 text-white" />
-              <span>🧾 सरकारी बिल बनाएं</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setTransferVehId(tenderVehicles[0]?.id || '');
-                setActiveActionModal('transfer_officer');
-              }}
-              className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
-              title="अधिकारी तबादला या पद रिक्त होने पर गाड़ी रोकें / नया अधिकारी नियुक्त करें"
-            >
-              <Building2 className="w-3.5 h-3.5 text-white" />
-              <span>👔 अधिकारी तबादला / गाड़ी रोकें</span>
-            </button>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+            {[
+              { label: 'Add officer', icon: <Users className="h-3.5 w-3.5" />, onClick: () => setActiveActionModal('add_officer') },
+              { label: 'Add vehicle', icon: <Car className="h-3.5 w-3.5" />, onClick: () => setActiveActionModal('add_vehicle') },
+              { label: 'Add driver', icon: <UserCheck className="h-3.5 w-3.5" />, onClick: () => setActiveActionModal('add_driver') },
+              { label: 'Change vehicle', icon: <ArrowRightLeft className="h-3.5 w-3.5" />, onClick: () => setActiveActionModal('replace_vehicle'), title: 'Replace vehicle assignment' },
+              { label: 'Change driver', icon: <ArrowRightLeft className="h-3.5 w-3.5" />, onClick: () => setActiveActionModal('replace_driver'), title: 'Replace driver assignment' },
+              { label: 'Duty log', icon: <FileText className="h-3.5 w-3.5" />, onClick: () => setActiveActionModal('add_log'), primary: true },
+              { label: 'Fuel slip', icon: <Fuel className="h-3.5 w-3.5" />, onClick: () => setActiveActionModal('add_fuel') },
+              { label: 'Govt bill', icon: <Receipt className="h-3.5 w-3.5" />, onClick: () => setActiveActionModal('add_bill'), primary: true },
+              {
+                label: 'Officer transfer',
+                icon: <Building2 className="h-3.5 w-3.5" />,
+                onClick: () => {
+                  setTransferVehId(tenderVehicles[0]?.id || '');
+                  setActiveActionModal('transfer_officer');
+                },
+                title: 'Transfer officer or halt vehicle',
+              },
+              {
+                label: 'Driver hisab',
+                icon: <IndianRupee className="h-3.5 w-3.5" />,
+                onClick: () => {
+                  const firstVeh = tenderVehicles[0];
+                  const firstOff = officers.find((o) => o.assignedVehicleId === firstVeh?.id || o.id === firstVeh?.assignedOfficerId) || tenderOfficers[0];
+                  setHisabModalConfig({
+                    isOpen: true,
+                    initialTab: 'payments',
+                    vehicleId: firstVeh?.id,
+                    officerId: firstOff?.id,
+                    driverId: firstVeh?.currentDriverId,
+                  });
+                },
+              },
+              {
+                label: 'Leave / relief',
+                icon: <Calendar className="h-3.5 w-3.5" />,
+                onClick: () => {
+                  const firstVeh = tenderVehicles[0];
+                  const firstOff = officers.find((o) => o.assignedVehicleId === firstVeh?.id || o.id === firstVeh?.assignedOfficerId) || tenderOfficers[0];
+                  setHisabModalConfig({
+                    isOpen: true,
+                    initialTab: 'leaves',
+                    vehicleId: firstVeh?.id,
+                    officerId: firstOff?.id,
+                    driverId: firstVeh?.currentDriverId,
+                  });
+                },
+              },
+              { label: 'Petty advance', icon: <CreditCard className="h-3.5 w-3.5" />, onClick: () => setActiveActionModal('add_payment') },
+            ].map((a) => (
+              <button
+                key={a.label}
+                type="button"
+                title={a.title}
+                onClick={a.onClick}
+                className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-semibold transition-all ${
+                  a.primary
+                    ? 'border-teal-200 bg-teal-50 text-[var(--color-ink)] hover:border-teal-400 hover:bg-teal-100/80'
+                    : 'border-[var(--color-line)] bg-white text-[var(--color-ink-soft)] hover:border-[var(--color-line-strong)] hover:bg-[var(--color-surface-muted)]'
+                }`}
+              >
+                <span
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+                    a.primary ? 'bg-teal-700 text-white' : 'bg-[var(--color-sand)] text-[var(--color-ink-soft)]'
+                  }`}
+                >
+                  {a.icon}
+                </span>
+                <span className="leading-tight">{a.label}</span>
+              </button>
+            ))}
 
             {tenderVehicles.some((v) => v.status === 'idle_officer_transferred' || v.status === 'surrendered_temporary') && (
               <button
+                type="button"
                 onClick={() => {
                   const idleV = tenderVehicles.find((v) => v.status === 'idle_officer_transferred' || v.status === 'surrendered_temporary');
                   setReactivateVehId(idleV?.id || '');
                   setActiveActionModal('reactivate_vehicle');
                 }}
-                className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 shadow-2xs animate-pulse transition-all cursor-pointer"
-                title="रुकी हुई गाड़ी पुनः चालू करें"
+                className="flex items-center gap-2 rounded-xl border border-teal-300 bg-teal-700 px-3 py-2.5 text-left text-xs font-bold text-white transition-all hover:bg-teal-600"
+                title="Reactivate halted vehicle"
               >
-                <span>▶️ रुकी गाड़ी चालू करें</span>
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/15">▶</span>
+                Restart vehicle
               </button>
             )}
-
-            <button
-              onClick={() => {
-                const firstVeh = tenderVehicles[0];
-                const firstOff = officers.find((o) => o.assignedVehicleId === firstVeh?.id || o.id === firstVeh?.assignedOfficerId) || tenderOfficers[0];
-                setHisabModalConfig({
-                  isOpen: true,
-                  initialTab: 'payments',
-                  vehicleId: firstVeh?.id,
-                  officerId: firstOff?.id,
-                  driverId: firstVeh?.currentDriverId,
-                });
-              }}
-              className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
-              title="टेंडर अंतर्गत चालक को पिछला/नया भुगतान दर्ज करें"
-            >
-              <IndianRupee className="w-3.5 h-3.5 text-white" />
-              <span>💰 चालक हिसाब व भुगतान</span>
-            </button>
-
-            <button
-              onClick={() => {
-                const firstVeh = tenderVehicles[0];
-                const firstOff = officers.find((o) => o.assignedVehicleId === firstVeh?.id || o.id === firstVeh?.assignedOfficerId) || tenderOfficers[0];
-                setHisabModalConfig({
-                  isOpen: true,
-                  initialTab: 'leaves',
-                  vehicleId: firstVeh?.id,
-                  officerId: firstOff?.id,
-                  driverId: firstVeh?.currentDriverId,
-                });
-              }}
-              className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs flex items-center gap-1 shadow-2xs transition-all cursor-pointer"
-              title="चालक छुट्टी व बदली ड्राइवर दर्ज करें"
-            >
-              <Calendar className="w-3.5 h-3.5 text-white" />
-              <span>🗓️ छुट्टी व बदली</span>
-            </button>
-
-            <button
-              onClick={() => setActiveActionModal('add_payment')}
-              className="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-2xs transition-all"
-            >
-              <CreditCard className="w-3.5 h-3.5 text-slate-600" />
-              <span>💵 फुटकर अग्रिम</span>
-            </button>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="bg-white border-b border-slate-200 px-4 flex space-x-1 overflow-x-auto text-xs font-medium">
-          <button
-            onClick={() => setActiveTab('roster')}
-            className={`py-3 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-              activeTab === 'roster'
-                ? 'border-indigo-600 text-indigo-700 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Car className="w-4 h-4" />
-            <span>🚗 गाड़ियाँ, चालक व अफ़सर ({tenderVehicles.length})</span>
-          </button>
+        {/* Navigation Tabs — scroll cues when more tabs exist off-screen */}
+        <div className="relative shrink-0 border-b border-[var(--color-line)] bg-white">
+          {canScrollTabsLeft && (
+            <button
+              type="button"
+              onClick={() => scrollHubTabs('left')}
+              className="absolute left-1 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--color-line)] bg-white text-[var(--color-ink)] shadow-md transition hover:border-teal-300 hover:text-teal-700"
+              aria-label="Scroll tabs left"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          )}
+          {canScrollTabsRight && (
+            <button
+              type="button"
+              onClick={() => scrollHubTabs('right')}
+              className="absolute right-1 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-teal-200 bg-teal-50 text-teal-800 shadow-md transition hover:bg-teal-100"
+              aria-label="Scroll tabs right — more options"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          )}
 
-          <button
-            onClick={() => setActiveTab('drivers')}
-            className={`py-3 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-              activeTab === 'drivers'
-                ? 'border-amber-600 text-amber-800 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+          <div
+            className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-white to-transparent transition-opacity ${
+              canScrollTabsLeft ? 'opacity-100' : 'opacity-0'
             }`}
-          >
-            <Users className="w-4 h-4 text-amber-600" />
-            <span>👨‍✈️ तैनात चालक ({tenderDrivers.length} / {tenderVehicles.length})</span>
-          </button>
+          />
+          <div
+            className={`pointer-events-none absolute inset-y-0 right-0 z-10 w-14 bg-gradient-to-l from-white to-transparent transition-opacity ${
+              canScrollTabsRight ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
 
-          <button
-            onClick={() => setActiveTab('driver_hisab')}
-            className={`py-3 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-              activeTab === 'driver_hisab'
-                ? 'border-emerald-600 text-emerald-700 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
+          <div
+            ref={hubTabsRef}
+            className="flex min-h-12 items-stretch gap-0.5 overflow-x-auto scroll-smooth px-3 scrollbar-none"
+            style={{ scrollbarWidth: 'none' }}
           >
-            <IndianRupee className="w-4 h-4 text-emerald-600" />
-            <span>💰 चालक हिसाब व छुट्टी-बदली ({tenderVehicles.length} चालक)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('officer_transfers')}
-            className={`py-3 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-              activeTab === 'officer_transfers'
-                ? 'border-rose-600 text-rose-700 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Building2 className="w-4 h-4 text-rose-600" />
-            <span>👔 अधिकारी तबादला व गाड़ी स्थिति ({tenderOfficerHistory.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('vehicle_replacement')}
-            className={`py-3 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-              activeTab === 'vehicle_replacement'
-                ? 'border-amber-600 text-amber-700 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <ArrowRightLeft className="w-4 h-4 text-amber-600" />
-            <span>गाड़ी बदलाव इतिहास (कब हटी किसकी लगी) ({tenderVehicleHistory.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('driver_replacement')}
-            className={`py-3 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-              activeTab === 'driver_replacement'
-                ? 'border-violet-600 text-violet-700 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <UserCheck className="w-4 h-4 text-violet-600" />
-            <span>ड्राइवर बदलाव इतिहास ({tenderDriverHistory.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('logs')}
-            className={`py-3 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-              activeTab === 'logs'
-                ? 'border-indigo-600 text-indigo-700 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span>ड्यूटी लॉग बुक ({tenderLogs.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('billing')}
-            className={`py-3 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-              activeTab === 'billing'
-                ? 'border-indigo-600 text-indigo-700 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Receipt className="w-4 h-4" />
-            <span>मासिक बिल ({tenderBills.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('fuel')}
-            className={`py-3 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-              activeTab === 'fuel'
-                ? 'border-indigo-600 text-indigo-700 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Fuel className="w-4 h-4" />
-            <span>ईंधन व ख़र्च ({tenderFuel.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('officers')}
-            className={`py-3 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-              activeTab === 'officers'
-                ? 'border-indigo-600 text-indigo-700 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>नामित अधिकारी ({tenderOfficers.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('terms')}
-            className={`py-3 px-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-              activeTab === 'terms'
-                ? 'border-indigo-600 text-indigo-700 font-bold'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Building2 className="w-4 h-4" />
-            <span>टेंडर शर्तें व दरें</span>
-          </button>
+            {(
+              [
+                { id: 'roster' as const, label: `Fleet & officers (${tenderVehicles.length})`, icon: <Car className="h-4 w-4 shrink-0" /> },
+                { id: 'drivers' as const, label: `Drivers (${tenderDrivers.length}/${tenderVehicles.length})`, icon: <Users className="h-4 w-4 shrink-0" /> },
+                { id: 'driver_hisab' as const, label: `Driver hisab (${tenderVehicles.length})`, icon: <IndianRupee className="h-4 w-4 shrink-0" /> },
+                { id: 'officer_transfers' as const, label: `Transfers (${tenderOfficerHistory.length})`, icon: <Building2 className="h-4 w-4 shrink-0" /> },
+                { id: 'vehicle_replacement' as const, label: `Vehicle history (${tenderVehicleHistory.length})`, icon: <ArrowRightLeft className="h-4 w-4 shrink-0" /> },
+                { id: 'driver_replacement' as const, label: `Driver history (${tenderDriverHistory.length})`, icon: <UserCheck className="h-4 w-4 shrink-0" /> },
+                { id: 'logs' as const, label: `Duty logs (${tenderLogs.length})`, icon: <FileText className="h-4 w-4 shrink-0" /> },
+                { id: 'billing' as const, label: `Monthly bills (${tenderBills.length})`, icon: <Receipt className="h-4 w-4 shrink-0" /> },
+                { id: 'fuel' as const, label: `Fuel & expenses (${tenderFuel.length})`, icon: <Fuel className="h-4 w-4 shrink-0" /> },
+                { id: 'officers' as const, label: `Officers (${tenderOfficers.length})`, icon: <Users className="h-4 w-4 shrink-0" /> },
+                { id: 'terms' as const, label: 'Terms & rates', icon: <Building2 className="h-4 w-4 shrink-0" /> },
+              ]
+            ).map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`inline-flex h-12 shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 text-xs font-semibold leading-none transition-colors ${
+                    isActive
+                      ? 'border-teal-600 text-teal-800'
+                      : 'border-transparent text-[var(--color-muted)] hover:text-[var(--color-ink)]'
+                  }`}
+                >
+                  {tab.icon}
+                  <span className="leading-none">{tab.label}</span>
+                </button>
+              );
+            })}
+            {canScrollTabsRight && (
+              <span className="inline-flex h-12 shrink-0 items-center gap-1 px-2 text-[11px] font-bold text-teal-700">
+                More
+                <ChevronRight className="h-3.5 w-3.5 animate-pulse" />
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Tab Body Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-100/60">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--color-sand)]/80 p-4 sm:p-6">
           {/* TAB 1: ROSTER (Vehicles & Officers) */}
           {activeTab === 'roster' && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm">
-                    Active Fleet &amp; Officer Deployments under {tender.departmentName}
+                  <h3 className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--color-ink)]">
+                    Active fleet & officer deployments
                   </h3>
-                  <p className="text-xs text-slate-500">
-                    प्रत्येक गाड़ी के साथ अटैच अधिकारी, ड्राइवर व मीटर रीडिंग
+                  <p className="text-xs text-[var(--color-muted)]">
+                    {tender.departmentName} · vehicle, officer, driver & odometer
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {tenderVehicles.some((v) => !getAssignedDriverForVehicle(v, drivers, officers)) && (
                     <button
                       type="button"
                       onClick={handleAutoAssignDriversForTender}
-                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs transition-colors cursor-pointer"
-                      title="उपलब्ध खाली चालकों को गाड़ियों से ऑटो-लिंक करें"
+                      className="btn btn-secondary"
+                      title="Auto-link available drivers"
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>⚡ ऑटो-लिंक चालक</span>
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Auto-link drivers
                     </button>
                   )}
                   <button
+                    type="button"
                     onClick={() => setActiveActionModal('add_vehicle')}
-                    className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1"
+                    className="btn btn-primary"
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    + गाड़ी जोड़ें
+                    <Plus className="h-3.5 w-3.5" />
+                    Add vehicle
                   </button>
                   <button
+                    type="button"
                     onClick={() => setActiveActionModal('add_officer')}
-                    className="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1"
+                    className="btn btn-secondary"
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    + अफ़सर जोड़ें
+                    <Plus className="h-3.5 w-3.5" />
+                    Add officer
                   </button>
                 </div>
               </div>
 
               {tenderVehicles.length === 0 ? (
                 <div className="bg-white rounded-xl p-8 text-center border border-slate-200">
-                  <Car className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <Car className="w-10 h-10 text-[var(--color-muted)] mx-auto mb-2" />
                   <p className="text-sm font-semibold text-slate-700">
                     इस टेंडर में अभी कोई गाड़ी अटैच नहीं है।
                   </p>
-                  <p className="text-xs text-slate-400 mt-1 mb-4">
+                  <p className="text-xs text-[var(--color-muted)] mt-1 mb-4">
                     कृपया "गाड़ी जोड़ें" बटन दबाकर गाड़ी या वेंडर फ्लीट अटैच करें।
                   </p>
                   <button
                     onClick={() => setActiveActionModal('add_vehicle')}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold"
+                    className="px-4 py-2 bg-[var(--color-ink)] text-white rounded-lg text-xs font-bold"
                   >
                     + पहली गाड़ी जोड़ें
                   </button>
@@ -1224,7 +1219,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                     return (
                       <div
                         key={veh.id}
-                        className="bg-white rounded-xl p-4 border border-slate-200 shadow-2xs hover:border-indigo-300 transition-all flex flex-col justify-between"
+                        className="panel panel-pad flex flex-col justify-between transition-all hover:border-teal-300"
                       >
                         <div className="space-y-2.5">
                           <div className="flex items-start justify-between gap-2 pb-2 border-b border-slate-100">
@@ -1267,7 +1262,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                                   ? 'bg-slate-100 text-slate-800 border-slate-300'
                                   : veh.ownershipType === 'Owner-Driver'
                                   ? 'bg-amber-100 text-amber-800 border-amber-300'
-                                  : 'bg-purple-100 text-purple-800 border-purple-300'
+                                  : 'bg-teal-100 text-teal-800 border-teal-300'
                               }`}
                             >
                               {veh.status === 'idle_officer_transferred'
@@ -1315,7 +1310,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
 
                           <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-xs space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <span className="text-slate-400 text-[11px]">अधिकारी (Officer):</span>
+                              <span className="text-[var(--color-muted)] text-[11px]">अधिकारी (Officer):</span>
                               <span
                                 className={`font-semibold ${
                                   assignedOfficer ? 'text-slate-800' : 'text-rose-600 font-bold'
@@ -1325,7 +1320,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                               </span>
                             </div>
                             {assignedOfficer && (
-                              <p className="text-[10px] text-slate-500 text-right truncate">
+                              <p className="text-[10px] text-[var(--color-muted)] text-right truncate">
                                 {assignedOfficer.designation}
                               </p>
                             )}
@@ -1333,18 +1328,18 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                             {/* Driver display */}
                             {(currentDriver || veh.driverName) ? (
                               <div className="pt-1.5 border-t border-slate-200/60 flex items-start justify-between gap-1">
-                                <span className="text-slate-500 text-[11px] flex items-center gap-1">
+                                <span className="text-[var(--color-muted)] text-[11px] flex items-center gap-1">
                                   👨‍✈️ <strong>चालक (Driver):</strong>
                                 </span>
                                 <div className="text-right">
                                   <span className="font-bold text-slate-900 text-xs block">
                                     {currentDriver?.name || veh.driverName}
                                   </span>
-                                  <div className="flex items-center gap-2 justify-end text-[10px] text-slate-500 font-mono mt-0.5">
+                                  <div className="flex items-center gap-2 justify-end text-[10px] text-[var(--color-muted)] font-mono mt-0.5">
                                     {(currentDriver?.phone || veh.driverPhone) && (
                                       <a
                                         href={`tel:${currentDriver?.phone || veh.driverPhone}`}
-                                        className="text-indigo-600 hover:underline"
+                                        className="text-[var(--color-copper)] hover:underline"
                                       >
                                         📞 {currentDriver?.phone || veh.driverPhone}
                                       </a>
@@ -1382,7 +1377,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                             )}
 
                             <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60">
-                              <span className="text-slate-400">Current Odometer:</span>
+                              <span className="text-[var(--color-muted)]">Current Odometer:</span>
                               <span className="font-mono font-bold text-slate-700">
                                 {veh.currentOdometer.toLocaleString()} KM
                               </span>
@@ -1390,55 +1385,60 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                           </div>
                         </div>
 
-                        {/* Quick Row Action Buttons */}
-                        <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-1 text-xs">
+                        {/* Quick row actions — unified style */}
+                        <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-[var(--color-line)] pt-3 text-xs">
                           <button
+                            type="button"
                             onClick={() => {
                               setTransferVehId(veh.id);
                               setActiveActionModal('transfer_officer');
                             }}
-                            className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 rounded font-semibold text-[11px] flex items-center gap-1 transition-colors"
-                            title="अधिकारी का तबादला / बदलाव - गाड़ी रोकें या नया अधिकारी लगाएं"
+                            className="inline-flex items-center gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-2 py-1 text-[11px] font-semibold text-[var(--color-ink-soft)] transition-colors hover:border-rose-300 hover:bg-rose-50 hover:text-rose-800"
+                            title="Officer transfer / halt vehicle"
                           >
-                            <Building2 className="w-3 h-3 text-rose-700" />
-                            <span>तबादला / रोकें</span>
+                            <Building2 className="h-3 w-3" />
+                            Transfer
                           </button>
 
                           <button
+                            type="button"
                             onClick={() => {
                               setReplaceVehOldId(veh.id);
                               setActiveActionModal('replace_vehicle');
                             }}
-                            className="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded font-semibold text-[11px] flex items-center gap-1 transition-colors"
-                            title="गाड़ी बदलें (Kaun si kab hati kiski lagi)"
+                            className="inline-flex items-center gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-2 py-1 text-[11px] font-semibold text-[var(--color-ink-soft)] transition-colors hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800"
+                            title="Change vehicle"
                           >
-                            <ArrowRightLeft className="w-3 h-3 text-amber-700" />
-                            <span>गाड़ी बदलें</span>
+                            <ArrowRightLeft className="h-3 w-3" />
+                            Vehicle
                           </button>
 
                           <button
+                            type="button"
                             onClick={() => {
                               setReplaceDrvVehId(veh.id);
                               setActiveActionModal('replace_driver');
                             }}
-                            className="px-2 py-1 bg-violet-50 hover:bg-violet-100 text-violet-800 border border-violet-200 rounded font-semibold text-[11px] flex items-center gap-1 transition-colors"
+                            className="inline-flex items-center gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-2 py-1 text-[11px] font-semibold text-[var(--color-ink-soft)] transition-colors hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800"
                           >
-                            <UserCheck className="w-3 h-3 text-violet-700" />
-                            <span>ड्राइवर</span>
+                            <UserCheck className="h-3 w-3" />
+                            Driver
                           </button>
 
                           <button
+                            type="button"
                             onClick={() => {
                               handleLogVehChange(veh.id);
                               setActiveActionModal('add_log');
                             }}
-                            className="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded font-semibold text-[11px] flex items-center gap-1 transition-colors"
+                            className="inline-flex items-center gap-1 rounded-lg border border-teal-200 bg-teal-50 px-2 py-1 text-[11px] font-semibold text-teal-800 transition-colors hover:bg-teal-100"
                           >
-                            <Plus className="w-3 h-3 text-indigo-600" />
-                            <span>लॉग</span>
+                            <Plus className="h-3 w-3" />
+                            Log
                           </button>
 
                           <button
+                            type="button"
                             onClick={() => {
                               setHisabModalConfig({
                                 isOpen: true,
@@ -1448,14 +1448,15 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                                 driverId: currentDriver?.id,
                               });
                             }}
-                            className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
-                            title="चालक हिसाब व पिछला/नया भुगतान"
+                            className="inline-flex items-center gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-2 py-1 text-[11px] font-semibold text-[var(--color-ink-soft)] transition-colors hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800"
+                            title="Driver hisab & payment"
                           >
-                            <IndianRupee className="w-3 h-3 text-emerald-600" />
-                            <span>हिसाब/पेमेंट</span>
+                            <IndianRupee className="h-3 w-3" />
+                            Hisab
                           </button>
 
                           <button
+                            type="button"
                             onClick={() => {
                               setHisabModalConfig({
                                 isOpen: true,
@@ -1465,11 +1466,11 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                                 driverId: currentDriver?.id,
                               });
                             }}
-                            className="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
-                            title="चालक छुट्टी व बदली ड्राइवर"
+                            className="inline-flex items-center gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-2 py-1 text-[11px] font-semibold text-[var(--color-ink-soft)] transition-colors hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800"
+                            title="Leave & relief driver"
                           >
-                            <Calendar className="w-3 h-3 text-amber-600" />
-                            <span>छुट्टी/बदली</span>
+                            <Calendar className="h-3 w-3" />
+                            Leave
                           </button>
                         </div>
                       </div>
@@ -1498,7 +1499,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                     <button
                       type="button"
                       onClick={handleAutoAssignDriversForTender}
-                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs transition-colors cursor-pointer"
+                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-[var(--color-ink)] rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs transition-colors cursor-pointer"
                       title="उपलब्ध खाली चालकों को गाड़ियों से ऑटो-लिंक करें"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
@@ -1517,11 +1518,11 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
 
               {tenderVehicles.length === 0 ? (
                 <div className="bg-white rounded-xl p-8 text-center border border-slate-200">
-                  <Users className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <Users className="w-10 h-10 text-[var(--color-muted)] mx-auto mb-2" />
                   <p className="text-sm font-semibold text-slate-700">
                     इस टेंडर में अभी कोई गाड़ी या ड्राइवर अटैच नहीं है।
                   </p>
-                  <p className="text-xs text-slate-400 mt-1 mb-4">
+                  <p className="text-xs text-[var(--color-muted)] mt-1 mb-4">
                     गाड़ी अटैच करने के बाद चालक स्वतः यहाँ दिखाई देंगे।
                   </p>
                 </div>
@@ -1555,7 +1556,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                               {drv ? (
                                 <a
                                   href={`tel:${drv.phone}`}
-                                  className="text-xs font-mono font-bold text-indigo-700 hover:underline flex items-center gap-1 mt-0.5"
+                                  className="text-xs font-mono font-bold text-[var(--color-copper)] hover:underline flex items-center gap-1 mt-0.5"
                                 >
                                   📞 {drv.phone}
                                 </a>
@@ -1570,7 +1571,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                               <span className="font-mono font-bold text-xs text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 block">
                                 {veh.vehicleNumber}
                               </span>
-                              <span className="text-[10px] text-slate-500 block mt-0.5 truncate max-w-[120px]">
+                              <span className="text-[10px] text-[var(--color-muted)] block mt-0.5 truncate max-w-[120px]">
                                 {veh.makeModel}
                               </span>
                             </div>
@@ -1605,28 +1606,28 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                           {drv && (
                             <div className="mt-2.5 bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-xs space-y-1.5">
                               <div className="flex items-center justify-between">
-                                <span className="text-slate-500">मासिक वेतन:</span>
+                                <span className="text-[var(--color-muted)]">मासिक वेतन:</span>
                                 <span className="font-bold text-slate-900">
                                   {formatCurrency(drv.monthlySalary)}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between">
-                                <span className="text-slate-500">दैनिक DA:</span>
+                                <span className="text-[var(--color-muted)]">दैनिक DA:</span>
                                 <span className="font-semibold text-slate-800">
                                   ₹{drv.dailyDaRate} / दिन
                                 </span>
                               </div>
                               {drv.licenseNumber && (
                                 <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60">
-                                  <span className="text-slate-500">ड्राइविंग लाइसेंस:</span>
+                                  <span className="text-[var(--color-muted)]">ड्राइविंग लाइसेंस:</span>
                                   <span className="font-mono font-semibold text-slate-800">
                                     {drv.licenseNumber}
                                   </span>
                                 </div>
                               )}
                               <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60">
-                                <span className="text-slate-500">अधिकारी:</span>
-                                <span className="font-medium text-indigo-700 truncate max-w-[150px]">
+                                <span className="text-[var(--color-muted)]">अधिकारी:</span>
+                                <span className="font-medium text-[var(--color-copper)] truncate max-w-[150px]">
                                   {off ? `${off.name} (${off.designation})` : 'पद रिक्त (Vacant)'}
                                 </span>
                               </div>
@@ -1642,9 +1643,9 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                               setReplaceDrvVehId(veh.id);
                               setActiveActionModal('replace_driver');
                             }}
-                            className="flex-1 py-1.5 px-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded font-semibold text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                            className="flex-1 py-1.5 px-2 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded font-semibold text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
                           >
-                            <ArrowRightLeft className="w-3 h-3 text-indigo-600" />
+                            <ArrowRightLeft className="w-3 h-3 text-[var(--color-copper)]" />
                             <span>बदलें</span>
                           </button>
 
@@ -1740,7 +1741,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                         driverId: firstVeh?.currentDriverId,
                       });
                     }}
-                    className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-xs transition-colors"
+                    className="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-[var(--color-ink)] font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-xs transition-colors"
                   >
                     <Calendar className="w-3.5 h-3.5" />
                     <span>+ छुट्टी व बदली दर्ज करें</span>
@@ -1771,17 +1772,17 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-slate-500 mt-0.5">
+                          <div className="text-xs text-[var(--color-muted)] mt-0.5">
                             वाहन: <strong className="font-mono text-slate-800">{veh.vehicleNumber}</strong> ({veh.makeModel})
                           </div>
                           {off && (
-                            <div className="text-xs text-indigo-700 mt-0.5 font-medium">
+                            <div className="text-xs text-[var(--color-copper)] mt-0.5 font-medium">
                               अधिकारी: {off.name} ({off.designation})
                             </div>
                           )}
                         </div>
 
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-50 text-[var(--color-copper)] border border-teal-200">
                           {payments.length} भुगतानों का रिकॉर्ड
                         </span>
                       </div>
@@ -1789,19 +1790,19 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                       {/* Stats snippet */}
                       <div className="grid grid-cols-3 gap-2 text-xs text-center">
                         <div className="p-2 bg-slate-50 rounded-lg">
-                          <span className="text-[10px] text-slate-400 block uppercase font-medium">छुट्टियां</span>
+                          <span className="text-[10px] text-[var(--color-muted)] block uppercase font-medium">छुट्टियां</span>
                           <span className="font-bold text-amber-700">
                             {leaves.reduce((s, l) => s + l.totalDays, 0)} दिन
                           </span>
                         </div>
                         <div className="p-2 bg-slate-50 rounded-lg">
-                          <span className="text-[10px] text-slate-400 block uppercase font-medium">कुल दिया भुगतान</span>
+                          <span className="text-[10px] text-[var(--color-muted)] block uppercase font-medium">कुल दिया भुगतान</span>
                           <span className="font-bold text-slate-900">
                             ₹{totalPaid.toLocaleString('en-IN')}
                           </span>
                         </div>
                         <div className="p-2 bg-slate-50 rounded-lg">
-                          <span className="text-[10px] text-slate-400 block uppercase font-medium">मासिक वेतन</span>
+                          <span className="text-[10px] text-[var(--color-muted)] block uppercase font-medium">मासिक वेतन</span>
                           <span className="font-bold text-emerald-700">
                             {drv ? formatCurrency(drv.monthlySalary) : '-'}
                           </span>
@@ -1820,7 +1821,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                               driverId: drv?.id,
                             });
                           }}
-                          className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg font-bold text-xs flex items-center justify-center gap-1 transition-colors"
+                          className="flex-1 py-1.5 bg-teal-50 hover:bg-teal-100 text-[var(--color-copper)] border border-teal-200 rounded-lg font-bold text-xs flex items-center justify-center gap-1 transition-colors"
                         >
                           <CreditCard className="w-3.5 h-3.5" />
                           <span>💰 भुगतान / पिछला रिकॉर्ड</span>
@@ -1909,35 +1910,35 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
               {/* Status Counters */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] text-slate-500 font-medium block">सक्रिय तैनात अधिकारी</span>
+                  <span className="text-[11px] text-[var(--color-muted)] font-medium block">सक्रिय तैनात अधिकारी</span>
                   <span className="text-lg font-bold text-emerald-600">
                     {tenderOfficers.filter((o) => o.status !== 'transferred' && o.status !== 'retired').length}
                   </span>
                 </div>
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] text-slate-500 font-medium block">🛑 तबादला/रिक्त - रुकी गाड़ियाँ</span>
+                  <span className="text-[11px] text-[var(--color-muted)] font-medium block">🛑 तबादला/रिक्त - रुकी गाड़ियाँ</span>
                   <span className="text-lg font-bold text-rose-600">
                     {tenderVehicles.filter((v) => v.status === 'idle_officer_transferred').length}
                   </span>
                 </div>
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] text-slate-500 font-medium block">कुल गाड़ियाँ (टेंडर)</span>
+                  <span className="text-[11px] text-[var(--color-muted)] font-medium block">कुल गाड़ियाँ (टेंडर)</span>
                   <span className="text-lg font-bold text-slate-800">{tenderVehicles.length}</span>
                 </div>
                 <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] text-slate-500 font-medium block">कुल तबादला/परिवर्तन रिकॉर्ड</span>
-                  <span className="text-lg font-bold text-indigo-600">{tenderOfficerHistory.length}</span>
+                  <span className="text-[11px] text-[var(--color-muted)] font-medium block">कुल तबादला/परिवर्तन रिकॉर्ड</span>
+                  <span className="text-lg font-bold text-[var(--color-copper)]">{tenderOfficerHistory.length}</span>
                 </div>
               </div>
 
               {/* Transfer History Timeline / Table */}
               {tenderOfficerHistory.length === 0 ? (
                 <div className="bg-white rounded-xl p-8 text-center border border-slate-200">
-                  <Building2 className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <Building2 className="w-10 h-10 text-[var(--color-muted)] mx-auto mb-2" />
                   <p className="text-sm font-semibold text-slate-700">
                     इस टेंडर में अभी तक कोई अधिकारी तबादला या गाड़ी रोकने का रिकॉर्ड नहीं है।
                   </p>
-                  <p className="text-xs text-slate-400 mt-1 mb-4">
+                  <p className="text-xs text-[var(--color-muted)] mt-1 mb-4">
                     जब भी किसी अधिकारी का ट्रांसफर होगा और गाड़ी बंद होगी या नए अधिकारी को मिलेगी, तो उसका पूरा सरकारी आदेश और तारीख यहाँ दिखेगी।
                   </p>
                   <button
@@ -1971,7 +1972,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                               अधिकारी: {item.officerName}
                             </span>
 
-                            <span className="text-[11px] text-slate-500">
+                            <span className="text-[11px] text-[var(--color-muted)]">
                               ({item.officerDesignation})
                             </span>
 
@@ -1988,7 +1989,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                                 📦 गाड़ी अस्थायी सरेंडर
                               </span>
                             ) : (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 border border-indigo-300">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-800 border border-teal-300">
                                 🅿️ स्टैंडबाय पूल में
                               </span>
                             )}
@@ -2083,7 +2084,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                   <p className="text-sm font-semibold text-slate-700">
                     इस टेंडर में अभी तक कोई गाड़ी बदली नहीं गई है।
                   </p>
-                  <p className="text-xs text-slate-400 mt-1 mb-4">
+                  <p className="text-xs text-[var(--color-muted)] mt-1 mb-4">
                     जब भी कोई गाड़ी सर्विस, ब्रेकडाउन या अफ़सर की मांग पर बदलेगी, तो यहाँ उसका टाइमलाइन दर्ज होगा।
                   </p>
                   <button
@@ -2155,7 +2156,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                         )}
 
                         {item.notes && (
-                          <p className="text-xs text-slate-500 italic bg-slate-50 p-2 rounded">
+                          <p className="text-xs text-[var(--color-muted)] italic bg-slate-50 p-2 rounded">
                             "{item.notes}"
                           </p>
                         )}
@@ -2170,13 +2171,13 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
           {/* TAB 3: DRIVER REPLACEMENT HISTORY */}
           {activeTab === 'driver_replacement' && (
             <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-violet-50/70 p-4 rounded-xl border border-violet-200/80">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-teal-50/70 p-4 rounded-xl border border-teal-200/80">
                 <div>
-                  <h3 className="font-bold text-violet-950 text-sm flex items-center gap-2">
-                    <UserCheck className="w-4 h-4 text-violet-700" />
+                  <h3 className="font-bold text-[var(--color-ink)] text-sm flex items-center gap-2">
+                    <UserCheck className="w-4 h-4 text-teal-700" />
                     <span>ड्राइवर बदलाव टाइमलाइन (Kaun Kab Hata, Kaun Laga)</span>
                   </h3>
-                  <p className="text-xs text-violet-800 mt-0.5">
+                  <p className="text-xs text-teal-800 mt-0.5">
                     छुट्टी, शिकायत या शिफ्ट बदलाव के कारण ड्राइवरों की तैनाती का संपूर्ण रिकॉर्ड
                   </p>
                 </div>
@@ -2186,7 +2187,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                     setReplaceDrvVehId(tenderVehicles[0]?.id || '');
                     setActiveActionModal('replace_driver');
                   }}
-                  className="px-3.5 py-2 bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-xs transition-colors shrink-0"
+                  className="px-3.5 py-2 bg-[var(--color-ink)] hover:bg-[var(--color-ink-soft)] text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-xs transition-colors shrink-0"
                 >
                   <Plus className="w-4 h-4" />
                   <span>+ नया ड्राइवर बदलें</span>
@@ -2204,7 +2205,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                   {tenderDriverHistory.map((item) => (
                     <div
                       key={item.id}
-                      className="bg-white rounded-xl p-4 border border-slate-200 shadow-2xs hover:border-violet-300 transition-all space-y-2"
+                      className="bg-white rounded-xl p-4 border border-slate-200 shadow-2xs hover:border-teal-300 transition-all space-y-2"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
@@ -2239,7 +2240,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                       </div>
 
                       {item.notes && (
-                        <p className="text-xs text-slate-500 italic bg-slate-50 p-2 rounded">
+                        <p className="text-xs text-[var(--color-muted)] italic bg-slate-50 p-2 rounded">
                           "{item.notes}"
                         </p>
                       )}
@@ -2258,7 +2259,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                   <h3 className="font-bold text-slate-900 text-sm">
                     Duty Slips &amp; Daily Logs ({tenderLogs.length} Entries)
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[var(--color-muted)]">
                     अधिकारियों द्वारा हस्ताक्षरित दैनिक ड्यूटी पर्चियां
                   </p>
                 </div>
@@ -2268,7 +2269,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                     handleLogVehChange(tenderVehicles[0]?.id || '');
                     setActiveActionModal('add_log');
                   }}
-                  className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-xs transition-colors"
+                  className="px-3.5 py-2 bg-[var(--color-ink)] hover:bg-[var(--color-ink-soft)] text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-xs transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   <span>+ नया ड्यूटी लॉग जोड़ें</span>
@@ -2280,7 +2281,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                   <p className="text-sm font-semibold text-slate-700">कोई ड्यूटी पर्ची दर्ज नहीं है।</p>
                   <button
                     onClick={() => setActiveActionModal('add_log')}
-                    className="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold"
+                    className="mt-3 px-4 py-2 bg-[var(--color-ink)] text-white rounded-lg text-xs font-bold"
                   >
                     + ड्यूटी लॉग जोड़ें
                   </button>
@@ -2307,7 +2308,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                               <span className="font-semibold text-slate-900 block">
                                 {formatDate(log.date)}
                               </span>
-                              <span className="font-mono text-[10px] text-slate-500">
+                              <span className="font-mono text-[10px] text-[var(--color-muted)]">
                                 {log.slipNumber}
                               </span>
                             </td>
@@ -2315,20 +2316,20 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                               <span className="font-mono font-bold text-slate-900 block">
                                 {log.vehicleNumber}
                               </span>
-                              <span className="text-slate-500">{log.driverName}</span>
+                              <span className="text-[var(--color-muted)]">{log.driverName}</span>
                             </td>
                             <td className="p-3">
                               <span className="font-medium text-slate-800 block">
                                 {log.officerName}
                               </span>
-                              <span className="text-[11px] text-slate-400 line-clamp-1">
+                              <span className="text-[11px] text-[var(--color-muted)] line-clamp-1">
                                 {log.purpose}
                               </span>
                             </td>
                             <td className="p-3 font-mono">
                               {log.openingKm} &rarr; {log.closingKm}
                             </td>
-                            <td className="p-3 font-bold text-indigo-700">
+                            <td className="p-3 font-bold text-[var(--color-copper)]">
                               {log.totalKm} KM
                             </td>
                             <td className="p-3">
@@ -2369,7 +2370,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                   <h3 className="font-bold text-slate-900 text-sm">
                     Monthly Govt Invoices for {tender.departmentName}
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[var(--color-muted)]">
                     स्वीकृत बिल, एक्स्ट्रा KM व भुगतान स्थिति
                   </p>
                 </div>
@@ -2405,7 +2406,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                           <span className="font-mono text-xs font-bold text-slate-900">
                             {b.billNumber}
                           </span>
-                          <p className="text-xs text-slate-500">Month: {b.monthYear}</p>
+                          <p className="text-xs text-[var(--color-muted)]">Month: {b.monthYear}</p>
                         </div>
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
@@ -2420,17 +2421,17 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
 
                       <div className="bg-slate-50 p-2.5 rounded-lg text-xs space-y-1">
                         <div className="flex justify-between">
-                          <span className="text-slate-500">Vehicle:</span>
+                          <span className="text-[var(--color-muted)]">Vehicle:</span>
                           <span className="font-bold text-slate-800">{b.vehicleNumber}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-slate-500">Total Run:</span>
+                          <span className="text-[var(--color-muted)]">Total Run:</span>
                           <span className="font-semibold text-slate-700">
                             {b.totalKmsRun} KM (Quota: {b.allowedKms} KM)
                           </span>
                         </div>
                         {b.extraKms > 0 && (
-                          <div className="flex justify-between text-indigo-700 font-semibold">
+                          <div className="flex justify-between text-[var(--color-copper)] font-semibold">
                             <span>Extra KM Amount:</span>
                             <span>+{formatCurrency(b.extraKmAmount)}</span>
                           </div>
@@ -2455,7 +2456,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-bold text-slate-900 text-sm">Fuel &amp; Operating Expenses</h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[var(--color-muted)]">
                     इस टेंडर की गाडियों का ईंधन ख़र्च व रसीदें
                   </p>
                 </div>
@@ -2490,7 +2491,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                           <td className="p-3 font-medium">{formatDate(f.date)}</td>
                           <td className="p-3">
                             <span className="font-mono font-bold block">{f.vehicleNumber}</span>
-                            <span className="text-slate-500">{f.driverName}</span>
+                            <span className="text-[var(--color-muted)]">{f.driverName}</span>
                           </td>
                           <td className="p-3">
                             {f.liters} Ltr @ ₹{f.ratePerLiter}
@@ -2498,7 +2499,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                           <td className="p-3 font-bold text-slate-900">
                             {formatCurrency(f.totalAmount)}
                           </td>
-                          <td className="p-3 text-slate-500">
+                          <td className="p-3 text-[var(--color-muted)]">
                             {f.fuelStation} ({f.receiptNumber})
                           </td>
                         </tr>
@@ -2518,13 +2519,13 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                   <h3 className="font-bold text-slate-900 text-sm">
                     Designated Officers ({tenderOfficers.length} Officers)
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[var(--color-muted)]">
                     इस अनुबंध के तहत कैब सुविधा प्राप्त करने वाले सरकारी अधिकारी
                   </p>
                 </div>
                 <button
                   onClick={() => setActiveActionModal('add_officer')}
-                  className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-xs transition-colors"
+                  className="px-3.5 py-2 bg-[var(--color-ink)] hover:bg-[var(--color-ink-soft)] text-white font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-xs transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   <span>+ नया अधिकारी जोड़ें</span>
@@ -2547,22 +2548,22 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                         <div className="flex items-start justify-between">
                           <div>
                             <h4 className="font-bold text-sm text-slate-900">{off.name}</h4>
-                            <p className="text-xs text-indigo-700 font-semibold">
+                            <p className="text-xs text-[var(--color-copper)] font-semibold">
                               {off.designation}
                             </p>
                           </div>
                         </div>
 
-                        <p className="text-xs text-slate-500">{off.officeAddress}</p>
+                        <p className="text-xs text-[var(--color-muted)]">{off.officeAddress}</p>
 
                         <div className="bg-slate-50 p-2 rounded text-xs space-y-1">
                           <div className="flex justify-between">
-                            <span className="text-slate-400">Mobile:</span>
+                            <span className="text-[var(--color-muted)]">Mobile:</span>
                             <span className="font-semibold text-slate-800">{off.mobile}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-400">Assigned Vehicle:</span>
-                            <span className="font-mono font-bold text-indigo-700">
+                            <span className="text-[var(--color-muted)]">Assigned Vehicle:</span>
+                            <span className="font-mono font-bold text-[var(--color-copper)]">
                               {assignedVeh?.vehicleNumber || 'Unassigned'}
                             </span>
                           </div>
@@ -2581,19 +2582,19 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
               <h3 className="font-bold text-slate-900 text-sm">Contract Clauses &amp; SLA Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                 <div className="p-3 bg-slate-50 rounded-lg">
-                  <span className="text-slate-400 block text-[11px]">Monthly Quota</span>
+                  <span className="text-[var(--color-muted)] block text-[11px]">Monthly Quota</span>
                   <span className="text-sm font-bold text-slate-900">
                     {tender.includedKms} KM &bull; {tender.includedHours} Hours
                   </span>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-lg">
-                  <span className="text-slate-400 block text-[11px]">Extra Rate</span>
+                  <span className="text-[var(--color-muted)] block text-[11px]">Extra Rate</span>
                   <span className="text-sm font-bold text-slate-900">
                     ₹{tender.extraKmRate}/KM &bull; ₹{tender.extraHourRate}/Hr
                   </span>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-lg">
-                  <span className="text-slate-400 block text-[11px]">Night Halt DA</span>
+                  <span className="text-[var(--color-muted)] block text-[11px]">Night Halt DA</span>
                   <span className="text-sm font-bold text-slate-900">
                     ₹{tender.nightHaltRate} / Night
                   </span>
@@ -2607,7 +2608,7 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
               )}
 
               {tender.emdDetails && (
-                <div className="p-3 bg-indigo-50 rounded-lg text-xs text-indigo-900 border border-indigo-200">
+                <div className="p-3 bg-teal-50 rounded-lg text-xs text-teal-900 border border-teal-200">
                   <strong>EMD / Bank Guarantee:</strong> {tender.emdDetails}
                 </div>
               )}
@@ -2616,14 +2617,14 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
         </div>
 
         {/* FOOTER */}
-        <div className="p-3 bg-white border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+        <div className="p-3 bg-white border-t border-slate-200 flex items-center justify-between text-xs text-[var(--color-muted)]">
           <span>
             {tenderVehicles.length} Vehicles &bull; {tenderOfficers.length} Officers &bull;{' '}
             {tenderLogs.length} Logs recorded
           </span>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-semibold"
+            className="px-4 py-2 bg-[var(--color-sand-deep)] hover:bg-[var(--color-sand)] text-[var(--color-ink)] rounded-lg font-semibold"
           >
             बंद करें (Close)
           </button>
@@ -2632,52 +2633,66 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
 
       {/* POPUP ACTION MODAL: Add Officer */}
       {activeActionModal === 'add_officer' && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-2xl">
-            <h3 className="font-bold text-slate-900 text-sm mb-3">
-              + Add Officer under {tender.departmentName}
-            </h3>
-            <form onSubmit={handleSaveOfficerSubmit} className="space-y-3 text-xs">
+        <form onSubmit={handleSaveOfficerSubmit}>
+          <ActionModalShell
+            title="अधिकारी जोड़ें (Add Officer)"
+            subtitle={tender.departmentName}
+            kickerIcon={<Users className="h-3.5 w-3.5" />}
+            kickerLabel="Officer"
+            onClose={() => setActiveActionModal(null)}
+            footer={
+              <>
+                <button type="button" onClick={() => setActiveActionModal(null)} className="btn btn-secondary">
+                  रद्द करें (Cancel)
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle className="h-4 w-4" />
+                  अधिकारी सुरक्षित करें
+                </button>
+              </>
+            }
+          >
+            <div className="panel panel-pad space-y-3">
               <div>
-                <label className="block font-semibold mb-1">Officer Name *</label>
+                <label className={actionLabelClass}>अधिकारी का नाम (Officer Name) *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Er. Sudhir Sharma"
                   value={officerForm.name}
                   onChange={(e) => setOfficerForm({ ...officerForm, name: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={actionFieldClass}
                 />
               </div>
               <div>
-                <label className="block font-semibold mb-1">Designation</label>
+                <label className={actionLabelClass}>पदनाम (Designation)</label>
                 <input
                   type="text"
                   placeholder="e.g. Executive Engineer (Inspection)"
                   value={officerForm.designation}
                   onChange={(e) => setOfficerForm({ ...officerForm, designation: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={actionFieldClass}
                 />
               </div>
               <div>
-                <label className="block font-semibold mb-1">Mobile Number *</label>
+                <label className={actionLabelClass}>मोबाइल नंबर (Mobile) *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. 9415012345"
                   value={officerForm.mobile}
                   onChange={(e) => setOfficerForm({ ...officerForm, mobile: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={actionFieldClass}
                 />
               </div>
               <div>
-                <label className="block font-semibold mb-1">Assign Vehicle (Optional)</label>
+                <label className={actionLabelClass}>गाड़ी असाइन करें (Optional)</label>
                 <select
                   value={officerForm.assignedVehicleId || ''}
                   onChange={(e) => setOfficerForm({ ...officerForm, assignedVehicleId: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg bg-white"
+                  className={actionSelectClass}
                 >
-                  <option value="">No Vehicle Assigned Yet</option>
+                  <option value="">अभी कोई गाड़ी नहीं</option>
                   {tenderVehicles.map((v) => (
                     <option key={v.id} value={v.id}>
                       {v.vehicleNumber} ({v.makeModel})
@@ -2685,72 +2700,71 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                   ))}
                 </select>
               </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveActionModal(null)}
-                  className="px-3 py-2 border rounded-lg text-slate-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold"
-                >
-                  Save Officer
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            </div>
+          </ActionModalShell>
+        </form>
       )}
 
       {/* POPUP ACTION MODAL: Add Vehicle */}
       {activeActionModal === 'add_vehicle' && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-2xl">
-            <h3 className="font-bold text-slate-900 text-sm mb-3">
-              + Deploy / Attach Vehicle to {tender.departmentName}
-            </h3>
-            <form onSubmit={handleSaveVehicleSubmit} className="space-y-3 text-xs">
+        <form onSubmit={handleSaveVehicleSubmit}>
+          <ActionModalShell
+            title="गाड़ी तैनात / अटैच करें"
+            subtitle={tender.departmentName}
+            kickerIcon={<Car className="h-3.5 w-3.5" />}
+            kickerLabel="Vehicle"
+            onClose={() => setActiveActionModal(null)}
+            footer={
+              <>
+                <button type="button" onClick={() => setActiveActionModal(null)} className="btn btn-secondary">
+                  रद्द करें (Cancel)
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle className="h-4 w-4" />
+                  गाड़ी सुरक्षित करें
+                </button>
+              </>
+            }
+          >
+            <div className="panel panel-pad space-y-3">
               <div>
-                <label className="block font-semibold mb-1">Vehicle Registration # *</label>
+                <label className={actionLabelClass}>गाड़ी नंबर (Registration #) *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. UP32 AB 1234"
                   value={vehicleForm.vehicleNumber}
                   onChange={(e) => setVehicleForm({ ...vehicleForm, vehicleNumber: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg uppercase"
+                  className={`${actionFieldClass} uppercase`}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-semibold mb-1">Make &amp; Model</label>
+                  <label className={actionLabelClass}>मॉडल (Make &amp; Model)</label>
                   <input
                     type="text"
                     value={vehicleForm.makeModel}
                     onChange={(e) => setVehicleForm({ ...vehicleForm, makeModel: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg"
+                    className={actionFieldClass}
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">गाड़ी का स्वामित्व (Ownership Type)</label>
+                  <label className={actionLabelClass}>गाड़ी का स्वामित्व (Ownership Type)</label>
                   <select
                     value={vehicleForm.ownershipType}
                     onChange={(e) => setVehicleForm({ ...vehicleForm, ownershipType: e.target.value as any })}
-                    className="w-full px-3 py-2 border rounded-lg bg-white"
+                    className={actionSelectClass}
                   >
-                    <option value="Company Owned">🏢 कंपनी की अपनी गाड़ी (Company Owned)</option>
-                    <option value="Attached / Market Hire">🤝 वेंडर/मार्केट अटैच गाड़ी (Attached)</option>
-                    <option value="Owner-Driver">🚗👨‍✈️ मालिक-चालक गाड़ी (Owner-Driver)</option>
+                    <option value="Company Owned">कंपनी की अपनी गाड़ी (Company Owned)</option>
+                    <option value="Attached / Market Hire">वेंडर/मार्केट अटैच गाड़ी (Attached)</option>
+                    <option value="Owner-Driver">मालिक-चालक गाड़ी (Owner-Driver)</option>
                   </select>
                 </div>
               </div>
 
               {vehicleForm.ownershipType === 'Attached / Market Hire' && (
                 <div>
-                  <label className="block font-semibold mb-1">Select Attached Vendor</label>
+                  <label className={actionLabelClass}>अटैच वेंडर चुनें</label>
                   <select
                     value={vehicleForm.vendorId || ''}
                     onChange={(e) => {
@@ -2762,9 +2776,9 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                         monthlyVendorRent: sel?.monthlyAgreedRatePerVehicle || 31000,
                       });
                     }}
-                    className="w-full px-3 py-2 border rounded-lg bg-white"
+                    className={actionSelectClass}
                   >
-                    <option value="">Select Vendor...</option>
+                    <option value="">वेंडर चुनें...</option>
                     {vendors.map((vnd) => (
                       <option key={vnd.id} value={vnd.id}>
                         {vnd.name} (Rent: ₹{vnd.monthlyAgreedRatePerVehicle}/mo)
@@ -2775,13 +2789,13 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
               )}
 
               <div>
-                <label className="block font-semibold mb-1">Assign to Officer (Optional)</label>
+                <label className={actionLabelClass}>अधिकारी को असाइन करें (Optional)</label>
                 <select
                   value={vehicleForm.assignedOfficerId || ''}
                   onChange={(e) => setVehicleForm({ ...vehicleForm, assignedOfficerId: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg bg-white"
+                  className={actionSelectClass}
                 >
-                  <option value="">No Officer Assigned</option>
+                  <option value="">कोई अधिकारी नहीं</option>
                   {tenderOfficers.map((o) => (
                     <option key={o.id} value={o.id}>
                       {o.name} ({o.designation})
@@ -2791,292 +2805,294 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
               </div>
 
               <div>
-                <label className="block font-semibold mb-1">Assign Driver (चालक नियुक्त करें)</label>
+                <label className={actionLabelClass}>चालक नियुक्त करें (Assign Driver)</label>
                 <select
                   value={vehicleForm.currentDriverId || ''}
                   onChange={(e) => setVehicleForm({ ...vehicleForm, currentDriverId: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg bg-white"
+                  className={actionSelectClass}
                 >
-                  <option value="">No Driver Assigned (बाद में नियुक्त करें)</option>
+                  <option value="">बाद में नियुक्त करें</option>
                   {drivers.map((d) => (
                     <option key={d.id} value={d.id}>
-                      👨‍✈️ {d.name} &bull; {d.phone} ({d.status === 'active' ? 'Available' : d.status})
+                      {d.name} • {d.phone} ({d.status === 'active' ? 'Available' : d.status})
                     </option>
                   ))}
                 </select>
               </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveActionModal(null)}
-                  className="px-3 py-2 border rounded-lg text-slate-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold"
-                >
-                  Save Vehicle
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            </div>
+          </ActionModalShell>
+        </form>
       )}
 
       {/* POPUP ACTION MODAL: Add Driver */}
       {activeActionModal === 'add_driver' && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-2xl">
-            <h3 className="font-bold text-slate-900 text-sm mb-3">
-              + Register New Driver for Fleet
-            </h3>
-            <form onSubmit={handleSaveDriverSubmit} className="space-y-3 text-xs">
+        <form onSubmit={handleSaveDriverSubmit}>
+          <ActionModalShell
+            title="नया चालक दर्ज करें (Register Driver)"
+            subtitle="फ्लीट के लिए नया ड्राइवर पंजीकृत करें"
+            kickerIcon={<UserCheck className="h-3.5 w-3.5" />}
+            kickerLabel="Driver"
+            onClose={() => setActiveActionModal(null)}
+            footer={
+              <>
+                <button type="button" onClick={() => setActiveActionModal(null)} className="btn btn-secondary">
+                  रद्द करें (Cancel)
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle className="h-4 w-4" />
+                  चालक सुरक्षित करें
+                </button>
+              </>
+            }
+          >
+            <div className="panel panel-pad space-y-3">
               <div>
-                <label className="block font-semibold mb-1">Driver Name *</label>
+                <label className={actionLabelClass}>चालक का नाम (Driver Name) *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Ramesh Kumar"
                   value={driverForm.name}
                   onChange={(e) => setDriverForm({ ...driverForm, name: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={actionFieldClass}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-semibold mb-1">Phone *</label>
+                  <label className={actionLabelClass}>फ़ोन (Phone) *</label>
                   <input
                     type="text"
                     required
                     placeholder="9839012345"
                     value={driverForm.phone}
                     onChange={(e) => setDriverForm({ ...driverForm, phone: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg"
+                    className={actionFieldClass}
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Monthly Salary (₹)</label>
+                  <label className={actionLabelClass}>मासिक वेतन (Monthly Salary ₹)</label>
                   <input
                     type="number"
                     value={driverForm.monthlySalary}
                     onChange={(e) => setDriverForm({ ...driverForm, monthlySalary: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border rounded-lg"
+                    className={actionFieldClass}
                   />
                 </div>
               </div>
               <div>
-                <label className="block font-semibold mb-1">Driving License Number</label>
+                <label className={actionLabelClass}>ड्राइविंग लाइसेंस नंबर</label>
                 <input
                   type="text"
                   placeholder="UP32-2024-001928"
                   value={driverForm.licenseNumber}
                   onChange={(e) => setDriverForm({ ...driverForm, licenseNumber: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg uppercase"
+                  className={`${actionFieldClass} uppercase`}
                 />
               </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveActionModal(null)}
-                  className="px-3 py-2 border rounded-lg text-slate-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold"
-                >
-                  Save Driver
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            </div>
+          </ActionModalShell>
+        </form>
       )}
 
       {/* POPUP ACTION MODAL: Replace Vehicle ("Kaun si gadi kab hati, kiski lagi") */}
       {activeActionModal === 'replace_vehicle' && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full p-5 shadow-2xl space-y-4">
-            <div className="border-b pb-2 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-slate-900 text-sm">
-                  🔄 गाड़ी बदलें (Kaun si Gadi Kab Hati, Kiski Lagi)
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-3 backdrop-blur-xs sm:p-4">
+          <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-2xl">
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--color-line)] bg-[var(--color-ink)] px-4 py-4 text-white sm:px-5">
+              <div className="min-w-0">
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="page-kicker !text-teal-300">
+                    <ArrowRightLeft className="h-3.5 w-3.5" />
+                    Vehicle swap
+                  </span>
+                </div>
+                <h3 className="font-[family-name:var(--font-display)] text-base font-bold tracking-tight">
+                  गाड़ी बदलें (Kaun si Gadi Kab Hati, Kiski Lagi)
                 </h3>
-                <p className="text-[11px] text-slate-500">
+                <p className="mt-1 text-[11px] text-white/65">
                   {tender.departmentName} में पुरानी गाड़ी को रिलीज़ करके नई गाड़ी तैनात करें
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setActiveActionModal(null)}
-                className="text-slate-400 hover:text-slate-600"
+                className="rounded-lg bg-white/10 p-1.5 text-white/55 transition-colors hover:bg-white/15 hover:text-white"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <form onSubmit={handleReplaceVehicleSubmit} className="space-y-3 text-xs">
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  1. कौन सी गाड़ी हटानी है (Vehicle to Remove) *
-                </label>
-                <select
-                  required
-                  value={replaceVehOldId}
-                  onChange={(e) => setReplaceVehOldId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg bg-white font-semibold"
-                >
-                  {tenderVehicles.map((v) => {
-                    const off = officers.find(
-                      (o) => o.assignedVehicleId === v.id || o.id === v.assignedOfficerId
-                    );
-                    return (
-                      <option key={v.id} value={v.id}>
-                        {v.vehicleNumber} ({v.makeModel}) &bull; अफ़सर: {off?.name || 'Unassigned'}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-
-              <div className="bg-amber-50 p-3 rounded-lg border border-amber-200/70 space-y-2">
-                <label className="block font-bold text-amber-950">
-                  2. नई गाड़ी कैसे लगानी है (Replacement Vehicle Source):
-                </label>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-1.5 cursor-pointer font-medium text-amber-900">
-                    <input
-                      type="radio"
-                      name="vehSource"
-                      checked={replaceVehSource === 'new_attached'}
-                      onChange={() => setReplaceVehSource('new_attached')}
-                    />
-                    <span>नई / वेंडर अटैच गाड़ी दर्ज करें</span>
+            <form
+              onSubmit={handleReplaceVehicleSubmit}
+              className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[var(--color-sand)]/50 p-4 text-xs sm:p-5"
+            >
+              <div className="panel panel-pad space-y-3">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
+                    1. कौन सी गाड़ी हटानी है (Vehicle to Remove) *
                   </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer font-medium text-amber-900">
-                    <input
-                      type="radio"
-                      name="vehSource"
-                      checked={replaceVehSource === 'existing_fleet'}
-                      onChange={() => setReplaceVehSource('existing_fleet')}
-                    />
-                    <span>मौजूदा खाली फ़्लीट में से चुनें</span>
-                  </label>
+                  <select
+                    required
+                    value={replaceVehOldId}
+                    onChange={(e) => setReplaceVehOldId(e.target.value)}
+                    className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2 text-xs font-semibold text-[var(--color-ink)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
+                  >
+                    {tenderVehicles.map((v) => {
+                      const off = officers.find(
+                        (o) => o.assignedVehicleId === v.id || o.id === v.assignedOfficerId
+                      );
+                      return (
+                        <option key={v.id} value={v.id}>
+                          {v.vehicleNumber} ({v.makeModel}) • अफ़सर: {off?.name || 'Unassigned'}
+                        </option>
+                      );
+                    })}
+                  </select>
                 </div>
 
-                {replaceVehSource === 'new_attached' ? (
-                  <div className="grid grid-cols-2 gap-2 pt-2">
-                    <div>
-                      <label className="block font-semibold mb-1">नई गाड़ी नंबर *</label>
+                <div className="space-y-2 rounded-xl border border-teal-200/70 bg-teal-50/50 p-3">
+                  <label className="block text-xs font-bold text-teal-950">
+                    2. नई गाड़ी कैसे लगानी है (Replacement Vehicle Source):
+                  </label>
+                  <div className="flex flex-wrap gap-4">
+                    <label className="flex cursor-pointer items-center gap-1.5 font-medium text-teal-900">
                       <input
-                        type="text"
-                        required
-                        placeholder="UP32 CD 9988"
-                        value={replaceVehNewNumber}
-                        onChange={(e) => setReplaceVehNewNumber(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-lg uppercase bg-white"
+                        type="radio"
+                        name="vehSource"
+                        checked={replaceVehSource === 'new_attached'}
+                        onChange={() => setReplaceVehSource('new_attached')}
+                        className="text-teal-600 focus:ring-teal-500"
                       />
-                    </div>
-                    <div>
-                      <label className="block font-semibold mb-1">मॉडल (Make &amp; Model)</label>
+                      <span>नई / वेंडर अटैच गाड़ी दर्ज करें</span>
+                    </label>
+                    <label className="flex cursor-pointer items-center gap-1.5 font-medium text-teal-900">
                       <input
-                        type="text"
-                        value={replaceVehNewModel}
-                        onChange={(e) => setReplaceVehNewModel(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-lg bg-white"
+                        type="radio"
+                        name="vehSource"
+                        checked={replaceVehSource === 'existing_fleet'}
+                        onChange={() => setReplaceVehSource('existing_fleet')}
+                        className="text-teal-600 focus:ring-teal-500"
                       />
-                    </div>
+                      <span>मौजूदा खाली फ़्लीट में से चुनें</span>
+                    </label>
                   </div>
-                ) : (
-                  <div className="pt-2">
-                    <label className="block font-semibold mb-1">खाली गाड़ी चुनें</label>
+
+                  {replaceVehSource === 'new_attached' ? (
+                    <div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
+                      <div>
+                        <label className="mb-1 block font-semibold text-[var(--color-ink)]">नई गाड़ी नंबर *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="UP32 CD 9988"
+                          value={replaceVehNewNumber}
+                          onChange={(e) => setReplaceVehNewNumber(e.target.value)}
+                          className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3 py-2 uppercase focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block font-semibold text-[var(--color-ink)]">मॉडल (Make &amp; Model)</label>
+                        <input
+                          type="text"
+                          placeholder="Maruti Suzuki Dzire ZXi"
+                          value={replaceVehNewModel}
+                          onChange={(e) => setReplaceVehNewModel(e.target.value)}
+                          className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="pt-2">
+                      <label className="mb-1 block font-semibold text-[var(--color-ink)]">खाली गाड़ी चुनें</label>
+                      <select
+                        value={replaceVehNewId}
+                        onChange={(e) => setReplaceVehNewId(e.target.value)}
+                        className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                      >
+                        <option value="">खाली गाड़ी चुनें...</option>
+                        {vehicles
+                          .filter((v) => v.id !== replaceVehOldId)
+                          .slice(0, 40)
+                          .map((v) => (
+                            <option key={v.id} value={v.id}>
+                              {v.vehicleNumber} ({v.makeModel} • {v.ownershipType})
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block font-semibold text-[var(--color-ink)]">
+                      गाड़ी हटने/बदलने की तारीख *
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={replaceVehDate}
+                      onChange={(e) => setReplaceVehDate(e.target.value)}
+                      className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block font-semibold text-[var(--color-ink)]">
+                      बदलाव का कारण (Reason) *
+                    </label>
                     <select
-                      value={replaceVehNewId}
-                      onChange={(e) => setReplaceVehNewId(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg bg-white"
+                      value={replaceVehReason}
+                      onChange={(e) => setReplaceVehReason(e.target.value as any)}
+                      className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                     >
-                      <option value="">Select idle vehicle...</option>
-                      {vehicles
-                        .filter((v) => v.id !== replaceVehOldId)
-                        .slice(0, 40)
-                        .map((v) => (
-                          <option key={v.id} value={v.id}>
-                            {v.vehicleNumber} ({v.makeModel} &bull; {v.ownershipType})
-                          </option>
-                        ))}
+                      <option value="breakdown_maintenance">खराबी / गैराज सर्विस (Breakdown)</option>
+                      <option value="officer_request">अधिकारी के अनुरोध पर (Officer Request)</option>
+                      <option value="accident">दुर्घटना / डेंटिंग पेंटिंग (Accident)</option>
+                      <option value="fitness_rc_expiry">फ़िटनेस / आरसी समाप्ति (RTO Expiry)</option>
+                      <option value="temporary_substitute">अस्थायी वैकल्पिक गाड़ी (Standby)</option>
+                      <option value="contract_upgrade">कॉन्ट्रैक्ट अपग्रेड (SUV Deployment)</option>
+                      <option value="vendor_fleet_rotation">वेंडर फ़्लीट रोटेशन</option>
+                      <option value="other">अन्य कारण (Other)</option>
                     </select>
                   </div>
-                )}
-              </div>
+                </div>
 
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold mb-1">गाड़ी हटने/बदलने की तारीख *</label>
+                  <label className="mb-1 block font-semibold text-[var(--color-ink)]">
+                    रिमार्क्स व हैंडओवर नोट्स
+                  </label>
                   <input
-                    type="date"
-                    required
-                    value={replaceVehDate}
-                    onChange={(e) => setReplaceVehDate(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg"
+                    type="text"
+                    placeholder="e.g. AC failure; sent to workshop, standby Dzire deployed"
+                    value={replaceVehNotes}
+                    onChange={(e) => setReplaceVehNotes(e.target.value)}
+                    className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                   />
                 </div>
 
-                <div>
-                  <label className="block font-semibold mb-1">बदलाव का कारण (Reason) *</label>
-                  <select
-                    value={replaceVehReason}
-                    onChange={(e) => setReplaceVehReason(e.target.value as any)}
-                    className="w-full px-3 py-2 border rounded-lg bg-white"
-                  >
-                    <option value="breakdown_maintenance">खराबी / गैराज सर्विस (Breakdown)</option>
-                    <option value="officer_request">अधिकारी के अनुरोध पर (Officer Request)</option>
-                    <option value="accident">दुर्घटना / डेंटिंग पेंटिंग (Accident)</option>
-                    <option value="fitness_rc_expiry">फ़िटनेस / आरसी समाप्ति (RTO Expiry)</option>
-                    <option value="temporary_substitute">अस्थायी वैकल्पिक गाड़ी (Standby)</option>
-                    <option value="contract_upgrade">कॉन्ट्रैक्ट अपग्रेड (SUV Deployment)</option>
-                    <option value="vendor_fleet_rotation">वेंडर फ़्लीट रोटेशन</option>
-                    <option value="other">अन्य कारण (Other)</option>
-                  </select>
-                </div>
+                <label className="flex cursor-pointer items-center gap-2 pt-1 font-semibold text-[var(--color-ink)]">
+                  <input
+                    type="checkbox"
+                    checked={replaceVehTransferOfficerAndDriver}
+                    onChange={(e) => setReplaceVehTransferOfficerAndDriver(e.target.checked)}
+                    className="rounded text-teal-600 focus:ring-teal-500"
+                  />
+                  <span>अधिकारी व वर्तमान ड्राइवर को नई गाड़ी में ऑटो-ट्रांसफर करें</span>
+                </label>
               </div>
 
-              <div>
-                <label className="block font-semibold mb-1">रिमार्क्स व हैंडओवर नोट्स</label>
-                <input
-                  type="text"
-                  placeholder="e.g. AC failure; sent to workshop, standby Dzire deployed"
-                  value={replaceVehNotes}
-                  onChange={(e) => setReplaceVehNotes(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg"
-                />
-              </div>
-
-              <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-800 pt-1">
-                <input
-                  type="checkbox"
-                  checked={replaceVehTransferOfficerAndDriver}
-                  onChange={(e) => setReplaceVehTransferOfficerAndDriver(e.target.checked)}
-                  className="rounded text-indigo-600"
-                />
-                <span>अधिकारी व वर्तमान ड्राइवर को नई गाड़ी में ऑटो-ट्रांसफर करें</span>
-              </label>
-
-              <div className="flex justify-end gap-2 pt-3 border-t">
+              <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--color-line)] pt-3">
                 <button
                   type="button"
                   onClick={() => setActiveActionModal(null)}
-                  className="px-3 py-2 border rounded-lg text-slate-600"
+                  className="btn btn-secondary"
                 >
-                  Cancel
+                  रद्द करें (Cancel)
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg shadow-xs"
-                >
-                  ✓ गाड़ी बदलाव सुरक्षित करें
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle className="h-4 w-4" />
+                  गाड़ी बदलाव सुरक्षित करें
                 </button>
               </div>
             </form>
@@ -3086,19 +3102,33 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
 
       {/* POPUP ACTION MODAL: Replace Driver */}
       {activeActionModal === 'replace_driver' && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-2xl space-y-3">
-            <h3 className="font-bold text-slate-900 text-sm">
-              🔀 ड्राइवर बदलें (Kaun Kab Hata, Kaun Laga)
-            </h3>
-            <form onSubmit={handleReplaceDriverSubmit} className="space-y-3 text-xs">
+        <form onSubmit={handleReplaceDriverSubmit}>
+          <ActionModalShell
+            title="ड्राइवर बदलें (Kaun Kab Hata, Kaun Laga)"
+            subtitle="गाड़ी पर नया चालक तैनात करें"
+            kickerIcon={<ArrowRightLeft className="h-3.5 w-3.5" />}
+            kickerLabel="Driver swap"
+            onClose={() => setActiveActionModal(null)}
+            footer={
+              <>
+                <button type="button" onClick={() => setActiveActionModal(null)} className="btn btn-secondary">
+                  रद्द करें (Cancel)
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle className="h-4 w-4" />
+                  ड्राइवर बदलाव सुरक्षित करें
+                </button>
+              </>
+            }
+          >
+            <div className="panel panel-pad space-y-3">
               <div>
-                <label className="block font-semibold mb-1">गाड़ी चुनें *</label>
+                <label className={actionLabelClass}>गाड़ी चुनें *</label>
                 <select
                   required
                   value={replaceDrvVehId}
                   onChange={(e) => setReplaceDrvVehId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg bg-white"
+                  className={actionSelectClass}
                 >
                   {tenderVehicles.map((v) => {
                     const drv = getAssignedDriverForVehicle(v, drivers, officers);
@@ -3112,38 +3142,38 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
               </div>
 
               <div>
-                <label className="block font-semibold mb-1">नया ड्राइवर चुनें *</label>
+                <label className={actionLabelClass}>नया ड्राइवर चुनें *</label>
                 <select
                   required
                   value={replaceDrvNewId}
                   onChange={(e) => setReplaceDrvNewId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg bg-white"
+                  className={actionSelectClass}
                 >
-                  <option value="">Select new driver...</option>
+                  <option value="">नया ड्राइवर चुनें...</option>
                   {drivers.map((d) => (
                     <option key={d.id} value={d.id}>
-                      {d.name} &bull; {d.phone} ({d.status})
+                      {d.name} • {d.phone} ({d.status})
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-semibold mb-1">बदलाव की तारीख</label>
+                  <label className={actionLabelClass}>बदलाव की तारीख</label>
                   <input
                     type="date"
                     value={replaceDrvDate}
                     onChange={(e) => setReplaceDrvDate(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg"
+                    className={actionFieldClass}
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">कारण (Reason)</label>
+                  <label className={actionLabelClass}>कारण (Reason)</label>
                   <select
                     value={replaceDrvReason}
                     onChange={(e) => setReplaceDrvReason(e.target.value as any)}
-                    className="w-full px-3 py-2 border rounded-lg bg-white"
+                    className={actionSelectClass}
                   >
                     <option value="officer_request">Officer Request (अधिकारी की मांग)</option>
                     <option value="leave">Leave / Vacation (छुट्टी पर गया)</option>
@@ -3155,162 +3185,168 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
               </div>
 
               <div>
-                <label className="block font-semibold mb-1">रिमार्क्स</label>
+                <label className={actionLabelClass}>रिमार्क्स</label>
                 <input
                   type="text"
                   placeholder="e.g. Officer requested early morning duty driver"
                   value={replaceDrvNotes}
                   onChange={(e) => setReplaceDrvNotes(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={actionFieldClass}
                 />
               </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveActionModal(null)}
-                  className="px-3 py-2 border rounded-lg text-slate-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-violet-600 text-white rounded-lg font-bold"
-                >
-                  Save Driver Replacement
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            </div>
+          </ActionModalShell>
+        </form>
       )}
 
       {/* POPUP ACTION MODAL: Add Duty Log */}
       {activeActionModal === 'add_log' && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full p-5 shadow-2xl space-y-3">
-            <h3 className="font-bold text-slate-900 text-sm">
-              📝 दैनिक ड्यूटी लॉग पर्ची जोड़ें ({tender.departmentName})
-            </h3>
-            <form onSubmit={handleAddLogSubmit} className="space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block font-semibold mb-1">गाड़ी चुनें *</label>
-                  <select
-                    required
-                    value={logVehId}
-                    onChange={(e) => handleLogVehChange(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg bg-white font-semibold"
-                  >
-                    {tenderVehicles.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.vehicleNumber} ({v.makeModel})
-                      </option>
-                    ))}
-                  </select>
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-3 backdrop-blur-xs sm:p-4">
+          <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-2xl">
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--color-line)] bg-[var(--color-ink)] px-4 py-4 text-white sm:px-5">
+              <div className="min-w-0">
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="page-kicker !text-teal-300">
+                    <FileText className="h-3.5 w-3.5" />
+                    Duty log
+                  </span>
                 </div>
-
-                <div>
-                  <label className="block font-semibold mb-1">ड्यूटी तारीख</label>
-                  <input
-                    type="date"
-                    required
-                    value={logDate}
-                    onChange={(e) => setLogDate(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg"
-                  />
-                </div>
+                <h3 className="font-[family-name:var(--font-display)] text-base font-bold tracking-tight">
+                  दैनिक ड्यूटी लॉग पर्ची जोड़ें
+                </h3>
+                <p className="mt-1 truncate text-[11px] text-white/65">{tender.departmentName}</p>
               </div>
+              <button
+                type="button"
+                onClick={() => setActiveActionModal(null)}
+                className="rounded-lg bg-white/10 p-1.5 text-white/55 transition-colors hover:bg-white/15 hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-              <div className="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-lg border">
-                <div>
-                  <label className="block font-semibold mb-1">Opening KM *</label>
-                  <input
-                    type="number"
-                    required
-                    value={logOpeningKm}
-                    onChange={(e) => setLogOpeningKm(Number(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-lg bg-white font-mono"
-                  />
+            <form
+              onSubmit={handleAddLogSubmit}
+              className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[var(--color-sand)]/50 p-4 text-xs sm:p-5"
+            >
+              <div className="panel panel-pad space-y-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block font-semibold text-[var(--color-ink)]">गाड़ी चुनें *</label>
+                    <select
+                      required
+                      value={logVehId}
+                      onChange={(e) => handleLogVehChange(e.target.value)}
+                      className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2 font-semibold text-[var(--color-ink)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30 sm:text-sm"
+                    >
+                      {tenderVehicles.map((v) => (
+                        <option key={v.id} value={v.id}>
+                          {v.vehicleNumber} ({v.makeModel})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block font-semibold text-[var(--color-ink)]">ड्यूटी तारीख</label>
+                    <input
+                      type="date"
+                      required
+                      value={logDate}
+                      onChange={(e) => setLogDate(e.target.value)}
+                      className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 rounded-xl border border-teal-200/70 bg-teal-50/50 p-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block font-semibold text-teal-950">शुरुआती किमी (Opening KM) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={logOpeningKm}
+                      onChange={(e) => setLogOpeningKm(Number(e.target.value))}
+                      className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block font-semibold text-teal-950">अंतिम किमी (Closing KM) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={logClosingKm}
+                      onChange={(e) => setLogClosingKm(Number(e.target.value))}
+                      className="w-full rounded-lg border border-[var(--color-line)] bg-white px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block font-semibold text-[var(--color-ink)]">शुरुआती समय (Opening Time)</label>
+                    <input
+                      type="time"
+                      value={logOpenTime}
+                      onChange={(e) => setLogOpenTime(e.target.value)}
+                      className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block font-semibold text-[var(--color-ink)]">समाप्ति समय (Closing Time)</label>
+                    <input
+                      type="time"
+                      value={logCloseTime}
+                      onChange={(e) => setLogCloseTime(e.target.value)}
+                      className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block font-semibold text-[var(--color-ink)]">ड्यूटी पर्ची / Duty Slip #</label>
+                    <input
+                      type="text"
+                      value={logSlipNumber}
+                      onChange={(e) => setLogSlipNumber(e.target.value)}
+                      className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2 font-mono uppercase focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block font-semibold text-[var(--color-ink)]">टोल / पार्किंग ख़र्च (₹)</label>
+                    <input
+                      type="number"
+                      value={logToll}
+                      onChange={(e) => setLogToll(Number(e.target.value))}
+                      className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block font-semibold mb-1">Closing KM *</label>
-                  <input
-                    type="number"
-                    required
-                    value={logClosingKm}
-                    onChange={(e) => setLogClosingKm(Number(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-lg bg-white font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block font-semibold mb-1">Opening Time</label>
-                  <input
-                    type="time"
-                    value={logOpenTime}
-                    onChange={(e) => setLogOpenTime(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold mb-1">Closing Time</label>
-                  <input
-                    type="time"
-                    value={logCloseTime}
-                    onChange={(e) => setLogCloseTime(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block font-semibold mb-1">ड्यूटी पर्ची / Duty Slip #</label>
+                  <label className="mb-1 block font-semibold text-[var(--color-ink)]">मार्ग व प्रयोजन (Route / Purpose)</label>
                   <input
                     type="text"
-                    value={logSlipNumber}
-                    onChange={(e) => setLogSlipNumber(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg font-mono uppercase"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold mb-1">टोल / पार्किंग ख़र्च (₹)</label>
-                  <input
-                    type="number"
-                    value={logToll}
-                    onChange={(e) => setLogToll(Number(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-lg"
+                    value={logPurpose}
+                    onChange={(e) => setLogPurpose(e.target.value)}
+                    className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block font-semibold mb-1">मार्ग व प्रयोजन (Route / Purpose)</label>
-                <input
-                  type="text"
-                  value={logPurpose}
-                  onChange={(e) => setLogPurpose(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--color-line)] pt-3">
                 <button
                   type="button"
                   onClick={() => setActiveActionModal(null)}
-                  className="px-3 py-2 border rounded-lg text-slate-600"
+                  className="btn btn-secondary"
                 >
-                  Cancel
+                  रद्द करें (Cancel)
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold"
-                >
-                  ✓ Duty Slip सुरक्षित करें
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle className="h-4 w-4" />
+                  Duty Slip सुरक्षित करें
                 </button>
               </div>
             </form>
@@ -3320,18 +3356,32 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
 
       {/* POPUP ACTION MODAL: Add Fuel */}
       {activeActionModal === 'add_fuel' && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-2xl space-y-3">
-            <h3 className="font-bold text-slate-900 text-sm">
-              ⛽ ईंधन पर्ची दर्ज करें ({tender.departmentName})
-            </h3>
-            <form onSubmit={handleAddFuelSubmit} className="space-y-3 text-xs">
+        <form onSubmit={handleAddFuelSubmit}>
+          <ActionModalShell
+            title="ईंधन पर्ची दर्ज करें"
+            subtitle={tender.departmentName}
+            kickerIcon={<Fuel className="h-3.5 w-3.5" />}
+            kickerLabel="Fuel slip"
+            onClose={() => setActiveActionModal(null)}
+            footer={
+              <>
+                <button type="button" onClick={() => setActiveActionModal(null)} className="btn btn-secondary">
+                  रद्द करें (Cancel)
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle className="h-4 w-4" />
+                  ईंधन एंट्री सुरक्षित करें
+                </button>
+              </>
+            }
+          >
+            <div className="panel panel-pad space-y-3">
               <div>
-                <label className="block font-semibold mb-1">गाड़ी चुनें *</label>
+                <label className={actionLabelClass}>गाड़ी चुनें *</label>
                 <select
                   value={fuelVehId}
                   onChange={(e) => setFuelVehId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg bg-white font-semibold"
+                  className={`${actionSelectClass} font-semibold`}
                 >
                   {tenderVehicles.map((v) => (
                     <option key={v.id} value={v.id}>
@@ -3341,98 +3391,96 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-semibold mb-1">लीटर (Liters) *</label>
+                  <label className={actionLabelClass}>लीटर (Liters) *</label>
                   <input
                     type="number"
                     step="0.01"
                     value={fuelLiters}
                     onChange={(e) => setFuelLiters(Number(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-lg font-bold"
+                    className={`${actionFieldClass} font-bold`}
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">दर प्रति लीटर (₹) *</label>
+                  <label className={actionLabelClass}>दर प्रति लीटर (₹) *</label>
                   <input
                     type="number"
                     value={fuelRate}
                     onChange={(e) => setFuelRate(Number(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-lg font-bold"
+                    className={`${actionFieldClass} font-bold`}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-semibold mb-1">ओडोमीटर KM</label>
+                  <label className={actionLabelClass}>ओडोमीटर KM</label>
                   <input
                     type="number"
                     value={fuelOdo}
                     onChange={(e) => setFuelOdo(Number(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-lg font-mono"
+                    className={`${actionFieldClass} font-mono`}
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">रसीद / पर्ची #</label>
+                  <label className={actionLabelClass}>रसीद / पर्ची #</label>
                   <input
                     type="text"
                     value={fuelReceipt}
                     onChange={(e) => setFuelReceipt(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg font-mono uppercase"
+                    className={`${actionFieldClass} font-mono uppercase`}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold mb-1">पेट्रोल पंप का नाम</label>
+                <label className={actionLabelClass}>पेट्रोल पंप का नाम</label>
                 <input
                   type="text"
                   value={fuelStation}
                   onChange={(e) => setFuelStation(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={actionFieldClass}
                 />
               </div>
 
-              <div className="p-2 bg-emerald-50 text-emerald-900 rounded font-bold text-center">
+              <div className="rounded-xl border border-teal-200/70 bg-teal-50/60 p-2.5 text-center text-sm font-bold text-teal-900">
                 कुल राशि: {formatCurrency(fuelLiters * fuelRate)}
               </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveActionModal(null)}
-                  className="px-3 py-2 border rounded-lg text-slate-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-amber-600 text-white rounded-lg font-bold"
-                >
-                  Save Fuel Entry
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            </div>
+          </ActionModalShell>
+        </form>
       )}
 
       {/* POPUP ACTION MODAL: Create Monthly Bill */}
       {activeActionModal === 'add_bill' && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-2xl space-y-3">
-            <h3 className="font-bold text-slate-900 text-sm">
-              🧾 सरकारी मासिक बिल जनरेट करें ({tender.departmentName})
-            </h3>
-            <form onSubmit={handleCreateBillSubmit} className="space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-2">
+        <form onSubmit={handleCreateBillSubmit}>
+          <ActionModalShell
+            title="सरकारी मासिक बिल जनरेट करें"
+            subtitle={tender.departmentName}
+            kickerIcon={<Receipt className="h-3.5 w-3.5" />}
+            kickerLabel="Govt bill"
+            onClose={() => setActiveActionModal(null)}
+            footer={
+              <>
+                <button type="button" onClick={() => setActiveActionModal(null)} className="btn btn-secondary">
+                  रद्द करें (Cancel)
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle className="h-4 w-4" />
+                  बिल जनरेट करें
+                </button>
+              </>
+            }
+          >
+            <div className="panel panel-pad space-y-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-semibold mb-1">गाड़ी चुनें *</label>
+                  <label className={actionLabelClass}>गाड़ी चुनें *</label>
                   <select
                     value={billVehId}
                     onChange={(e) => setBillVehId(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg bg-white"
+                    className={actionSelectClass}
                   >
                     {tenderVehicles.map((v) => (
                       <option key={v.id} value={v.id}>
@@ -3442,71 +3490,71 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">बिल महीना (YYYY-MM)</label>
+                  <label className={actionLabelClass}>बिल महीना (YYYY-MM)</label>
                   <input
                     type="month"
                     value={billMonth}
                     onChange={(e) => setBillMonth(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg font-semibold"
+                    className={`${actionFieldClass} font-semibold`}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-semibold mb-1">कुल चली KM (Total KMs)</label>
+                  <label className={actionLabelClass}>कुल चली KM (Total KMs)</label>
                   <input
                     type="number"
                     value={billTotalKm}
                     onChange={(e) => setBillTotalKm(Number(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-lg font-mono font-bold"
+                    className={`${actionFieldClass} font-mono font-bold`}
                   />
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-[10px] text-[var(--color-muted)]">
                     Included Quota: {tender.includedKms} KM
                   </span>
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">कुल घंटे (Total Hours)</label>
+                  <label className={actionLabelClass}>कुल घंटे (Total Hours)</label>
                   <input
                     type="number"
                     value={billTotalHrs}
                     onChange={(e) => setBillTotalHrs(Number(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-lg font-mono font-bold"
+                    className={`${actionFieldClass} font-mono font-bold`}
                   />
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-[10px] text-[var(--color-muted)]">
                     Included Quota: {tender.includedHours} Hrs
                   </span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-semibold mb-1">टोल व पार्किंग (₹)</label>
+                  <label className={actionLabelClass}>टोल व पार्किंग (₹)</label>
                   <input
                     type="number"
                     value={billToll}
                     onChange={(e) => setBillToll(Number(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-lg"
+                    className={actionFieldClass}
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">नाइट हाल्ट (संख्या)</label>
+                  <label className={actionLabelClass}>नाइट हाल्ट (संख्या)</label>
                   <input
                     type="number"
                     value={billNightHalts}
                     onChange={(e) => setBillNightHalts(Number(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-lg"
+                    className={actionFieldClass}
                   />
                 </div>
               </div>
 
-              <div className="p-3 bg-slate-50 rounded-lg text-[11px] space-y-1">
-                <div className="flex justify-between">
+              <div className="space-y-1 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-3 text-[11px]">
+                <div className="flex justify-between text-[var(--color-ink)]">
                   <span>Base Rate:</span>
                   <span>{formatCurrency(tender.baseMonthlyRate)}</span>
                 </div>
                 {billTotalKm > tender.includedKms && (
-                  <div className="flex justify-between text-indigo-700">
+                  <div className="flex justify-between font-semibold text-teal-700">
                     <span>
                       Extra KM ({billTotalKm - tender.includedKms} KM @ ₹{tender.extraKmRate}):
                     </span>
@@ -3516,41 +3564,39 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                   </div>
                 )}
               </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveActionModal(null)}
-                  className="px-3 py-2 border rounded-lg text-slate-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold"
-                >
-                  ✓ बिल जनरेट करें
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            </div>
+          </ActionModalShell>
+        </form>
       )}
 
       {/* POPUP ACTION MODAL: Add Payment */}
       {activeActionModal === 'add_payment' && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-2xl space-y-3">
-            <h3 className="font-bold text-slate-900 text-sm">
-              💰 ड्राइवर एडवांस / भुगतान दर्ज करें
-            </h3>
-            <form onSubmit={handleAddPaymentSubmit} className="space-y-3 text-xs">
+        <form onSubmit={handleAddPaymentSubmit}>
+          <ActionModalShell
+            title="ड्राइवर एडवांस / भुगतान दर्ज करें"
+            subtitle="Petty advance & driver payment"
+            kickerIcon={<CreditCard className="h-3.5 w-3.5" />}
+            kickerLabel="Payment"
+            onClose={() => setActiveActionModal(null)}
+            footer={
+              <>
+                <button type="button" onClick={() => setActiveActionModal(null)} className="btn btn-secondary">
+                  रद्द करें (Cancel)
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle className="h-4 w-4" />
+                  भुगतान सुरक्षित करें
+                </button>
+              </>
+            }
+          >
+            <div className="panel panel-pad space-y-3">
               <div>
-                <label className="block font-semibold mb-1">ड्राइवर चुनें *</label>
+                <label className={actionLabelClass}>ड्राइवर चुनें *</label>
                 <select
                   value={payDriverId}
                   onChange={(e) => setPayDriverId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg bg-white"
+                  className={actionSelectClass}
                 >
                   {drivers.map((d) => (
                     <option key={d.id} value={d.id}>
@@ -3559,22 +3605,22 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                   ))}
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block font-semibold mb-1">राशि (Amount ₹) *</label>
+                  <label className={actionLabelClass}>राशि (Amount ₹) *</label>
                   <input
                     type="number"
                     value={payAmount}
                     onChange={(e) => setPayAmount(Number(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-lg font-bold text-slate-900"
+                    className={`${actionFieldClass} font-bold`}
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">माध्यम (Mode)</label>
+                  <label className={actionLabelClass}>माध्यम (Mode)</label>
                   <select
                     value={payMode}
                     onChange={(e) => setPayMode(e.target.value as any)}
-                    className="w-full px-3 py-2 border rounded-lg bg-white"
+                    className={actionSelectClass}
                   >
                     <option value="cash">Cash (नक़द)</option>
                     <option value="upi">UPI / GPay</option>
@@ -3583,66 +3629,60 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                 </div>
               </div>
               <div>
-                <label className="block font-semibold mb-1">विवरण (Description)</label>
+                <label className={actionLabelClass}>विवरण (Description)</label>
                 <input
                   type="text"
                   value={payDesc}
                   onChange={(e) => setPayDesc(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className={actionFieldClass}
                 />
               </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveActionModal(null)}
-                  className="px-3 py-2 border rounded-lg text-slate-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold"
-                >
-                  Save Payment
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            </div>
+          </ActionModalShell>
+        </form>
       )}
 
       {/* MODAL: OFFICER TRANSFER & VEHICLE HALT / REASSIGNMENT */}
       {activeActionModal === 'transfer_officer' && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/70 p-3 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-xl w-full p-5 shadow-2xl border border-slate-200 space-y-4 my-8 max-h-[92vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b pb-3">
-              <div>
-                <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-rose-600" />
-                  <span>अधिकारी तबादला व गाड़ी स्थिति प्रबंधन</span>
+        <div className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-xs sm:p-4">
+          <div className="my-6 flex max-h-[92vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-2xl">
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--color-line)] bg-[var(--color-ink)] px-4 py-4 text-white sm:px-5">
+              <div className="min-w-0">
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="page-kicker !text-teal-300">
+                    <Building2 className="h-3.5 w-3.5" />
+                    Officer transfer
+                  </span>
+                </div>
+                <h3 className="font-[family-name:var(--font-display)] text-base font-bold tracking-tight">
+                  अधिकारी तबादला व गाड़ी स्थिति प्रबंधन
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="mt-1 text-[11px] text-white/65">
                   Officer Transfer &amp; Vehicle Halt / Reassignment Handover
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setActiveActionModal(null)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100"
+                className="rounded-lg bg-white/10 p-1.5 text-white/55 transition-colors hover:bg-white/15 hover:text-white"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <form onSubmit={handleTransferOfficerSubmit} className="space-y-3.5 text-xs">
+            <form
+              onSubmit={handleTransferOfficerSubmit}
+              className="min-h-0 flex-1 space-y-3.5 overflow-y-auto bg-[var(--color-sand)]/50 p-4 text-xs sm:p-5"
+            >
               {/* Select Vehicle */}
               <div>
-                <label className="block font-semibold mb-1 text-slate-700">
+                <label className={actionLabelClass}>
                   गाड़ी व वर्तमान अधिकारी चुनें (Vehicle &amp; Current Officer) *
                 </label>
                 <select
                   value={transferVehId}
                   onChange={(e) => setTransferVehId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg bg-white font-medium"
+                  className={actionSelectClass}
                   required
                 >
                   {tenderVehicles.map((v) => {
@@ -3744,10 +3784,10 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                   </label>
 
                   <label
-                    className={`p-3 border rounded-xl flex flex-col justify-between cursor-pointer transition-all ${
+                    className={`flex cursor-pointer flex-col justify-between rounded-xl border p-3 transition-all ${
                       transferAction === 'move_to_pool'
-                        ? 'border-indigo-600 bg-indigo-50 text-indigo-950 shadow-xs'
-                        : 'border-slate-200 hover:bg-slate-50'
+                        ? 'border-teal-600 bg-teal-50 text-teal-950 shadow-xs'
+                        : 'border-[var(--color-line)] hover:bg-[var(--color-surface-muted)]'
                     }`}
                   >
                     <div className="flex items-start gap-2">
@@ -3756,13 +3796,13 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                         name="transferAction"
                         checked={transferAction === 'move_to_pool'}
                         onChange={() => setTransferAction('move_to_pool')}
-                        className="mt-0.5"
+                        className="mt-0.5 text-teal-600"
                       />
                       <div>
-                        <span className="font-bold block text-xs text-indigo-800">
-                          🅿️ स्टैंडबाय पूल में रखें
+                        <span className="block text-xs font-bold text-teal-800">
+                          स्टैंडबाय पूल में रखें
                         </span>
-                        <p className="text-[11px] text-indigo-700 mt-0.5">
+                        <p className="mt-0.5 text-[11px] text-teal-700">
                           गाड़ी को जनरल पूल में रखकर आवश्यकतानुसार अन्य अफ़सरों को दी जाएगी।
                         </p>
                       </div>
@@ -3964,18 +4004,16 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t">
+              <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--color-line)] pt-3">
                 <button
                   type="button"
                   onClick={() => setActiveActionModal(null)}
-                  className="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50"
+                  className="btn btn-secondary"
                 >
                   रद्द करें (Cancel)
                 </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold shadow-xs transition-colors"
-                >
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle className="h-4 w-4" />
                   कार्रवाई सुरक्षित करें (Save Transfer)
                 </button>
               </div>
@@ -3986,35 +4024,44 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
 
       {/* MODAL: REACTIVATE IDLE VEHICLE (REASSIGN TO INCOMING OFFICER) */}
       {activeActionModal === 'reactivate_vehicle' && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/70 p-3 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 space-y-4 my-8">
-            <div className="flex items-center justify-between border-b pb-3">
-              <div>
-                <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-emerald-600" />
-                  <span>रुकी हुई गाड़ी पुनः शुरू करें</span>
+        <div className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-xs sm:p-4">
+          <div className="my-6 flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-2xl">
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--color-line)] bg-[var(--color-ink)] px-4 py-4 text-white sm:px-5">
+              <div className="min-w-0">
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="page-kicker !text-teal-300">
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    Reactivate
+                  </span>
+                </div>
+                <h3 className="font-[family-name:var(--font-display)] text-base font-bold tracking-tight">
+                  रुकी हुई गाड़ी पुनः शुरू करें
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="mt-1 text-[11px] text-white/65">
                   Reactivate Idle Vehicle &amp; Assign Incoming Officer
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setActiveActionModal(null)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100"
+                className="rounded-lg bg-white/10 p-1.5 text-white/55 transition-colors hover:bg-white/15 hover:text-white"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <form onSubmit={handleReactivateSubmit} className="space-y-3.5 text-xs">
+            <form
+              onSubmit={handleReactivateSubmit}
+              className="min-h-0 flex-1 space-y-3.5 overflow-y-auto bg-[var(--color-sand)]/50 p-4 text-xs sm:p-5"
+            >
               <div>
-                <label className="block font-semibold mb-1 text-slate-700">
+                <label className={actionLabelClass}>
                   गाड़ी चुनें (Select Idle Vehicle) *
                 </label>
                 <select
                   value={reactivateVehId}
                   onChange={(e) => setReactivateVehId(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg bg-white font-medium"
+                  className={actionSelectClass}
                   required
                 >
                   <option value="">-- गाड़ी चुनें --</option>
@@ -4035,9 +4082,9 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
               </div>
 
               {/* Assign Incoming Officer */}
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-emerald-900 text-xs">
+              <div className="space-y-2.5 rounded-xl border border-teal-200/70 bg-teal-50/50 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-teal-900">
                     नया कार्यभार ग्रहणकर्ता अधिकारी
                   </span>
                   <div className="flex items-center gap-3">
@@ -4149,18 +4196,16 @@ export const TenderDetailHubModal: React.FC<TenderDetailHubModalProps> = ({
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t">
+              <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--color-line)] pt-3">
                 <button
                   type="button"
                   onClick={() => setActiveActionModal(null)}
-                  className="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50"
+                  className="btn btn-secondary"
                 >
-                  Cancel
+                  रद्द करें (Cancel)
                 </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-xs transition-colors"
-                >
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle className="h-4 w-4" />
                   गाड़ी पुनः चालू करें (Activate Vehicle)
                 </button>
               </div>

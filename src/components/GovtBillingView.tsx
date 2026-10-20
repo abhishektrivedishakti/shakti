@@ -38,6 +38,7 @@ import {
   getDaysDiff,
 } from '../utils/calculations';
 import { StorageService } from '../utils/storage';
+import { fetchBillSeriesApi, updateBillSeriesApi } from '../api/billsClient';
 
 interface GovtBillingViewProps {
   bills: MonthlyBill[];
@@ -45,14 +46,14 @@ interface GovtBillingViewProps {
   vehicles: Vehicle[];
   officers: Officer[];
   dailyLogs: DailyLogEntry[];
-  onSaveBill: (bill: MonthlyBill) => void;
+  onSaveBill: (bill: MonthlyBill) => void | Promise<void>;
   onUpdateBillStatus: (
     billId: string,
     status: PaymentStatus,
     remarks?: string,
     voucher?: string,
     newBillNumber?: string
-  ) => void;
+  ) => void | Promise<void>;
   isAddModalOpen: boolean;
   setIsAddModalOpen: (open: boolean) => void;
 }
@@ -113,6 +114,29 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
   const [billSeriesConfig, setBillSeriesConfig] = useState<BillSeriesConfig>(() =>
     StorageService.getBillSeriesConfig()
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const series = await fetchBillSeriesApi();
+        if (cancelled) return;
+        setBillSeriesConfig(series);
+        StorageService.saveBillSeriesConfig(series);
+        setTempSeriesPrefix(series.prefix);
+        setTempSeriesSeq(series.currentNumber);
+        setTempSeriesPadding(series.paddingDigits);
+        setTempSeriesSuffix(series.suffix || '');
+        setTempUseTenderPrefix(series.useTenderPrefix);
+        setBatchStartingNumber(series.currentNumber);
+      } catch {
+        // Keep local series fallback if API unavailable
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [isSeriesConfigOpen, setIsSeriesConfigOpen] = useState(false);
   const [tempSeriesPrefix, setTempSeriesPrefix] = useState(billSeriesConfig.prefix);
   const [tempSeriesSeq, setTempSeriesSeq] = useState(billSeriesConfig.currentNumber);
@@ -189,7 +213,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
         )
       : null;
 
-  const handleGenerateAndSaveBill = (e: React.FormEvent) => {
+  const handleGenerateAndSaveBill = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedVehicle || !selectedTender || !calculatedBill) return;
 
@@ -237,15 +261,20 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
       paymentStatus: 'draft',
     };
 
-    onSaveBill(newBill);
+    await onSaveBill(newBill);
 
-    // Advance sequence number
-    const updatedConfig: BillSeriesConfig = {
-      ...billSeriesConfig,
-      currentNumber: billSeriesConfig.currentNumber + 1,
-    };
-    setBillSeriesConfig(updatedConfig);
-    StorageService.saveBillSeriesConfig(updatedConfig);
+    try {
+      const series = await fetchBillSeriesApi();
+      setBillSeriesConfig(series);
+      StorageService.saveBillSeriesConfig(series);
+    } catch {
+      const updatedConfig: BillSeriesConfig = {
+        ...billSeriesConfig,
+        currentNumber: billSeriesConfig.currentNumber + 1,
+      };
+      setBillSeriesConfig(updatedConfig);
+      StorageService.saveBillSeriesConfig(updatedConfig);
+    }
 
     setIsAddModalOpen(false);
     setSelectedBillForPrint(newBill);
@@ -267,7 +296,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
   };
 
   // Save Bill Series Settings
-  const handleSaveSeriesSettings = (e: React.FormEvent) => {
+  const handleSaveSeriesSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tempSeriesPrefix.trim()) {
       alert('Please enter a bill series prefix.');
@@ -282,13 +311,18 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
       includeMonthYear: false,
       useTenderPrefix: tempUseTenderPrefix,
     };
-    setBillSeriesConfig(updated);
-    StorageService.saveBillSeriesConfig(updated);
-    setIsSeriesConfigOpen(false);
+    try {
+      const saved = await updateBillSeriesApi(updated);
+      setBillSeriesConfig(saved);
+      StorageService.saveBillSeriesConfig(saved);
+      setIsSeriesConfigOpen(false);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Could not save bill series settings.');
+    }
   };
 
   // Batch Monthly Bills Generator
-  const handleBatchGenerateBills = (e: React.FormEvent) => {
+  const handleBatchGenerateBills = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const targetVehicles = vehicles.filter((v) => {
@@ -312,10 +346,10 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
       batchCustomPrefix || undefined
     );
 
-    targetVehicles.forEach((veh) => {
+    for (const veh of targetVehicles) {
       const tender = tenders.find((t) => t.id === veh.tenderId);
       const officer = officers.find((o) => o.id === veh.assignedOfficerId);
-      if (!tender) return;
+      if (!tender) continue;
 
       const calc = calculateBillFromLogs(veh, tender, batchMonth, dailyLogs, 0, 12, 2);
       const assignedBillNum = formatBillNumber(
@@ -366,17 +400,23 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
         paymentStatus: 'draft',
       };
 
-      onSaveBill(bill);
+      await onSaveBill(bill);
       currentSeq++;
       generatedCount++;
-    });
+    }
 
-    const updatedConfig: BillSeriesConfig = {
-      ...billSeriesConfig,
-      currentNumber: currentSeq,
-    };
-    setBillSeriesConfig(updatedConfig);
-    StorageService.saveBillSeriesConfig(updatedConfig);
+    try {
+      const series = await fetchBillSeriesApi();
+      setBillSeriesConfig(series);
+      StorageService.saveBillSeriesConfig(series);
+    } catch {
+      const updatedConfig: BillSeriesConfig = {
+        ...billSeriesConfig,
+        currentNumber: currentSeq,
+      };
+      setBillSeriesConfig(updatedConfig);
+      StorageService.saveBillSeriesConfig(updatedConfig);
+    }
 
     setBatchSuccessMessage(
       `✅ Success: Generated ${generatedCount} monthly bills for ${batchMonth} (From ${startNumberStr} to sequence #${currentSeq - 1})`
@@ -390,13 +430,13 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-indigo-600" />
+            <Receipt className="w-5 h-5 text-teal-700" />
             <span>Govt Tender Billing &amp; Invoices &bull; सरकारी बिल व क्लेम</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-[var(--color-muted)] mt-1">
             लॉग बुक से ऑटो-कैलकुलेशन: बेस रेट, एक्स्ट्रा KM, एक्स्ट्रा घंटे, नाइट हॉल्ट, टोल व टीडीएस कटौती
           </p>
         </div>
@@ -411,9 +451,9 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
               setTempUseTenderPrefix(billSeriesConfig.useTenderPrefix);
               setIsSeriesConfigOpen(true);
             }}
-            className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            className="btn btn-secondary !text-xs"
           >
-            <Sliders className="w-3.5 h-3.5 text-indigo-600" />
+            <Sliders className="w-3.5 h-3.5 text-teal-700" />
             <span>Bill Series Setup (बिल सीरीज)</span>
           </button>
 
@@ -423,7 +463,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
               setBatchCustomPrefix(billSeriesConfig.prefix);
               setIsBatchGenModalOpen(true);
             }}
-            className="px-3 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs"
+            className="btn btn-success !text-xs"
           >
             <Zap className="w-3.5 h-3.5" />
             <span>Batch Monthly Bills (मासिक बल्क बिल)</span>
@@ -433,7 +473,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
             onClick={() => setActiveTab('preview_schedule')}
             className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
               activeTab === 'preview_schedule'
-                ? 'bg-slate-900 text-white'
+                ? 'bg-[var(--color-ink)] text-white'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
@@ -443,7 +483,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
 
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
+            className="btn btn-primary !text-xs"
           >
             <Plus className="w-4 h-4" />
             + Single Bill (नया बिल)
@@ -452,26 +492,26 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
       </div>
 
       {/* Bill Series & Invoicing Sequence Ribbon */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-xl p-4 text-white shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-white/10 rounded-lg">
-            <Hash className="w-5 h-5 text-indigo-300" />
+          <div className="rounded-lg bg-teal-50 p-2.5">
+            <Hash className="h-5 w-5 text-teal-700" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-xs uppercase tracking-wider text-indigo-200">
-                Configured Bill Series &bull; चालू इनवॉइस सीरीज
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="page-kicker">
+                Configured Bill Series • चालू इनवॉइस सीरीज
               </span>
-              <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold text-[10px] border border-emerald-500/30">
+              <span className="badge badge-success !text-[10px]">
                 {billSeriesConfig.useTenderPrefix ? 'Tender Custom Series Active' : 'Company Wide'}
               </span>
             </div>
-            <div className="flex flex-wrap items-baseline gap-3 mt-1">
-              <div className="font-mono text-base font-bold text-white tracking-wide">
-                Series: <span className="text-amber-300">{billSeriesConfig.prefix}###{billSeriesConfig.suffix}</span>
+            <div className="mt-1 flex flex-wrap items-baseline gap-3">
+              <div className="font-mono text-base font-bold tracking-wide text-[var(--color-ink)]">
+                Series: <span className="text-[var(--color-copper)]">{billSeriesConfig.prefix}###{billSeriesConfig.suffix}</span>
               </div>
-              <span className="text-slate-300 text-xs">
-                Next Issue: <strong className="font-mono text-emerald-300">{formatBillNumber(billSeriesConfig)}</strong>
+              <span className="text-xs text-[var(--color-muted)]">
+                Next Issue: <strong className="font-mono text-teal-700">{formatBillNumber(billSeriesConfig)}</strong>
               </span>
             </div>
           </div>
@@ -487,7 +527,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
               setTempUseTenderPrefix(billSeriesConfig.useTenderPrefix);
               setIsSeriesConfigOpen(true);
             }}
-            className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border border-white/20"
+            className="btn btn-secondary !text-xs"
           >
             <Sliders className="w-3.5 h-3.5" />
             <span>Customize Series (सीरीज बदलें)</span>
@@ -499,7 +539,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
               setBatchCustomPrefix(billSeriesConfig.prefix);
               setIsBatchGenModalOpen(true);
             }}
-            className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
+            className="btn btn-success !text-xs transition-colors"
           >
             <Zap className="w-3.5 h-3.5" />
             <span>Batch Monthly Invoicing</span>
@@ -515,7 +555,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
               <h3 className="font-bold text-sm text-slate-900">
                 Monthly Tender Billing Readiness Schedule (बिल कब किसका बनेगा और कितने का बनेगा)
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--color-muted)]">
                 वर्तमान माह के लॉग बुक के आधार पर सभी गाड़ियों ({vehicles.length}) का अनुमानित बिल व देय तिथि
               </p>
             </div>
@@ -566,7 +606,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
             </div>
 
             <div className="flex items-end justify-between">
-              <span className="text-slate-500 text-[11px]">
+              <span className="text-[var(--color-muted)] text-[11px]">
                 Showing {paginatedScheduleVehicles.length} of {filteredScheduleVehicles.length} vehicles
               </span>
               {(scheduleSearch || scheduleTenderFilter !== 'all') && (
@@ -576,7 +616,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                     setScheduleTenderFilter('all');
                     setSchedulePage(1);
                   }}
-                  className="text-indigo-600 hover:text-indigo-800 font-semibold"
+                  className="text-teal-700 hover:text-teal-800 font-semibold"
                 >
                   Clear Filters
                 </button>
@@ -617,14 +657,14 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
 
                       <td className="py-3 px-4">
                         <div className="font-semibold text-slate-900">{tender.departmentName}</div>
-                        <div className="text-[11px] text-slate-500">WO: {tender.workOrderNumber}</div>
+                        <div className="text-[11px] text-[var(--color-muted)]">WO: {tender.workOrderNumber}</div>
                       </td>
 
                       <td className="py-3 px-4">
-                        <div className="font-medium text-indigo-700">
+                        <div className="font-medium text-teal-800">
                           {tender.billingCycleDay}th of each month
                         </div>
-                        <div className="text-[10px] text-slate-400">
+                        <div className="text-[10px] text-[var(--color-muted)]">
                           {tender.paymentTermsDays} days credit period
                         </div>
                       </td>
@@ -633,7 +673,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                         <div className="font-bold text-slate-900">
                           {calc.totalKmRun} KM / {calc.totalHoursRun} Hrs
                         </div>
-                        <div className="text-[10px] text-slate-500">
+                        <div className="text-[10px] text-[var(--color-muted)]">
                           Quota: {calc.allowedKms} KM / {calc.allowedHours} Hrs
                         </div>
                       </td>
@@ -653,7 +693,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                         <div className="font-bold text-sm text-slate-900">
                           {formatCurrency(calc.netPayableAmount)}
                         </div>
-                        <div className="text-[10px] text-slate-500">
+                        <div className="text-[10px] text-[var(--color-muted)]">
                           Base: {formatCurrency(calc.baseMonthlyRate)}
                         </div>
                       </td>
@@ -670,7 +710,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                               setGenMonthYear(selectedMonthYear);
                               setIsAddModalOpen(true);
                             }}
-                            className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-medium"
+                            className="btn btn-primary !px-2.5 !py-1 !text-xs"
                           >
                             Generate Bill
                           </button>
@@ -685,7 +725,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
 
           {/* Schedule Pagination Controls */}
           {totalSchedulePages > 1 && (
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-[var(--color-muted)]">
               <span>
                 Page {schedulePage} of {totalSchedulePages}
               </span>
@@ -697,7 +737,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                 >
                   &lsaquo; Prev
                 </button>
-                <span className="px-2.5 py-1 font-bold text-indigo-700">{schedulePage}</span>
+                <span className="px-2.5 py-1 font-bold text-teal-800">{schedulePage}</span>
                 <button
                   disabled={schedulePage === totalSchedulePages}
                   onClick={() => setSchedulePage((p) => Math.min(totalSchedulePages, p + 1))}
@@ -720,7 +760,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
               <h3 className="font-bold text-sm text-slate-900">
                 Govt Invoices ({filteredBills.length}/{bills.length})
               </h3>
-              <span className="text-xs text-slate-500 font-normal">All Tenders</span>
+              <span className="text-xs text-[var(--color-muted)] font-normal">All Tenders</span>
             </div>
             <input
               type="text"
@@ -742,7 +782,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                   onClick={() => setSelectedBillForPrint(bill)}
                   className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
                     isSelected
-                      ? 'border-indigo-600 bg-indigo-50/50 shadow-xs'
+                      ? 'border-teal-600 bg-teal-50/50 shadow-xs'
                       : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
@@ -764,13 +804,13 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                   </div>
 
                   <div className="font-semibold text-slate-800 mt-1">{bill.departmentName}</div>
-                  <div className="text-[11px] text-slate-500">
+                  <div className="text-[11px] text-[var(--color-muted)]">
                     {bill.vehicleNumber} &bull; Month: {bill.monthYear}
                   </div>
 
                   <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-slate-400 block">Net Claim:</span>
+                      <span className="text-[10px] text-[var(--color-muted)] block">Net Claim:</span>
                       <span className="font-bold text-sm text-slate-900">
                         {formatCurrency(bill.netPayableAmount)}
                       </span>
@@ -799,7 +839,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
               {/* Header Action Bar */}
               <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
                 <div>
-                  <span className="text-xs text-slate-500 uppercase font-semibold">
+                  <span className="text-xs text-[var(--color-muted)] uppercase font-semibold">
                     Invoice Preview &bull; GeM / Govt Format
                   </span>
                   <h3 className="font-bold text-base text-slate-900 font-mono">
@@ -816,7 +856,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                   </button>
                   <button
                     onClick={() => window.print()}
-                    className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
+                    className="btn btn-primary !text-xs"
                   >
                     <Printer className="w-4 h-4" />
                     Print Official Bill (प्रिंट)
@@ -827,7 +867,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
               {/* Printable Official Govt Tax Invoice Body */}
               <div className="space-y-6 text-slate-900 border border-slate-200 p-6 rounded-lg print:border-none print:p-0">
                 {/* Letterhead */}
-                <div className="text-center border-b-2 border-slate-800 pb-4">
+                <div className="text-center border-b-2 border-[var(--color-line)] pb-4">
                   <div className="text-xs font-semibold tracking-widest text-slate-600 uppercase">
                     TAX INVOICE CUM MONTHLY VEHICLE HIRING BILL
                   </div>
@@ -837,7 +877,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                   <p className="text-xs text-slate-600 mt-0.5 font-medium">
                     Authorized Govt Transport Contractor &bull; GSTIN: 09AAACS1234F1Z8 &bull; PAN: AAACS1234F
                   </p>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-[var(--color-muted)]">
                     शक्ति ट्रैवल्स एंड टूर्स &bull; Office: 42, Transport Nagar, Kanpur Road, Lucknow (U.P.) - 226012 | Mob: 9839000000
                   </p>
                 </div>
@@ -845,33 +885,33 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                 {/* Bill Metadata Grid */}
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Billed To (विभाग):</span>
+                    <span className="text-[10px] text-[var(--color-muted)] uppercase font-semibold">Billed To (विभाग):</span>
                     <div className="font-bold text-slate-900 text-sm">
                       {selectedBillForPrint.departmentName}
                     </div>
                     <div className="text-slate-700">
                       Attention: {selectedBillForPrint.officerName}
                     </div>
-                    <div className="text-slate-500 text-[11px]">
+                    <div className="text-[var(--color-muted)] text-[11px]">
                       Tender / Work Order: {selectedBillForPrint.tenderName}
                     </div>
                   </div>
 
                   <div className="space-y-1 text-right">
                     <div>
-                      <span className="text-slate-500">Invoice No: </span>
+                      <span className="text-[var(--color-muted)]">Invoice No: </span>
                       <strong className="font-mono">{selectedBillForPrint.billNumber}</strong>
                     </div>
                     <div>
-                      <span className="text-slate-500">Bill Date: </span>
+                      <span className="text-[var(--color-muted)]">Bill Date: </span>
                       <strong>{formatDate(selectedBillForPrint.billDate)}</strong>
                     </div>
                     <div>
-                      <span className="text-slate-500">Billing Month: </span>
+                      <span className="text-[var(--color-muted)]">Billing Month: </span>
                       <strong>{selectedBillForPrint.monthYear}</strong>
                     </div>
                     <div>
-                      <span className="text-slate-500">Vehicle No: </span>
+                      <span className="text-[var(--color-muted)]">Vehicle No: </span>
                       <strong className="font-mono bg-slate-100 px-1.5 py-0.5 rounded">
                         {selectedBillForPrint.vehicleNumber}
                       </strong>
@@ -1016,7 +1056,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
 
                     <div className="flex justify-between pt-2 border-t border-slate-300 text-sm font-bold text-slate-900">
                       <span>Net Payable Amount:</span>
-                      <span className="text-indigo-950 font-black">
+                      <span className="text-[var(--color-ink)] font-black">
                         {formatCurrency(selectedBillForPrint.netPayableAmount)}
                       </span>
                     </div>
@@ -1035,13 +1075,13 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                   </div>
                   <div className="text-right pt-6">
                     <p className="font-bold text-slate-900">For SHAKTI TRAVELS AND TOURS</p>
-                    <p className="text-slate-500 mt-6">(Authorized Signatory / Proprietor)</p>
+                    <p className="text-[var(--color-muted)] mt-6">(Authorized Signatory / Proprietor)</p>
                   </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-400">
+            <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-[var(--color-muted)]">
               Select an invoice from the list or click &ldquo;+ Calculate &amp; Generate Bill&rdquo;.
             </div>
           )}
@@ -1054,12 +1094,12 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-indigo-600" />
+                <Receipt className="w-5 h-5 text-teal-700" />
                 <span>Calculate &amp; Generate Govt Tender Bill (बिल जनरेटर)</span>
               </h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -1100,10 +1140,10 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
               </div>
 
               {/* Bill Number / Series Override Input */}
-              <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-3 bg-teal-50/50 rounded-xl border border-teal-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex-1">
                   <label className="block font-bold text-slate-800 mb-1 flex items-center gap-1.5">
-                    <Hash className="w-3.5 h-3.5 text-indigo-600" />
+                    <Hash className="w-3.5 h-3.5 text-teal-700" />
                     Bill Number &amp; Series (बिल नंबर व इनवॉइस सीरीज) *
                   </label>
                   <input
@@ -1112,9 +1152,9 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                     value={genCustomBillNumber}
                     onChange={(e) => setGenCustomBillNumber(e.target.value)}
                     placeholder="e.g. SFT/2026-27/101 or PWD/LKO/2026/01"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 bg-white focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 bg-white focus:ring-2 focus:ring-teal-500"
                   />
-                  <span className="text-[10px] text-slate-500 block mt-0.5">
+                  <span className="text-[10px] text-[var(--color-muted)] block mt-0.5">
                     Auto-generated from configured series. You can type any custom series format here.
                   </span>
                 </div>
@@ -1128,7 +1168,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                     setTempUseTenderPrefix(billSeriesConfig.useTenderPrefix);
                     setIsSeriesConfigOpen(true);
                   }}
-                  className="px-3 py-1.5 bg-white hover:bg-slate-50 text-indigo-700 rounded-lg text-xs font-semibold border border-indigo-200 self-end sm:self-center shadow-2xs whitespace-nowrap"
+                  className="px-3 py-1.5 bg-white hover:bg-slate-50 text-teal-800 rounded-lg text-xs font-semibold border border-teal-200 self-end sm:self-center shadow-2xs whitespace-nowrap"
                 >
                   Configure Series &rarr;
                 </button>
@@ -1141,26 +1181,26 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                     <span className="font-bold text-slate-800 uppercase">
                       Logbook Live Calculation Summary
                     </span>
-                    <span className="text-indigo-700 font-semibold">
+                    <span className="text-teal-800 font-semibold">
                       Tender: {selectedTender.departmentName}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-white p-3 rounded-lg border border-slate-200">
                     <div>
-                      <span className="text-slate-400 text-[10px] block">Days Run:</span>
+                      <span className="text-[var(--color-muted)] text-[10px] block">Days Run:</span>
                       <strong>{calculatedBill.totalDaysWorked} Days</strong>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] block">Total KMs:</span>
+                      <span className="text-[var(--color-muted)] text-[10px] block">Total KMs:</span>
                       <strong>{calculatedBill.totalKmRun} KM</strong>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] block">Tender Quota:</span>
+                      <span className="text-[var(--color-muted)] text-[10px] block">Tender Quota:</span>
                       <span>{calculatedBill.allowedKms} KM</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] block">Extra KM:</span>
+                      <span className="text-[var(--color-muted)] text-[10px] block">Extra KM:</span>
                       <strong className={calculatedBill.extraKms > 0 ? 'text-amber-700' : 'text-slate-700'}>
                         {calculatedBill.extraKms} KM ({formatCurrency(calculatedBill.extraKmAmount)})
                       </strong>
@@ -1169,21 +1209,21 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-white p-3 rounded-lg border border-slate-200">
                     <div>
-                      <span className="text-slate-400 text-[10px] block">Total Duty Hrs:</span>
+                      <span className="text-[var(--color-muted)] text-[10px] block">Total Duty Hrs:</span>
                       <strong>{calculatedBill.totalHoursRun} Hrs</strong>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] block">Quota Hrs:</span>
+                      <span className="text-[var(--color-muted)] text-[10px] block">Quota Hrs:</span>
                       <span>{calculatedBill.allowedHours} Hrs</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] block">Extra Hours:</span>
+                      <span className="text-[var(--color-muted)] text-[10px] block">Extra Hours:</span>
                       <strong className={calculatedBill.extraHours > 0 ? 'text-amber-700' : 'text-slate-700'}>
                         {calculatedBill.extraHours} Hrs ({formatCurrency(calculatedBill.extraHourAmount)})
                       </strong>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] block">Night Halts:</span>
+                      <span className="text-[var(--color-muted)] text-[10px] block">Night Halts:</span>
                       <strong>{calculatedBill.nightHaltsCount} Nights ({formatCurrency(calculatedBill.nightHaltAmount)})</strong>
                     </div>
                   </div>
@@ -1258,14 +1298,14 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
 
               {/* Net Payable Final Highlight */}
               {calculatedBill && (
-                <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-200 flex items-center justify-between">
+                <div className="bg-teal-50 p-4 rounded-xl border border-teal-200 flex items-center justify-between">
                   <div>
-                    <span className="text-xs text-indigo-700 block">Total Net Claim Amount</span>
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-teal-800 block">Total Net Claim Amount</span>
+                    <span className="text-xs text-[var(--color-muted)]">
                       (Gross + GST - TDS u/s 194C)
                     </span>
                   </div>
-                  <div className="text-2xl font-black text-indigo-950 font-mono">
+                  <div className="text-2xl font-black text-[var(--color-ink)] font-mono">
                     {formatCurrency(calculatedBill.netPayableAmount)}
                   </div>
                 </div>
@@ -1281,7 +1321,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Save &amp; Generate Official Invoice
                 </button>
@@ -1301,7 +1341,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
               </h3>
               <button
                 onClick={() => setUpdatingBill(null)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -1310,7 +1350,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
             <form onSubmit={handleSaveStatusUpdate} className="mt-4 space-y-4 text-xs">
               <div>
                 <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                  <Hash className="w-3.5 h-3.5 text-indigo-600" />
+                  <Hash className="w-3.5 h-3.5 text-teal-700" />
                   Bill Number / Invoice Series (बिल नंबर)
                 </label>
                 <input
@@ -1374,7 +1414,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Save Status
                 </button>
@@ -1390,21 +1430,21 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                <div className="p-2 bg-teal-50 text-teal-700 rounded-lg">
                   <Sliders className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900">
                     Bill Series &amp; Invoicing Prefix (बिल सीरीज कॉन्फ़िगरेशन)
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[var(--color-muted)]">
                     आप जो भी बिल सीरीज लिखना चाहें, वही हर महीने के बिलों में लागू होगी
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsSeriesConfigOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -1421,9 +1461,9 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                   value={tempSeriesPrefix}
                   onChange={(e) => setTempSeriesPrefix(e.target.value)}
                   placeholder="e.g. SF/BILL/2026-27/ or PWD/LKO/ or INV/GOVT/"
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 text-sm focus:ring-2 focus:ring-teal-500"
                 />
-                <span className="text-[11px] text-slate-500 block mt-1">
+                <span className="text-[11px] text-[var(--color-muted)] block mt-1">
                   उदाहरण: <code>SF/BILL/2026-27/</code>, <code>UP-PWD/CAB/</code>, <code>NHAI/PIU/26/</code>
                 </span>
               </div>
@@ -1479,13 +1519,13 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                     type="checkbox"
                     checked={tempUseTenderPrefix}
                     onChange={(e) => setTempUseTenderPrefix(e.target.checked)}
-                    className="w-4 h-4 text-indigo-600 rounded"
+                    className="w-4 h-4 text-teal-700 rounded"
                   />
                   <span className="font-semibold text-slate-800">
                     Use Tender-specific series when defined (टेंडर का विशेष प्रीफिक्स प्राथमिकता दें)
                   </span>
                 </label>
-                <span className="text-[10px] text-slate-500 block mt-1 ml-6">
+                <span className="text-[10px] text-[var(--color-muted)] block mt-1 ml-6">
                   जैसे यदि PWD टेंडर में <code>PWD/LKO/</code> लिखा है तो उसके बिल में वही आएगा।
                 </span>
               </div>
@@ -1497,13 +1537,13 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                 </span>
                 <div className="mt-2 space-y-1 font-mono text-xs">
                   <div className="text-slate-800">
-                    1. <strong className="text-indigo-800">{tempSeriesPrefix}{String(tempSeriesSeq).padStart(tempSeriesPadding, '0')}{tempSeriesSuffix}</strong>
+                    1. <strong className="text-teal-800">{tempSeriesPrefix}{String(tempSeriesSeq).padStart(tempSeriesPadding, '0')}{tempSeriesSuffix}</strong>
                   </div>
                   <div className="text-slate-800">
-                    2. <strong className="text-indigo-800">{tempSeriesPrefix}{String(tempSeriesSeq + 1).padStart(tempSeriesPadding, '0')}{tempSeriesSuffix}</strong>
+                    2. <strong className="text-teal-800">{tempSeriesPrefix}{String(tempSeriesSeq + 1).padStart(tempSeriesPadding, '0')}{tempSeriesSuffix}</strong>
                   </div>
                   <div className="text-slate-800">
-                    3. <strong className="text-indigo-800">{tempSeriesPrefix}{String(tempSeriesSeq + 2).padStart(tempSeriesPadding, '0')}{tempSeriesSuffix}</strong>
+                    3. <strong className="text-teal-800">{tempSeriesPrefix}{String(tempSeriesSeq + 2).padStart(tempSeriesPadding, '0')}{tempSeriesSuffix}</strong>
                   </div>
                 </div>
               </div>
@@ -1518,7 +1558,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Save Bill Series Configuration
                 </button>
@@ -1541,14 +1581,14 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                   <h3 className="text-base font-bold text-slate-900">
                     Batch Monthly Invoicing Generator (सभी गाड़ियों का बिल जनरेटर)
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[var(--color-muted)]">
                     चुने हुए महीने के लिए सभी सक्रिय गाड़ियों के बिल आपकी बिल सीरीज के अनुसार एक साथ बनाएं
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsBatchGenModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -1560,7 +1600,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h4 className="text-base font-bold text-slate-900">{batchSuccessMessage}</h4>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[var(--color-muted)]">
                   All generated bills have been added to your Invoices list and storage.
                 </p>
               </div>
@@ -1599,7 +1639,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                   </div>
                 </div>
 
-                <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-3">
+                <div className="p-3 bg-teal-50/50 rounded-xl border border-teal-100 space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block font-semibold text-slate-800 mb-1">
@@ -1629,11 +1669,11 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
 
                   <div className="text-[11px] text-slate-600 bg-white p-2.5 rounded-lg border border-slate-200">
                     <span>Next bills will be sequentially numbered: </span>
-                    <strong className="font-mono text-indigo-700">
+                    <strong className="font-mono text-teal-800">
                       {batchCustomPrefix || billSeriesConfig.prefix}{String(batchStartingNumber).padStart(billSeriesConfig.paddingDigits, '0')}
                     </strong>
                     <span>, </span>
-                    <strong className="font-mono text-indigo-700">
+                    <strong className="font-mono text-teal-800">
                       {batchCustomPrefix || billSeriesConfig.prefix}{String(batchStartingNumber + 1).padStart(billSeriesConfig.paddingDigits, '0')}
                     </strong>
                     <span> ...</span>
@@ -1650,7 +1690,7 @@ export const GovtBillingView: React.FC<GovtBillingViewProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 rounded-lg font-bold flex items-center gap-1.5 shadow-sm"
+                    className="px-5 py-2 btn btn-success rounded-lg font-bold flex items-center gap-1.5 shadow-sm"
                   >
                     <Zap className="w-4 h-4" />
                     Confirm &amp; Generate All Monthly Bills

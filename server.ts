@@ -4,6 +4,35 @@ import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { authRouter } from './server/routes/auth';
+import { filesRouter } from './server/routes/files';
+import { platformRouter } from './server/routes/platform';
+import { staffRouter } from './server/routes/staff';
+import { dashboardRouter, remindersRouter } from './server/routes/dashboard';
+import { tendersRouter } from './server/routes/tenders';
+import { companyDocumentsRouter } from './server/routes/companyDocuments';
+import { officersRouter } from './server/routes/officers';
+import { driversRouter } from './server/routes/drivers';
+import { vehiclesRouter } from './server/routes/vehicles';
+import { allocationsRouter } from './server/routes/allocations';
+import { dailyLogsRouter } from './server/routes/dailyLogs';
+import { maintenanceRouter } from './server/routes/maintenance';
+import { fuelPumpsRouter } from './server/routes/fuelPumps';
+import { fuelRecordsRouter } from './server/routes/fuelRecords';
+import { fuelSlipsRouter } from './server/routes/fuelSlips';
+import { fuelVendorBillsRouter } from './server/routes/fuelVendorBills';
+import { billsRouter } from './server/routes/bills';
+import { billSeriesRouter } from './server/routes/billSeries';
+import { khataRouter } from './server/routes/khata';
+import { driverLeavesRouter } from './server/routes/driverLeaves';
+import { dailyPaymentsRouter } from './server/routes/dailyPayments';
+import { vendorsRouter } from './server/routes/vendors';
+import { vendorSettlementsRouter } from './server/routes/vendorSettlements';
+import { statutoryPayrollRouter } from './server/routes/statutoryPayroll';
+import { pettyCashRouter } from './server/routes/pettyCash';
+import { dispatchRouter } from './server/routes/dispatch';
+import { prisma, tuneSqliteForSpeed } from './server/prisma';
+import { ensureUploadRoot, getStorageMode, getUploadRoot } from './server/lib/fileStorage';
 
 dotenv.config();
 
@@ -14,9 +43,90 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
 
+  await ensureUploadRoot();
+
   // Increase payload limit to support PDF and scanned document uploads
   app.use(express.json({ limit: '35mb' }));
   app.use(express.urlencoded({ extended: true, limit: '35mb' }));
+
+  app.use((err: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (err && typeof err === 'object' && 'type' in err && (err as { type: string }).type === 'entity.parse.failed') {
+      return res.status(400).json({ success: false, error: 'Invalid JSON in request body.' });
+    }
+    next(err);
+  });
+
+  app.use('/uploads', express.static(getUploadRoot()));
+
+  app.get('/api/health', async (_req, res) => {
+    let database: 'ok' | 'error' = 'ok';
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+    } catch {
+      database = 'error';
+    }
+    const jwtConfigured =
+      Boolean(process.env.JWT_SECRET) &&
+      process.env.JWT_SECRET !== 'change-me-to-a-long-random-secret' &&
+      process.env.JWT_SECRET !== 'shakti-dev-jwt-secret-change-in-production';
+    const dbProvider = (process.env.DATABASE_URL || '').startsWith('file:')
+      ? 'sqlite'
+      : (process.env.DATABASE_URL || '').includes('postgres')
+        ? 'postgresql'
+        : 'unknown';
+    res.json({
+      ok: database === 'ok',
+      service: 'shakti-api',
+      phase: 10,
+      database,
+      dbProvider,
+      storage: getStorageMode(),
+      jwtConfigured,
+      time: new Date().toISOString(),
+    });
+  });
+
+  if (process.env.NODE_ENV === 'production') {
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.includes('change-me')) {
+      console.warn(
+        '[shakti] WARNING: Set a strong JWT_SECRET in production before going live.'
+      );
+    }
+    if ((process.env.DATABASE_URL || '').startsWith('file:')) {
+      console.warn(
+        '[shakti] WARNING: DATABASE_URL is still SQLite. For production, switch Prisma provider to postgresql and use a hosted Postgres URL.'
+      );
+    }
+  }
+
+  app.use('/api/auth', authRouter);
+  app.use('/api/files', filesRouter);
+  app.use('/api/staff', staffRouter);
+  app.use('/api/dashboard', dashboardRouter);
+  app.use('/api/reminders', remindersRouter);
+  app.use('/api/tenders', tendersRouter);
+  app.use('/api/company-documents', companyDocumentsRouter);
+  app.use('/api/officers', officersRouter);
+  app.use('/api/drivers', driversRouter);
+  app.use('/api/vehicles', vehiclesRouter);
+  app.use('/api/allocations', allocationsRouter);
+  app.use('/api/daily-logs', dailyLogsRouter);
+  app.use('/api/maintenance', maintenanceRouter);
+  app.use('/api/fuel-pumps', fuelPumpsRouter);
+  app.use('/api/fuel-records', fuelRecordsRouter);
+  app.use('/api/fuel-slips', fuelSlipsRouter);
+  app.use('/api/fuel-vendor-bills', fuelVendorBillsRouter);
+  app.use('/api/bills', billsRouter);
+  app.use('/api/bill-series', billSeriesRouter);
+  app.use('/api/khata', khataRouter);
+  app.use('/api/driver-leaves', driverLeavesRouter);
+  app.use('/api/daily-payments', dailyPaymentsRouter);
+  app.use('/api/vendors', vendorsRouter);
+  app.use('/api/vendor-settlements', vendorSettlementsRouter);
+  app.use('/api/statutory-payroll', statutoryPayrollRouter);
+  app.use('/api/petty-cash', pettyCashRouter);
+  app.use('/api/dispatch', dispatchRouter);
+  app.use('/api', platformRouter);
 
   // API Endpoint: AI Tender Agreement & Document Extraction
   app.post('/api/extract-tender', async (req, res) => {
@@ -311,14 +421,37 @@ Return ONLY the raw JSON object, without markdown code fences or conversational 
     app.use(vite.middlewares);
   } else {
     app.use(express.static(path.join(__dirname, 'dist')));
-    app.get('*', (_req, res) => {
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api/')) {
+        return next();
+      }
       res.sendFile(path.join(__dirname, 'dist', 'index.html'));
     });
   }
 
-  app.listen(PORT, () => {
+  app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    console.error('Unhandled API error:', err);
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
+  });
+
+  app.listen(PORT, async () => {
     console.log(`Server listening on port ${PORT}`);
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      await tuneSqliteForSpeed();
+      console.log('Database connection OK');
+    } catch (dbErr) {
+      console.error('Database connection failed — auth APIs will not work:', dbErr);
+    }
   });
 }
 
-startServer();
+startServer().catch((err) => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
+});

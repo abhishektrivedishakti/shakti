@@ -338,23 +338,23 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 text-white shadow-xl space-y-6">
+    <div className="panel panel-pad space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+      <div className="flex items-center justify-between pb-4 border-b border-[var(--color-line)]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+            <span className="badge badge-success inline-flex items-center gap-1 uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5" /> 3-Party Dispatch Engine
             </span>
           </div>
-          <h2 className="text-xl font-black text-white mt-1">नई वाहन बुकिंग व ड्यूटी अलॉटमेंट (New Booking)</h2>
-          <p className="text-xs text-slate-400">
+          <h2 className="text-xl font-black text-[var(--color-ink)] mt-1">नई वाहन बुकिंग व ड्यूटी अलॉटमेंट (New Booking)</h2>
+          <p className="text-xs text-[var(--color-muted)]">
             3-Party Structure: बिलिंग क्लाइंट, बुकर अधिकारी एवं मुख्य सवारी का विवरण दर्ज करें
           </p>
         </div>
         <button
           onClick={onCancel}
-          className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold"
+          className="btn btn-secondary text-xs"
         >
           रद्द करें
         </button>
@@ -362,28 +362,28 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
       <form onSubmit={handleSubmit} className="space-y-6 text-xs">
         {/* TENDER REFERENCE & AUTOMATIC ON-CALL AUTO-FILL STATION */}
-        <div className="bg-slate-950 p-4 rounded-xl border border-indigo-500/40 shadow-lg space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+        <div className="bg-[var(--color-surface-muted)] p-4 rounded-xl border border-teal-200 shadow-lg space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--color-line)] pb-2.5">
             <div>
               <div className="flex items-center gap-2">
-                <span className="p-1 rounded bg-indigo-500/20 text-indigo-400">
+                <span className="p-1 rounded bg-teal-50 text-teal-700">
                   <FileText className="w-4 h-4" />
                 </span>
-                <h3 className="font-bold text-sm text-white flex items-center gap-1.5">
+                <h3 className="font-bold text-sm text-[var(--color-ink)] flex items-center gap-1.5">
                   <span>टेंडर / वर्क आर्डर चुनें (Tender / Work Order Auto-Fill)</span>
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.2 rounded-full font-bold">
+                  <span className="badge badge-success">
                     ऑटो-फिल सक्रिय
                   </span>
                 </h3>
               </div>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[11px] text-[var(--color-muted)] mt-0.5">
                 जैसे ही आप ऑन-कॉल या मासिक टेंडर चुनेंगे या उसका नाम लिखेंगे — विभाग का नाम, GSTIN, बुकर, दरें और पिकअप स्थल अपने आप भर जाएंगे।
               </p>
             </div>
 
             {/* Quick 1-Click On-Call Presets */}
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[10px] text-slate-400 font-medium">त्वरित ऑन-कॉल:</span>
+              <span className="text-[10px] text-[var(--color-muted)] font-medium">त्वरित ऑन-कॉल:</span>
               <button
                 type="button"
                 onClick={() => {
@@ -406,7 +406,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                   setNotes('PWD ऑन-कॉल स्वीकृत वाहन ड्यूटी | WO-PWD-2026-C');
                   setAutoFilledNotice('लोक निर्माण विभाग (PWD) ऑन-कॉल ड्यूटी का सारा बेसिक विवरण स्वतः भर दिया गया है!');
                 }}
-                className="px-2.5 py-1 bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-700/80 rounded-lg text-[10px] font-bold transition cursor-pointer"
+                className="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-300 rounded-lg text-[10px] font-bold transition cursor-pointer"
               >
                 ⚡ PWD ऑन-कॉल (8Hr/80KM)
               </button>
@@ -433,7 +433,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                   setNotes('NHAI साइट इंस्पेक्शन ऑन-कॉल ड्यूटी | WO-NHAI-EXP-02');
                   setAutoFilledNotice('एनएचएआई (NHAI) 12Hr/100KM साइट निरीक्षण का सारा विवरण स्वतः भर दिया गया है!');
                 }}
-                className="px-2.5 py-1 bg-cyan-950/70 hover:bg-cyan-900/80 text-cyan-300 border border-cyan-700/80 rounded-lg text-[10px] font-bold transition cursor-pointer"
+                className="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-[var(--color-info)] border border-teal-300 rounded-lg text-[10px] font-bold transition cursor-pointer"
               >
                 ⚡ NHAI साइट (12Hr/100KM)
               </button>
@@ -460,7 +460,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                   setNotes('पावर कारपोरेशन आकस्मिक ऑन-कॉल ड्यूटी');
                   setAutoFilledNotice('UPPCL शक्ति भवन ऑन-कॉल ड्यूटी का सारा विवरण स्वतः भर दिया गया है!');
                 }}
-                className="px-2.5 py-1 bg-purple-950/70 hover:bg-purple-900/80 text-purple-300 border border-purple-700/80 rounded-lg text-[10px] font-bold transition cursor-pointer"
+                className="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 rounded-lg text-[10px] font-bold transition cursor-pointer"
               >
                 ⚡ UPPCL शक्ति भवन (On-Call)
               </button>
@@ -471,7 +471,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
             {/* Tender Dropdown Selector */}
             <div>
-              <label className="block text-slate-400 mb-1 font-medium">
+              <label className="block text-[var(--color-muted)] mb-1 font-medium">
                 टेंडर सूची में से चुनें (Select Tender Dropdown):
               </label>
               <select
@@ -484,7 +484,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                     handleApplyTender(matched);
                   }
                 }}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                className="w-full px-3 py-2 bg-white border border-[var(--color-line-strong)] rounded-lg text-[var(--color-ink)] focus:outline-none focus:border-teal-500 cursor-pointer"
               >
                 <option value="">-- टेंडर चुनें (Choose Tender to Auto-Fill) --</option>
                 {erpTenders.map((t) => {
@@ -505,7 +505,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
             {/* Direct Input Search for Tender */}
             <div>
-              <label className="block text-slate-400 mb-1 font-medium">
+              <label className="block text-[var(--color-muted)] mb-1 font-medium">
                 या टेंडर / विभाग का नाम लिखें (Type Tender Name/Number):
               </label>
               <div className="relative">
@@ -528,24 +528,24 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                     }
                   }}
                   placeholder="उदा. PWD, NHAI, RDSO, GeM या सिंचाई विभाग..."
-                  className="w-full pl-8 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 focus:outline-none focus:border-indigo-500"
+                  className="w-full pl-8 pr-3 py-2 bg-white border border-[var(--color-line-strong)] rounded-lg text-[var(--color-ink)] focus:outline-none focus:border-teal-500"
                 />
-                <Search className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" />
+                <Search className="w-4 h-4 text-[var(--color-muted)] absolute left-2.5 top-2.5" />
               </div>
             </div>
           </div>
 
           {/* Auto-Fill Confirmation Notification Banner */}
           {autoFilledNotice && (
-            <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-xl text-emerald-300 text-xs flex items-center justify-between gap-2 animate-fade-in">
+            <div className="alert-banner info text-xs animate-fade-in">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-teal-700 shrink-0" />
                 <span>{autoFilledNotice}</span>
               </div>
               <button
                 type="button"
                 onClick={() => setAutoFilledNotice(null)}
-                className="text-emerald-400 hover:text-white text-xs font-bold px-2 py-0.5"
+                className="text-teal-700 hover:text-[var(--color-ink)] text-xs font-bold px-2 py-0.5"
               >
                 &times;
               </button>
@@ -556,96 +556,96 @@ export const BookingForm: React.FC<BookingFormProps> = ({
         {/* SECTION 1: 3-PARTY ARCHITECTURE */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Party 1: Billed To / Client */}
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="font-bold text-indigo-400 flex items-center gap-1.5 text-xs">
+          <div className="bg-[var(--color-surface-muted)] p-4 rounded-xl border border-[var(--color-line)] space-y-3">
+            <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-2">
+              <h3 className="font-bold text-teal-700 flex items-center gap-1.5 text-xs">
                 <Building2 className="w-4 h-4" />
                 <span>1. Billed To (बिलिंग पार्टी / विभाग)</span>
               </h3>
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">क्लाइंट / सरकारी विभाग का नाम *</label>
+              <label className="block text-[var(--color-muted)] mb-1">क्लाइंट / सरकारी विभाग का नाम *</label>
               <input
                 type="text"
                 required
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
                 placeholder="e.g. Public Works Department"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)]"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">GSTIN नंबर (वैकल्पिक)</label>
+              <label className="block text-[var(--color-muted)] mb-1">GSTIN नंबर (वैकल्पिक)</label>
               <input
                 type="text"
                 value={clientGstin}
                 onChange={(e) => setClientGstin(e.target.value.toUpperCase())}
                 placeholder="09AAAGP1234E1Z1"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">बिलिंग पता (Address)</label>
+              <label className="block text-[var(--color-muted)] mb-1">बिलिंग पता (Address)</label>
               <textarea
                 rows={2}
                 value={clientAddress}
                 onChange={(e) => setClientAddress(e.target.value)}
                 placeholder="कार्यालय पता"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] text-xs"
               />
             </div>
           </div>
 
           {/* Party 2: Official Booker */}
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="font-bold text-amber-400 flex items-center gap-1.5 text-xs">
+          <div className="bg-[var(--color-surface-muted)] p-4 rounded-xl border border-[var(--color-line)] space-y-3">
+            <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-2">
+              <h3 className="font-bold text-amber-700 flex items-center gap-1.5 text-xs">
                 <Briefcase className="w-4 h-4" />
                 <span>2. Official Booker (बुकर / सहायक)</span>
               </h3>
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">बुकर का नाम (Booker Name) *</label>
+              <label className="block text-[var(--color-muted)] mb-1">बुकर का नाम (Booker Name) *</label>
               <input
                 type="text"
                 required
                 value={bookerName}
                 onChange={(e) => setBookerName(e.target.value)}
                 placeholder="e.g. Er. Pradeep Sharma"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)]"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">बुकर मोबाइल नंबर *</label>
+              <label className="block text-[var(--color-muted)] mb-1">बुकर मोबाइल नंबर *</label>
               <input
                 type="tel"
                 required
                 value={bookerPhone}
                 onChange={(e) => setBookerPhone(e.target.value)}
                 placeholder="10 अंक मोबाइल"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">पदनाम व कमरा (Office / Room)</label>
+              <label className="block text-[var(--color-muted)] mb-1">पदनाम व कमरा (Office / Room)</label>
               <input
                 type="text"
                 value={bookerRoom}
                 onChange={(e) => setBookerRoom(e.target.value)}
                 placeholder="e.g. Room 304, Third Floor"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)]"
               />
             </div>
           </div>
 
           {/* Party 3: Passenger / VIP */}
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="font-bold text-emerald-400 flex items-center gap-1.5 text-xs">
+          <div className="bg-[var(--color-surface-muted)] p-4 rounded-xl border border-[var(--color-line)] space-y-3">
+            <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-2">
+              <h3 className="font-bold text-teal-700 flex items-center gap-1.5 text-xs">
                 <Users className="w-4 h-4" />
                 <span>3. Passenger / VIP (सवार अधिकारी)</span>
               </h3>
-              <label className="flex items-center gap-1 text-[10px] text-amber-300 cursor-pointer">
+              <label className="flex items-center gap-1 text-[10px] text-amber-700 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={paxIsVIP}
@@ -656,170 +656,170 @@ export const BookingForm: React.FC<BookingFormProps> = ({
               </label>
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">अधिकारी / सवारी का नाम *</label>
+              <label className="block text-[var(--color-muted)] mb-1">अधिकारी / सवारी का नाम *</label>
               <input
                 type="text"
                 required
                 value={paxName}
                 onChange={(e) => setPaxName(e.target.value)}
                 placeholder="e.g. Er. Ramesh Chandra Sharma"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-bold"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-bold"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">सवारी मोबाइल नंबर *</label>
+              <label className="block text-[var(--color-muted)] mb-1">सवारी मोबाइल नंबर *</label>
               <input
                 type="tel"
                 required
                 value={paxPhone}
                 onChange={(e) => setPaxPhone(e.target.value)}
                 placeholder="10 अंक मोबाइल"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">पदनाम (Designation)</label>
+              <label className="block text-[var(--color-muted)] mb-1">पदनाम (Designation)</label>
               <input
                 type="text"
                 value={paxDesignation}
                 onChange={(e) => setPaxDesignation(e.target.value)}
                 placeholder="Chief Engineer"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)]"
               />
             </div>
           </div>
         </div>
 
         {/* SECTION 2: SCHEDULE & ROUTE */}
-        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-          <h3 className="font-bold text-slate-200 flex items-center gap-1.5 text-xs uppercase tracking-wider">
-            <Clock className="w-4 h-4 text-indigo-400" />
+        <div className="bg-[var(--color-surface-muted)] p-4 rounded-xl border border-[var(--color-line)] space-y-3">
+          <h3 className="font-bold text-[var(--color-ink)] flex items-center gap-1.5 text-xs uppercase tracking-wider">
+            <Clock className="w-4 h-4 text-teal-700" />
             <span>शेड्यूल व यात्रा रूट (Schedule &amp; Routing)</span>
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
-              <label className="block text-slate-400 mb-1">रिपोर्टिंग दिनांक (Date) *</label>
+              <label className="block text-[var(--color-muted)] mb-1">रिपोर्टिंग दिनांक (Date) *</label>
               <input
                 type="date"
                 required
                 value={reportingDate}
                 onChange={(e) => setReportingDate(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">रिपोर्टिंग समय (Time) *</label>
+              <label className="block text-[var(--color-muted)] mb-1">रिपोर्टिंग समय (Time) *</label>
               <input
                 type="text"
                 required
                 value={reportingTime}
                 onChange={(e) => setReportingTime(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-slate-400 mb-1">पिकअप स्थल (Pickup Location) *</label>
+              <label className="block text-[var(--color-muted)] mb-1">पिकअप स्थल (Pickup Location) *</label>
               <input
                 type="text"
                 required
                 value={pickupLocation}
                 onChange={(e) => setPickupLocation(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)]"
               />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-slate-400 mb-1">गंतव्य / साइट (Destination) *</label>
+              <label className="block text-[var(--color-muted)] mb-1">गंतव्य / साइट (Destination) *</label>
               <input
                 type="text"
                 required
                 value={dropLocation}
                 onChange={(e) => setDropLocation(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)]"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">रूट व हॉल्ट (Via / Stops)</label>
+              <label className="block text-[var(--color-muted)] mb-1">रूट व हॉल्ट (Via / Stops)</label>
               <input
                 type="text"
                 value={routeStops}
                 onChange={(e) => setRouteStops(e.target.value)}
                 placeholder="e.g. हजरतगंज ➔ ट्रांसपोर्ट नगर ➔ उन्नाव"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)]"
               />
             </div>
           </div>
         </div>
 
         {/* SECTION 3: VEHICLE & DRIVER */}
-        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-          <h3 className="font-bold text-slate-200 flex items-center gap-1.5 text-xs uppercase tracking-wider">
-            <Car className="w-4 h-4 text-emerald-400" />
+        <div className="bg-[var(--color-surface-muted)] p-4 rounded-xl border border-[var(--color-line)] space-y-3">
+          <h3 className="font-bold text-[var(--color-ink)] flex items-center gap-1.5 text-xs uppercase tracking-wider">
+            <Car className="w-4 h-4 text-teal-700" />
             <span>वाहन व चालक आवंटन (Vehicle &amp; Driver Allocation)</span>
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
-              <label className="block text-slate-400 mb-1">गाड़ी नंबर (Vehicle No) *</label>
+              <label className="block text-[var(--color-muted)] mb-1">गाड़ी नंबर (Vehicle No) *</label>
               <input
                 type="text"
                 required
                 value={vehicleNumber}
                 onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
                 placeholder="UP32 AB 1234"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono font-bold"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono font-bold"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">मॉडल (Make &amp; Model)</label>
+              <label className="block text-[var(--color-muted)] mb-1">मॉडल (Make &amp; Model)</label>
               <input
                 type="text"
                 value={vehicleModel}
                 onChange={(e) => setVehicleModel(e.target.value)}
                 placeholder="Dzire / Innova"
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)]"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">चालक का नाम (Driver) *</label>
+              <label className="block text-[var(--color-muted)] mb-1">चालक का नाम (Driver) *</label>
               <input
                 type="text"
                 required
                 value={driverName}
                 onChange={(e) => setDriverName(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)]"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">चालक फोन (Phone) *</label>
+              <label className="block text-[var(--color-muted)] mb-1">चालक फोन (Phone) *</label>
               <input
                 type="tel"
                 required
                 value={driverPhone}
                 onChange={(e) => setDriverPhone(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono"
               />
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-slate-400">प्रस्थान गैरेज मीटर (Start KM):</span>
+            <span className="text-[var(--color-muted)]">प्रस्थान गैरेज मीटर (Start KM):</span>
             <input
               type="number"
               value={garageOutKm}
               onChange={(e) => setGarageOutKm(Number(e.target.value))}
-              className="w-32 px-2.5 py-1 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono font-bold"
+              className="w-32 px-2.5 py-1 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono font-bold"
             />
           </div>
         </div>
 
         {/* SECTION 4: TARIFF & PACKAGES */}
-        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h3 className="font-bold text-slate-200 flex items-center gap-1.5 text-xs uppercase tracking-wider">
-              <Calculator className="w-4 h-4 text-amber-400" />
+        <div className="bg-[var(--color-surface-muted)] p-4 rounded-xl border border-[var(--color-line)] space-y-3">
+          <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-2">
+            <h3 className="font-bold text-[var(--color-ink)] flex items-center gap-1.5 text-xs uppercase tracking-wider">
+              <Calculator className="w-4 h-4 text-amber-700" />
               <span>ड्यूटी टैरिफ व पैकेज (Tariff Package)</span>
             </h3>
-            <span className="text-emerald-400 font-bold font-mono">अनुमानित बेस: ₹{baseRate}</span>
+            <span className="text-teal-700 font-bold font-mono">अनुमानित बेस: ₹{baseRate}</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
@@ -838,22 +838,22 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                 className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                   packageType === p.id
                     ? p.id === 'pending_assignment'
-                      ? 'bg-amber-950/60 border-amber-500 font-bold text-amber-200 shadow-md ring-1 ring-amber-500/50'
+                      ? 'bg-amber-50 border-amber-500 font-bold text-amber-900 shadow-md ring-1 ring-amber-500/40'
                       : p.id === 'custom_package'
-                      ? 'bg-purple-950/60 border-purple-500 font-bold text-purple-200 shadow-md ring-1 ring-purple-500/50'
-                      : 'bg-emerald-950/70 border-emerald-500 font-bold text-white shadow-2xs ring-1 ring-emerald-500/50'
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                      ? 'bg-teal-50 border-teal-500 font-bold text-teal-800 shadow-md ring-1 ring-teal-500/40'
+                      : 'bg-teal-50 border-teal-600 font-bold text-teal-900 shadow-sm ring-1 ring-teal-600/40'
+                    : 'bg-white border-[var(--color-line)] text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:border-[var(--color-line-strong)]'
                 }`}
               >
-                <div className="text-[10px] text-slate-400 font-medium">{p.badge}</div>
+                <div className="text-[10px] text-[var(--color-muted)] font-medium">{p.badge}</div>
                 <div className="text-xs font-semibold mt-0.5 truncate">{p.label}</div>
                 <div
                   className={`text-[10px] font-mono mt-1 ${
                     p.id === 'pending_assignment'
-                      ? 'text-amber-400 font-bold'
+                      ? 'text-amber-700 font-bold'
                       : p.id === 'custom_package'
-                      ? 'text-purple-400'
-                      : 'text-emerald-400'
+                      ? 'text-teal-700'
+                      : 'text-teal-700'
                   }`}
                 >
                   {p.rate}
@@ -864,48 +864,48 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
           {/* Pending Assignment Alert Notice */}
           {packageType === 'pending_assignment' && (
-            <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-2.5 text-xs text-amber-300">
+            <div className="alert-banner warning text-xs">
               <span className="text-base">⚠️</span>
               <div>
                 <span className="font-bold">पैकेज अभी तय नहीं है (Package Undecided): </span>
-                ड्यूटी अभी सामान्य रूप से बुक हो जाएगी। यात्रा संपन्न होने के बाद या रेट तय होने पर आप मास्टर ड्यूटी रजिस्टर में कभी भी <span className="font-semibold text-white underline">"पैकेज असाइन करें"</span> बटन दबाकर इसे किसी भी पसंदीदा पैकेज में शामिल कर सकेंगे।
+                ड्यूटी अभी सामान्य रूप से बुक हो जाएगी। यात्रा संपन्न होने के बाद या रेट तय होने पर आप मास्टर ड्यूटी रजिस्टर में कभी भी <span className="font-semibold text-[var(--color-ink)] underline">"पैकेज असाइन करें"</span> बटन दबाकर इसे किसी भी पसंदीदा पैकेज में शामिल कर सकेंगे।
               </div>
             </div>
           )}
 
           {/* Custom Package Extra Parameters */}
           {packageType === 'custom_package' && (
-            <div className="p-3 bg-purple-950/40 border border-purple-800/60 rounded-xl space-y-2">
-              <div className="text-xs font-bold text-purple-300 flex items-center gap-1.5">
+            <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl space-y-2">
+              <div className="text-xs font-bold text-teal-700 flex items-center gap-1.5">
                 <span>✨ अनुकूलित पैकेज विवरण (Custom Package Details)</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">पैकेज का नाम (Package Title)</label>
+                  <label className="block text-[11px] text-[var(--color-muted)] mb-1">पैकेज का नाम (Package Title)</label>
                   <input
                     type="text"
                     value={packageName}
                     onChange={(e) => setPackageName(e.target.value)}
                     placeholder="e.g. VIP Inspection 10 Hr / 120 KM"
-                    className="w-full px-2.5 py-1.5 bg-slate-900 border border-purple-700/60 rounded text-slate-200 text-xs font-medium"
+                    className="w-full px-2.5 py-1.5 bg-white border border-teal-200 rounded text-[var(--color-ink)] text-xs font-medium"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">शामिल घंटे (Base Hours)</label>
+                  <label className="block text-[11px] text-[var(--color-muted)] mb-1">शामिल घंटे (Base Hours)</label>
                   <input
                     type="number"
                     value={baseHours}
                     onChange={(e) => setBaseHours(Number(e.target.value))}
-                    className="w-full px-2.5 py-1.5 bg-slate-900 border border-purple-700/60 rounded text-slate-200 text-xs font-mono"
+                    className="w-full px-2.5 py-1.5 bg-white border border-teal-200 rounded text-[var(--color-ink)] text-xs font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">शामिल KM (Base KM)</label>
+                  <label className="block text-[11px] text-[var(--color-muted)] mb-1">शामिल KM (Base KM)</label>
                   <input
                     type="number"
                     value={baseKm}
                     onChange={(e) => setBaseKm(Number(e.target.value))}
-                    className="w-full px-2.5 py-1.5 bg-slate-900 border border-purple-700/60 rounded text-slate-200 text-xs font-mono"
+                    className="w-full px-2.5 py-1.5 bg-white border border-teal-200 rounded text-[var(--color-ink)] text-xs font-mono"
                   />
                 </div>
               </div>
@@ -914,85 +914,85 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-2">
             <div>
-              <label className="block text-slate-400 mb-1">बेस दर (Base ₹)</label>
+              <label className="block text-[var(--color-muted)] mb-1">बेस दर (Base ₹)</label>
               <input
                 type="number"
                 disabled={packageType === 'pending_assignment'}
                 value={baseRate}
                 onChange={(e) => setBaseRate(Number(e.target.value))}
-                className={`w-full px-2.5 py-1.5 bg-slate-900 border rounded text-slate-200 font-mono font-bold ${
+                className={`w-full px-2.5 py-1.5 bg-white border rounded text-[var(--color-ink)] font-mono font-bold ${
                   packageType === 'pending_assignment'
-                    ? 'border-slate-800 opacity-50 cursor-not-allowed'
-                    : 'border-slate-700'
+                    ? 'border-[var(--color-line)] opacity-50 cursor-not-allowed'
+                    : 'border-[var(--color-line-strong)]'
                 }`}
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">एक्स्ट्रा KM दर (₹/KM)</label>
+              <label className="block text-[var(--color-muted)] mb-1">एक्स्ट्रा KM दर (₹/KM)</label>
               <input
                 type="number"
                 value={extraKmRate}
                 onChange={(e) => setExtraKmRate(Number(e.target.value))}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">एक्स्ट्रा घंटा दर (₹/Hr)</label>
+              <label className="block text-[var(--color-muted)] mb-1">एक्स्ट्रा घंटा दर (₹/Hr)</label>
               <input
                 type="number"
                 value={extraHourRate}
                 onChange={(e) => setExtraHourRate(Number(e.target.value))}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">नाइट DA (₹)</label>
+              <label className="block text-[var(--color-muted)] mb-1">नाइट DA (₹)</label>
               <input
                 type="number"
                 value={nightHaltRate}
                 onChange={(e) => setNightHaltRate(Number(e.target.value))}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono"
               />
             </div>
             <div>
-              <label className="block text-slate-400 mb-1">चालक मानदेय (₹)</label>
+              <label className="block text-[var(--color-muted)] mb-1">चालक मानदेय (₹)</label>
               <input
                 type="number"
                 value={driverWage}
                 onChange={(e) => setDriverWage(Number(e.target.value))}
-                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded text-slate-200 font-mono"
+                className="w-full px-2.5 py-1.5 bg-white border border-[var(--color-line-strong)] rounded text-[var(--color-ink)] font-mono"
               />
             </div>
           </div>
         </div>
 
         {/* Tender Reference Notes & Special Directives */}
-        <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
-          <label className="block text-slate-400 font-semibold text-xs flex items-center justify-between">
+        <div className="bg-[var(--color-surface-muted)] p-3.5 rounded-xl border border-[var(--color-line)] space-y-1.5">
+          <label className="block text-[var(--color-muted)] font-semibold text-xs flex items-center justify-between">
             <span>अनुबंध संदर्भ, वर्क आर्डर व विशेष निर्देश (Contract Reference &amp; Notes)</span>
-            <span className="text-[10px] text-indigo-400">टेंडर से स्वतः अपडेटेड</span>
+            <span className="text-[10px] text-teal-700">टेंडर से स्वतः अपडेटेड</span>
           </label>
           <input
             type="text"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="e.g. टेंडर सं: PWD/CAB/2026-03 | WO: WO-PWD-2026-C | ऑन-कॉल स्वीकृत ड्यूटी"
-            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-xs"
+            className="w-full px-3 py-2 bg-white border border-[var(--color-line-strong)] rounded-lg text-[var(--color-ink)] text-xs"
           />
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-line)]">
           <button
             type="button"
             onClick={onCancel}
-            className="px-5 py-2.5 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-800 font-semibold"
+            className="btn btn-secondary"
           >
             रद्द करें
           </button>
           <button
             type="submit"
-            className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-black rounded-xl shadow-lg shadow-emerald-500/25 flex items-center gap-2 transform active:scale-95 transition-all"
+            className="btn btn-success"
           >
             <Save className="w-4 h-4 stroke-[3]" />
             <span>✓ ड्यूटी बुकिंग जारी करें (Save &amp; Dispatch)</span>

@@ -1,4 +1,5 @@
 node_modules/
+server/generated/
 build/
 dist/
 coverage/
@@ -6,3 +7,22 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Local SQLite databases (any nesting) + WAL sidecars
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+uploads/**
+!uploads/.gitkeep
+
+# OS / editor noise
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo

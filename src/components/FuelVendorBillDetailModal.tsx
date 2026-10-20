@@ -54,7 +54,7 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700">
+            <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-[var(--color-copper)]">
               <Fuel className="w-5 h-5" />
             </div>
             <div>
@@ -74,7 +74,7 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
                   {bill.paymentStatus === 'paid' ? 'Paid / चुकता' : 'Payment Pending'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--color-muted)]">
                 {bill.pumpVendorName} &bull; बिल संख्या: <span className="font-mono font-bold text-slate-700">{bill.billNumber}</span> &bull; माह: {bill.monthYear}
               </p>
             </div>
@@ -87,7 +87,7 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
               <Printer className="w-3.5 h-3.5" />
               प्रिंट विवरण
             </button>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 font-bold text-xl px-2">
+            <button onClick={onClose} className="text-[var(--color-muted)] hover:text-slate-600 font-bold text-xl px-2">
               &times;
             </button>
           </div>
@@ -98,23 +98,23 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
           {/* Header Summary Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
             <div>
-              <span className="text-[10px] text-slate-500 uppercase font-semibold block">Fuel Pump Station</span>
+              <span className="text-[10px] text-[var(--color-muted)] uppercase font-semibold block">Fuel Pump Station</span>
               <span className="font-bold text-slate-900 text-sm">{bill.pumpVendorName}</span>
             </div>
             <div>
-              <span className="text-[10px] text-slate-500 uppercase font-semibold block">Billing Period</span>
-              <span className="font-bold text-indigo-700 text-sm">{bill.monthYear}</span>
-              <div className="text-[10px] text-slate-500">Bill Date: {formatDate(bill.billDate)}</div>
+              <span className="text-[10px] text-[var(--color-muted)] uppercase font-semibold block">Billing Period</span>
+              <span className="font-bold text-[var(--color-copper)] text-sm">{bill.monthYear}</span>
+              <div className="text-[10px] text-[var(--color-muted)]">Bill Date: {formatDate(bill.billDate)}</div>
             </div>
             <div>
-              <span className="text-[10px] text-slate-500 uppercase font-semibold block">Total Fuel Dispensed</span>
+              <span className="text-[10px] text-[var(--color-muted)] uppercase font-semibold block">Total Fuel Dispensed</span>
               <span className="font-bold text-slate-900 text-sm font-mono">
                 {bill.totalLiters.toFixed(2)} Liters
               </span>
-              <div className="text-[10px] text-slate-500">{bill.reconciledSlipsCount} Slips Reconciled</div>
+              <div className="text-[10px] text-[var(--color-muted)]">{bill.reconciledSlipsCount} Slips Reconciled</div>
             </div>
             <div>
-              <span className="text-[10px] text-slate-500 uppercase font-semibold block">Net Payable Amount</span>
+              <span className="text-[10px] text-[var(--color-muted)] uppercase font-semibold block">Net Payable Amount</span>
               <span className="font-black text-emerald-700 text-base font-mono">
                 {formatCurrency(bill.netPayable)}
               </span>
@@ -123,7 +123,7 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
                   TDS: -{formatCurrency(bill.tdsAmount)} ({bill.tdsRate}% u/s {bill.tdsSection || '194Q'})
                 </div>
               ) : (
-                <div className="text-[10px] text-slate-400">TDS: ₹0 (Nil)</div>
+                <div className="text-[10px] text-[var(--color-muted)]">TDS: ₹0 (Nil)</div>
               )}
               {bill.paymentStatus === 'paid' && bill.paidDate && (
                 <div className="text-[10px] text-emerald-600 font-semibold">
@@ -136,10 +136,10 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
           {/* Vehicle-wise breakdown title */}
           <div className="flex items-center justify-between pt-1">
             <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-              <Car className="w-4 h-4 text-indigo-600" />
+              <Car className="w-4 h-4 text-[var(--color-copper)]" />
               <span>गाड़ी-वार ईंधन खपत व बिलिंग विवरण (Vehicle-Wise Fuel Consumption &amp; Billing)</span>
             </h4>
-            <span className="text-[11px] text-slate-500">
+            <span className="text-[11px] text-[var(--color-muted)]">
               Total <strong>{bill.vehicleBreakdown.length}</strong> Vehicles Billed
             </span>
           </div>
@@ -168,7 +168,7 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
                         <div className="font-bold font-mono text-slate-900 bg-yellow-300/80 text-[11px] px-1.5 py-0.5 rounded border border-yellow-400 inline-block">
                           {vb.vehicleNumber}
                         </div>
-                        <div className="text-[10px] text-slate-500 mt-0.5">{vb.makeModel || 'Fleet Vehicle'}</div>
+                        <div className="text-[10px] text-[var(--color-muted)] mt-0.5">{vb.makeModel || 'Fleet Vehicle'}</div>
                       </td>
                       <td className="py-2.5 px-3 font-medium text-slate-800">
                         {vb.driverName || 'Unassigned'}
@@ -176,7 +176,7 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
                       <td className="py-2.5 px-3 text-center font-bold text-slate-700">
                         {vb.refillCount} बार
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono font-bold text-indigo-900">
+                      <td className="py-2.5 px-3 text-right font-mono font-bold text-teal-900">
                         {vb.totalLiters.toFixed(1)} L
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono text-slate-600">
@@ -185,10 +185,10 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
                       <td className="py-2.5 px-3 text-right font-mono font-black text-slate-900 text-sm">
                         {formatCurrency(vb.totalAmount)}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-semibold text-slate-500">
+                      <td className="py-2.5 px-3 text-right font-semibold text-[var(--color-muted)]">
                         {percentOfTotal}%
                       </td>
-                      <td className="py-2.5 px-3 text-[10px] font-mono text-indigo-600 max-w-xs truncate" title={vb.slipNumbers.join(', ')}>
+                      <td className="py-2.5 px-3 text-[10px] font-mono text-[var(--color-copper)] max-w-xs truncate" title={vb.slipNumbers.join(', ')}>
                         {vb.slipNumbers.join(', ') || 'N/A'}
                       </td>
                     </tr>
@@ -203,7 +203,7 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
                   <td className="py-2.5 px-3 text-center">
                     {bill.vehicleBreakdown.reduce((sum, v) => sum + v.refillCount, 0)} Refills
                   </td>
-                  <td className="py-2.5 px-3 text-right font-mono text-indigo-900">
+                  <td className="py-2.5 px-3 text-right font-mono text-teal-900">
                     {bill.totalLiters.toFixed(1)} L
                   </td>
                   <td className="py-2.5 px-3 text-right font-mono text-slate-600">
@@ -254,7 +254,7 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
                   <CreditCard className="w-4 h-4 text-emerald-600" />
                   <span>पंप बिल भुगतान प्रविष्टि (Record Payment)</span>
                 </h4>
-                <button onClick={() => setIsPayModalOpen(false)} className="text-slate-400 text-lg">&times;</button>
+                <button onClick={() => setIsPayModalOpen(false)} className="text-[var(--color-muted)] text-lg">&times;</button>
               </div>
 
               <form onSubmit={handleConfirmPayment} className="space-y-3 text-xs">
@@ -317,7 +317,7 @@ export const FuelVendorBillDetailModal: React.FC<FuelVendorBillDetailModalProps>
                   </div>
                 </div>
 
-                <p className="text-[11px] text-slate-500 italic">
+                <p className="text-[11px] text-[var(--color-muted)] italic">
                   नोट: यह भुगतान आपके दैनिक भुगतान व रोकड़ बही (Daily Payments Journal) में भी स्वतः दर्ज हो जाएगा।
                 </p>
 

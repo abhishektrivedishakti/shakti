@@ -31,6 +31,7 @@ import {
   generateVendorUniqueId,
   generateOfficerUniqueId,
 } from '../utils/idGenerator';
+import { ConfirmDialog } from './ConfirmDialog';
 
 export type ProfileEntityType = 'driver' | 'vendor' | 'officer' | 'vehicle';
 
@@ -44,13 +45,15 @@ interface UnifiedProfileModalProps {
   officers: Officer[];
   vehicles: Vehicle[];
   tenders: Tender[];
-  onSaveDriver: (driver: Driver) => void;
-  onSaveVendor: (vendor: Vendor) => void;
-  onSaveOfficer: (officer: Officer) => void;
-  onSaveVehicle?: (vehicle: Vehicle) => void;
-  onDeleteDriver?: (driverId: string) => void;
-  onDeleteVendor?: (vendorId: string) => void;
-  onDeleteOfficer?: (officerId: string) => void;
+  onSaveDriver: (driver: Driver) => void | Promise<void>;
+  onSaveVendor: (vendor: Vendor) => void | Promise<void>;
+  onSaveOfficer: (officer: Officer) => void | Promise<void>;
+  onSaveVehicle?: (vehicle: Vehicle) => void | Promise<void>;
+  onDeleteDriver?: (driverId: string) => void | Promise<void>;
+  onDeleteVendor?: (vendorId: string) => void | Promise<void>;
+  onDeleteOfficer?: (officerId: string) => void | Promise<void>;
+  apiError?: string;
+  onClearApiError?: () => void;
 }
 
 export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
@@ -70,11 +73,21 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
   onDeleteDriver,
   onDeleteVendor,
   onDeleteOfficer,
+  apiError = '',
+  onClearApiError,
 }) => {
   const [activeType, setActiveType] = useState<ProfileEntityType>(initialType);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedId, setSelectedId] = useState<string>(initialId || '');
+  const [isCreating, setIsCreating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    title: string;
+    message: string;
+    detail?: string;
+  } | null>(null);
 
   // Editable Form States
   const [driverForm, setDriverForm] = useState<Partial<Driver>>({});
@@ -82,144 +95,284 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
   const [officerForm, setOfficerForm] = useState<Partial<Officer>>({});
   const [vehicleForm, setVehicleForm] = useState<Partial<Vehicle>>({});
 
-  // Sync when opening or when initial values change
+  // Sync only when the modal opens / entry point changes — never while drafting "Add new"
   useEffect(() => {
-    if (isOpen) {
-      setActiveType(initialType);
-      if (initialId) {
-        setSelectedId(initialId);
-      } else {
-        if (initialType === 'driver') setSelectedId(drivers[0]?.id || '');
-        else if (initialType === 'vendor') setSelectedId(vendors[0]?.id || '');
-        else if (initialType === 'officer') setSelectedId(officers[0]?.id || '');
-        else if (initialType === 'vehicle') setSelectedId(vehicles[0]?.id || '');
-      }
-      setSaveSuccessMsg(null);
+    if (!isOpen) return;
+    setActiveType(initialType);
+    setIsCreating(false);
+    setSaveSuccessMsg(null);
+    setSearchQuery('');
+    if (initialId) {
+      setSelectedId(initialId);
+      return;
     }
-  }, [isOpen, initialType, initialId, drivers, vendors, officers, vehicles]);
+    if (initialType === 'driver') setSelectedId(drivers[0]?.id || '');
+    else if (initialType === 'vendor') setSelectedId(vendors[0]?.id || '');
+    else if (initialType === 'officer') setSelectedId(officers[0]?.id || '');
+    else if (initialType === 'vehicle') setSelectedId(vehicles[0]?.id || '');
+    // intentionally omit list arrays — resetting on every hydrate/save wiped "Add new"
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, initialType, initialId]);
 
-  // When selectedId or activeType changes, load form state
+  // Load form from the selected existing record (skip while creating a new draft)
   useEffect(() => {
+    if (!isOpen || isCreating) return;
+
     if (activeType === 'driver') {
-      const d = drivers.find((item) => item.id === selectedId) || drivers[0];
+      const d = drivers.find((item) => item.id === selectedId);
       if (d) {
         setDriverForm({ ...d });
-        setSelectedId(d.id);
+      } else if (drivers[0]) {
+        setSelectedId(drivers[0].id);
+        setDriverForm({ ...drivers[0] });
+      } else {
+        setDriverForm({});
       }
     } else if (activeType === 'vendor') {
-      const v = vendors.find((item) => item.id === selectedId) || vendors[0];
+      const v = vendors.find((item) => item.id === selectedId);
       if (v) {
         setVendorForm({ ...v });
-        setSelectedId(v.id);
+      } else if (vendors[0]) {
+        setSelectedId(vendors[0].id);
+        setVendorForm({ ...vendors[0] });
+      } else {
+        setVendorForm({});
       }
     } else if (activeType === 'officer') {
-      const o = officers.find((item) => item.id === selectedId) || officers[0];
+      const o = officers.find((item) => item.id === selectedId);
       if (o) {
         setOfficerForm({ ...o });
-        setSelectedId(o.id);
+      } else if (officers[0]) {
+        setSelectedId(officers[0].id);
+        setOfficerForm({ ...officers[0] });
+      } else {
+        setOfficerForm({});
       }
     } else if (activeType === 'vehicle') {
-      const veh = vehicles.find((item) => item.id === selectedId) || vehicles[0];
+      const veh = vehicles.find((item) => item.id === selectedId);
       if (veh) {
         setVehicleForm({ ...veh });
-        setSelectedId(veh.id);
+      } else if (vehicles[0]) {
+        setSelectedId(vehicles[0].id);
+        setVehicleForm({ ...vehicles[0] });
+      } else {
+        setVehicleForm({});
       }
     }
-  }, [activeType, selectedId, drivers, vendors, officers, vehicles]);
+  }, [isOpen, isCreating, activeType, selectedId, drivers, vendors, officers, vehicles]);
 
   if (!isOpen) return null;
 
   // -------------------------------------------------------------
   // SAVE HANDLERS
   // -------------------------------------------------------------
-  const handleSaveCurrentDriver = (e: React.FormEvent) => {
+  const todayIso = () => new Date().toISOString().slice(0, 10);
+  const plusYearsIso = (years: number) => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + years);
+    return d.toISOString().slice(0, 10);
+  };
+
+  const digits10 = (raw: string) => raw.replace(/\D/g, '').slice(-10);
+
+  const handleSaveCurrentDriver = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!driverForm.name?.trim() || !driverForm.phone?.trim()) {
-      alert('कृपया चालक का नाम और 10-अंकीय मोबाइल नंबर भरें।');
+    setFormError(null);
+    onClearApiError?.();
+    const phone = digits10(driverForm.phone || '');
+    if (!driverForm.name?.trim() || phone.length !== 10) {
+      setFormError('कृपया चालक का नाम और सही 10-अंकीय मोबाइल नंबर भरें।');
       return;
     }
+    const creating = isCreating || !drivers.some((d) => d.id === selectedId);
     const updated: Driver = {
       ...(drivers.find((d) => d.id === selectedId) || {}),
       ...driverForm,
-      id: selectedId,
+      id: selectedId || driverForm.id || generateDriverUniqueId(drivers),
+      driverCode: driverForm.driverCode || selectedId,
       name: driverForm.name.trim(),
-      phone: driverForm.phone.trim(),
+      phone,
+      address: (driverForm.address || '').trim(),
+      licenseNumber: (driverForm.licenseNumber || '').trim(),
+      licenseExpiry: driverForm.licenseExpiry || plusYearsIso(5),
+      policeVerificationDate: driverForm.policeVerificationDate || todayIso(),
+      policeVerificationExpiry: driverForm.policeVerificationExpiry || plusYearsIso(3),
+      aadharNumber: (driverForm.aadharNumber || '').trim(),
+      joiningDate: driverForm.joiningDate || todayIso(),
+      monthlySalary: Number(driverForm.monthlySalary) || 0,
+      dailyDaRate: Number(driverForm.dailyDaRate) || 0,
+      status: driverForm.status || 'active',
+      documents: driverForm.documents || [],
     } as Driver;
 
-    onSaveDriver(updated);
-    setSaveSuccessMsg(`चालक "${updated.name}" की प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!`);
-    setTimeout(() => setSaveSuccessMsg(null), 3000);
+    setIsSaving(true);
+    try {
+      await Promise.resolve(onSaveDriver(updated));
+      setIsCreating(false);
+      setSelectedId(updated.id);
+      setSaveSuccessMsg(
+        creating
+          ? `नया चालक "${updated.name}" जोड़ दिया गया!`
+          : `चालक "${updated.name}" की प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!`
+      );
+      setTimeout(() => setSaveSuccessMsg(null), 3000);
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : 'Could not save driver.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSaveCurrentVendor = (e: React.FormEvent) => {
+  const handleSaveCurrentVendor = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!vendorForm.name?.trim() || !vendorForm.phone?.trim()) {
-      alert('कृपया वेंडर का नाम और मोबाइल नंबर भरें।');
+    setFormError(null);
+    onClearApiError?.();
+    const phone = digits10(vendorForm.phone || '');
+    if (!vendorForm.name?.trim() || phone.length !== 10) {
+      setFormError('कृपया वेंडर का नाम और सही 10-अंकीय मोबाइल नंबर भरें।');
       return;
     }
+    const creating = isCreating || !vendors.some((v) => v.id === selectedId);
     const updated: Vendor = {
       ...(vendors.find((v) => v.id === selectedId) || {}),
       ...vendorForm,
-      id: selectedId,
+      id: selectedId || vendorForm.id || generateVendorUniqueId(vendors),
       name: vendorForm.name.trim(),
-      phone: vendorForm.phone.trim(),
+      phone,
       contactPerson: vendorForm.contactPerson || vendorForm.name,
     } as Vendor;
 
-    onSaveVendor(updated);
-    setSaveSuccessMsg(`वेंडर/पार्टनर "${updated.name}" की प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!`);
-    setTimeout(() => setSaveSuccessMsg(null), 3000);
+    setIsSaving(true);
+    try {
+      await Promise.resolve(onSaveVendor(updated));
+      setIsCreating(false);
+      setSelectedId(updated.id);
+      setSaveSuccessMsg(
+        creating
+          ? `नया वेंडर "${updated.name}" जोड़ दिया गया!`
+          : `वेंडर/पार्टनर "${updated.name}" की प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!`
+      );
+      setTimeout(() => setSaveSuccessMsg(null), 3000);
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : 'Could not save vendor.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSaveCurrentOfficer = (e: React.FormEvent) => {
+  const handleSaveCurrentOfficer = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!officerForm.name?.trim() || !officerForm.mobile?.trim()) {
-      alert('कृपया अधिकारी का नाम और 10-अंकीय मोबाइल नंबर भरें।');
+    setFormError(null);
+    onClearApiError?.();
+    const mobile = digits10(officerForm.mobile || '');
+    if (!officerForm.name?.trim() || mobile.length !== 10) {
+      setFormError('कृपया अधिकारी का नाम और सही 10-अंकीय मोबाइल नंबर भरें।');
+      return;
+    }
+    const creating = isCreating || !officers.some((o) => o.id === selectedId);
+    const tenderId = officerForm.tenderId || tenders[0]?.id || '';
+    if (!tenderId) {
+      setFormError('कृपया पहले एक टेंडर जोड़ें — अधिकारी को टेंडर से जोड़ना ज़रूरी है।');
       return;
     }
     const updated: Officer = {
       ...(officers.find((o) => o.id === selectedId) || {}),
       ...officerForm,
-      id: selectedId,
+      id: selectedId || officerForm.id || generateOfficerUniqueId(officers),
+      officerCode: officerForm.officerCode || selectedId,
       name: officerForm.name.trim(),
-      mobile: officerForm.mobile.trim(),
+      mobile,
+      tenderId,
+      status: officerForm.status || 'active',
     } as Officer;
 
-    onSaveOfficer(updated);
-    setSaveSuccessMsg(`अधिकारी "${updated.name}" की प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!`);
-    setTimeout(() => setSaveSuccessMsg(null), 3000);
+    setIsSaving(true);
+    try {
+      await Promise.resolve(onSaveOfficer(updated));
+      setIsCreating(false);
+      setSelectedId(updated.id);
+      setSaveSuccessMsg(
+        creating
+          ? `नया अधिकारी "${updated.name}" जोड़ दिया गया!`
+          : `अधिकारी "${updated.name}" की प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!`
+      );
+      setTimeout(() => setSaveSuccessMsg(null), 3000);
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : 'Could not save officer.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSaveCurrentVehicle = (e: React.FormEvent) => {
+  const handleSaveCurrentVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+    onClearApiError?.();
     if (!vehicleForm.vehicleNumber?.trim()) {
-      alert('कृपया गाड़ी नंबर भरें।');
+      setFormError('कृपया गाड़ी नंबर भरें।');
+      return;
+    }
+    const creating = isCreating || !vehicles.some((v) => v.id === selectedId);
+    const tenderId = vehicleForm.tenderId || tenders[0]?.id || '';
+    if (!tenderId) {
+      setFormError('कृपया पहले एक टेंडर जोड़ें — गाड़ी को टेंडर से जोड़ना ज़रूरी है।');
       return;
     }
     const updated: Vehicle = {
       ...(vehicles.find((v) => v.id === selectedId) || {}),
       ...vehicleForm,
-      id: selectedId,
+      id: selectedId || vehicleForm.id || `veh-${Date.now()}`,
       vehicleNumber: vehicleForm.vehicleNumber.trim().toUpperCase(),
+      tenderId,
+      status: vehicleForm.status || 'active',
+      documents: vehicleForm.documents || [],
     } as Vehicle;
 
-    onSaveVehicle(updated);
-    setSaveSuccessMsg(`गाड़ी "${updated.vehicleNumber}" का विवरण सफलतापूर्वक अपडेट हो गया!`);
-    setTimeout(() => setSaveSuccessMsg(null), 3000);
+    setIsSaving(true);
+    try {
+      await Promise.resolve(onSaveVehicle(updated));
+      setIsCreating(false);
+      setSelectedId(updated.id);
+      setSaveSuccessMsg(
+        creating
+          ? `नई गाड़ी "${updated.vehicleNumber}" जोड़ दी गई!`
+          : `गाड़ी "${updated.vehicleNumber}" का विवरण सफलतापूर्वक अपडेट हो गया!`
+      );
+      setTimeout(() => setSaveSuccessMsg(null), 3000);
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : 'Could not save vehicle.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleAddNewProfile = () => {
+    setSaveSuccessMsg(null);
+    setSearchQuery('');
+    setIsCreating(true);
+
     if (activeType === 'driver') {
       const newId = generateDriverUniqueId(drivers);
       const newD: Partial<Driver> = {
         id: newId,
+        driverCode: newId,
         name: '',
         phone: '',
-        licenseNumber: 'DL-' + Math.floor(1000000000 + Math.random() * 9000000000),
-        licenseExpiry: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+        alternatePhone: '',
+        address: '',
+        licenseNumber: '',
+        licenseExpiry: plusYearsIso(5),
+        policeVerificationDate: todayIso(),
+        policeVerificationExpiry: plusYearsIso(3),
+        aadharNumber: '',
+        panNumber: '',
+        joiningDate: todayIso(),
         status: 'active',
         monthlySalary: 18000,
         dailyDaRate: 300,
+        employmentType: 'contractual_khata',
+        bankAccountDetails: '',
+        documents: [],
       };
       setDriverForm(newD);
       setSelectedId(newId);
@@ -227,6 +380,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
       const newId = generateVendorUniqueId(vendors);
       const newV: Partial<Vendor> = {
         id: newId,
+        vendorCode: newId,
         name: '',
         phone: '',
         contactPerson: '',
@@ -244,11 +398,14 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
       const newId = generateOfficerUniqueId(officers);
       const newO: Partial<Officer> = {
         id: newId,
+        officerCode: newId,
         name: '',
         mobile: '',
         designation: '',
         department: tenders[0]?.departmentName || 'Government Department',
         officeAddress: 'Headquarters',
+        tenderId: tenders[0]?.id || '',
+        reportingTime: '09:00 AM',
         status: 'active',
       };
       setOfficerForm(newO);
@@ -264,33 +421,107 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
         color: 'White',
         modelYear: 2024,
         ownershipType: 'Company Owned',
+        tenderId: tenders[0]?.id || '',
         currentOdometer: 10000,
         status: 'active',
+        documents: [],
       };
       setVehicleForm(newVeh);
       setSelectedId(newId);
     }
   };
 
+  const selectExisting = (id: string) => {
+    setIsCreating(false);
+    setSelectedId(id);
+    setSaveSuccessMsg(null);
+  };
+
+  const switchEntityTab = (type: ProfileEntityType) => {
+    setActiveType(type);
+    setIsCreating(false);
+    setSearchQuery('');
+    setSaveSuccessMsg(null);
+    if (type === 'driver') setSelectedId(drivers[0]?.id || '');
+    else if (type === 'vendor') setSelectedId(vendors[0]?.id || '');
+    else if (type === 'officer') setSelectedId(officers[0]?.id || '');
+    else setSelectedId(vehicles[0]?.id || '');
+  };
+
   const handleDeleteCurrent = () => {
+    if (isCreating) {
+      setIsCreating(false);
+      if (activeType === 'driver') setSelectedId(drivers[0]?.id || '');
+      else if (activeType === 'vendor') setSelectedId(vendors[0]?.id || '');
+      else if (activeType === 'officer') setSelectedId(officers[0]?.id || '');
+      else setSelectedId(vehicles[0]?.id || '');
+      return;
+    }
+
     if (activeType === 'driver' && onDeleteDriver) {
-      if (confirm(`क्या आप चालक "${driverForm.name || selectedId}" को हटाना चाहते हैं?`)) {
-        onDeleteDriver(selectedId);
+      const label = driverForm.name?.trim() || selectedId;
+      const code = getDriverDisplayCode({
+        ...(drivers.find((d) => d.id === selectedId) || {}),
+        ...driverForm,
+        id: selectedId,
+      } as Driver);
+      setDeleteConfirm({
+        title: 'चालक हटाएं?',
+        message: `क्या आप चालक "${label}" को हटाना चाहते हैं?`,
+        detail: code,
+      });
+      return;
+    }
+    if (activeType === 'vendor' && onDeleteVendor) {
+      const label = vendorForm.name?.trim() || selectedId;
+      setDeleteConfirm({
+        title: 'वेंडर हटाएं?',
+        message: `क्या आप वेंडर "${label}" को हटाना चाहते हैं?`,
+        detail: selectedId,
+      });
+      return;
+    }
+    if (activeType === 'officer' && onDeleteOfficer) {
+      const label = officerForm.name?.trim() || selectedId;
+      const code = getOfficerDisplayCode({
+        ...(officers.find((o) => o.id === selectedId) || {}),
+        ...officerForm,
+        id: selectedId,
+      } as Officer);
+      setDeleteConfirm({
+        title: 'अधिकारी हटाएं?',
+        message: `क्या आप अधिकारी "${label}" को हटाना चाहते हैं?`,
+        detail: code,
+      });
+    }
+  };
+
+  const confirmDeleteCurrent = async () => {
+    if (!deleteConfirm) return;
+    setFormError(null);
+    onClearApiError?.();
+    setIsSaving(true);
+    try {
+      if (activeType === 'driver' && onDeleteDriver) {
+        await Promise.resolve(onDeleteDriver(selectedId));
         const next = drivers.find((d) => d.id !== selectedId);
         setSelectedId(next ? next.id : '');
-      }
-    } else if (activeType === 'vendor' && onDeleteVendor) {
-      if (confirm(`क्या आप वेंडर "${vendorForm.name || selectedId}" को हटाना चाहते हैं?`)) {
-        onDeleteVendor(selectedId);
+      } else if (activeType === 'vendor' && onDeleteVendor) {
+        await Promise.resolve(onDeleteVendor(selectedId));
         const next = vendors.find((v) => v.id !== selectedId);
         setSelectedId(next ? next.id : '');
-      }
-    } else if (activeType === 'officer' && onDeleteOfficer) {
-      if (confirm(`क्या आप अधिकारी "${officerForm.name || selectedId}" को हटाना चाहते हैं?`)) {
-        onDeleteOfficer(selectedId);
+      } else if (activeType === 'officer' && onDeleteOfficer) {
+        await Promise.resolve(onDeleteOfficer(selectedId));
         const next = officers.find((o) => o.id !== selectedId);
         setSelectedId(next ? next.id : '');
       }
+      setDeleteConfirm(null);
+      setSaveSuccessMsg(null);
+    } catch (err: unknown) {
+      setDeleteConfirm(null);
+      setFormError(err instanceof Error ? err.message : 'Could not delete record.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -315,189 +546,174 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
     (v) => !q || v.vehicleNumber.toLowerCase().includes(q) || v.makeModel.toLowerCase().includes(q)
   );
 
+  const entityTabs: { type: ProfileEntityType; label: string; count: number; icon: React.ReactNode }[] = [
+    { type: 'driver', label: 'Drivers', count: drivers.length, icon: <Users className="h-4 w-4" /> },
+    { type: 'vendor', label: 'Vendors', count: vendors.length, icon: <Handshake className="h-4 w-4" /> },
+    { type: 'officer', label: 'Officers', count: officers.length, icon: <Briefcase className="h-4 w-4" /> },
+    { type: 'vehicle', label: 'Vehicles', count: vehicles.length, icon: <Car className="h-4 w-4" /> },
+  ];
+
+  const listTitle =
+    activeType === 'driver'
+      ? 'Driver list'
+      : activeType === 'vendor'
+        ? 'Vendor list'
+        : activeType === 'officer'
+          ? 'Officer list'
+          : 'Vehicle list';
+
+  const searchPlaceholder =
+    activeType === 'driver'
+      ? 'Search name or mobile…'
+      : activeType === 'vendor'
+        ? 'Search vendor or owner…'
+        : activeType === 'officer'
+          ? 'Search officer…'
+          : 'Search vehicle number…';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 sm:p-5 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[94vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col">
+    <>
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-xs sm:p-5">
+      <div className="flex max-h-[94vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-2xl">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between sticky top-0 z-20">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold shadow-md">
-              <Edit2 className="w-5 h-5" />
+        <div className="sticky top-0 z-20 flex shrink-0 items-center justify-between border-b border-white/10 bg-[var(--color-ink)] p-4 text-white sm:p-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-800 text-white shadow-[0_8px_20px_rgba(15,118,110,0.35)]">
+              <Edit2 className="h-5 w-5" />
             </div>
-            <div>
-              <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
-                <span>प्रोफ़ाइल प्रबंधन व संपादन हब (Profile Management &amp; Editor)</span>
-                <span className="text-[10px] bg-indigo-500 text-white font-bold px-2 py-0.5 rounded">
-                  Live Master
-                </span>
+            <div className="min-w-0">
+              <h3 className="flex flex-wrap items-center gap-2 font-[family-name:var(--font-display)] text-base font-bold tracking-tight sm:text-lg">
+                <span>Profile management</span>
+                <span className="badge badge-neutral !bg-white/10 !text-teal-200">Live master</span>
               </h3>
-              <p className="text-xs text-slate-300 mt-0.5">
-                चालक (Driver), वेंडर (Vendor), अधिकारी (Officer) व गाड़ी (Vehicle) की प्रोफ़ाइल सीधे बदलें व सुरक्षित करें
+              <p className="mt-0.5 text-xs text-white/50">
+                Edit drivers, vendors, officers, and vehicles in one place.
               </p>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-white/60 transition-colors hover:bg-white/15 hover:text-white"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* 4 Entity Category Tabs */}
-        <div className="p-3 border-b border-slate-200 bg-slate-100 flex items-center justify-between gap-3 sticky top-[73px] z-10 overflow-x-auto">
-          <div className="flex items-center gap-2 min-w-max">
-            <button
-              onClick={() => {
-                setActiveType('driver');
-                setSelectedId(drivers[0]?.id || '');
-              }}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
-                activeType === 'driver'
-                  ? 'bg-indigo-600 text-white border-indigo-700 shadow-sm'
-                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <Users className="w-4 h-4 text-indigo-200" />
-              <span>1. चालक प्रोफ़ाइल (Drivers)</span>
-              <span className="bg-black/20 text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono">
-                {drivers.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => {
-                setActiveType('vendor');
-                setSelectedId(vendors[0]?.id || '');
-              }}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
-                activeType === 'vendor'
-                  ? 'bg-emerald-700 text-white border-emerald-800 shadow-sm'
-                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <Handshake className="w-4 h-4 text-emerald-200" />
-              <span>2. वेंडर व कार मालिक (Vendors)</span>
-              <span className="bg-black/20 text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono">
-                {vendors.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => {
-                setActiveType('officer');
-                setSelectedId(officers[0]?.id || '');
-              }}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
-                activeType === 'officer'
-                  ? 'bg-amber-600 text-white border-amber-700 shadow-sm'
-                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <Briefcase className="w-4 h-4 text-amber-200" />
-              <span>3. सरकारी अधिकारी (Officers)</span>
-              <span className="bg-black/20 text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono">
-                {officers.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => {
-                setActiveType('vehicle');
-                setSelectedId(vehicles[0]?.id || '');
-              }}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
-                activeType === 'vehicle'
-                  ? 'bg-teal-700 text-white border-teal-800 shadow-sm'
-                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <Car className="w-4 h-4 text-teal-200" />
-              <span>4. गाड़ी विवरण (Vehicles)</span>
-              <span className="bg-black/20 text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono">
-                {vehicles.length}
-              </span>
-            </button>
+        {/* Entity tabs */}
+        <div className="sticky top-[73px] z-10 shrink-0 border-b border-[var(--color-line)] bg-[var(--color-surface-muted)] px-3 py-2.5 sm:px-4">
+          <div className="segmented w-full max-w-full overflow-x-auto scrollbar-none sm:w-auto">
+            {entityTabs.map((tab) => {
+              const isActive = activeType === tab.type;
+              return (
+                <button
+                  key={tab.type}
+                  type="button"
+                  onClick={() => switchEntityTab(tab.type)}
+                  className={`segmented-btn inline-flex items-center gap-2 ${isActive ? 'is-active' : ''}`}
+                >
+                  <span className={isActive ? 'text-teal-700' : ''}>{tab.icon}</span>
+                  {tab.label}
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 font-mono text-[10px] font-bold ${
+                      isActive ? 'bg-teal-700 text-white' : 'bg-[var(--color-sand-deep)] text-[var(--color-ink-soft)]'
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Success Alert */}
+        {/* Success / error alerts (must be visible inside this modal) */}
         {saveSuccessMsg && (
-          <div className="mx-4 sm:mx-6 mt-4 p-3 bg-emerald-50 border border-emerald-300 rounded-xl text-emerald-900 text-xs font-bold flex items-center gap-2 shadow-2xs">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-            <span>{saveSuccessMsg}</span>
+          <div className="alert-banner mx-4 mt-4 !flex-nowrap sm:mx-6">
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-[var(--color-success)]" />
+            <span className="text-xs font-bold text-[var(--color-ink)]">{saveSuccessMsg}</span>
+          </div>
+        )}
+        {(formError || apiError) && (
+          <div className="alert-banner danger mx-4 mt-4 !flex-nowrap sm:mx-6">
+            <AlertCircle className="h-5 w-5 shrink-0 text-[var(--color-danger)]" />
+            <span className="text-xs font-bold text-[var(--color-danger)]">{formError || apiError}</span>
+            <button
+              type="button"
+              className="ml-auto text-[10px] font-bold uppercase tracking-wide text-[var(--color-danger)]"
+              onClick={() => {
+                setFormError(null);
+                onClearApiError?.();
+              }}
+            >
+              Dismiss
+            </button>
           </div>
         )}
 
-        {/* Two Column Layout: Selector Sidebar + Detail Editor Form */}
-        <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-          {/* LEFT SIDEBAR: LIST SELECTOR */}
-          <div className="lg:col-span-1 bg-slate-50 rounded-2xl border border-slate-200 p-4 space-y-3 flex flex-col max-h-[650px]">
+        {/* Two Column Layout */}
+        <div className="grid flex-1 grid-cols-1 gap-5 overflow-y-auto p-4 sm:p-6 lg:grid-cols-3">
+          {/* LEFT SIDEBAR */}
+          <div className="panel panel-pad flex max-h-[650px] flex-col space-y-3 lg:col-span-1">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-bold text-slate-700 uppercase">
-                {activeType === 'driver'
-                  ? 'चालक सूची'
-                  : activeType === 'vendor'
-                  ? 'वेंडर सूची'
-                  : activeType === 'officer'
-                  ? 'अधिकारी सूची'
-                  : 'गाड़ी सूची'}
-              </span>
-              <button
-                type="button"
-                onClick={handleAddNewProfile}
-                className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs shadow-2xs flex items-center gap-1 transition-colors cursor-pointer"
-              >
-                <span>+ नया जोड़ें</span>
+              <span className="page-kicker !normal-case !tracking-normal">{listTitle}</span>
+              <button type="button" onClick={handleAddNewProfile} className="btn btn-primary !px-2.5 !py-1.5 text-xs">
+                + Add new
               </button>
             </div>
 
-            <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <div className="search-field">
+              <Search className="h-4 w-4 shrink-0 text-[var(--color-muted)]" />
               <input
                 type="text"
-                placeholder={
-                  activeType === 'driver'
-                    ? 'चालक का नाम या मोबाइल खोजें...'
-                    : activeType === 'vendor'
-                    ? 'वेंडर या मालिक खोजें...'
-                    : activeType === 'officer'
-                    ? 'अधिकारी का नाम खोजें...'
-                    : 'गाड़ी नंबर खोजें...'
-                }
+                placeholder={searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div className="overflow-y-auto space-y-2 pr-1 flex-1">
+              {isCreating && (
+                <div className="list-card is-selected text-xs ring-1 ring-teal-600/30">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-bold text-teal-800">
+                      {activeType === 'driver'
+                        ? 'New driver'
+                        : activeType === 'vendor'
+                          ? 'New vendor'
+                          : activeType === 'officer'
+                            ? 'New officer'
+                            : 'New vehicle'}
+                    </span>
+                    <span className="badge badge-neutral">Draft</span>
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-[var(--color-muted)]">
+                    Fill the form on the right, then Save profile
+                  </div>
+                  <div className="mt-1.5 font-mono text-[10px] text-teal-700">{selectedId}</div>
+                </div>
+              )}
+
               {/* Drivers List */}
               {activeType === 'driver' &&
                 filteredDriversList.map((d) => {
-                  const isSel = d.id === selectedId;
+                  const isSel = !isCreating && d.id === selectedId;
                   const vMatch = vehicles.find((v) => v.id === d.currentVehicleId);
                   return (
                     <div
                       key={d.id}
-                      onClick={() => setSelectedId(d.id)}
-                      className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
-                        isSel
-                          ? 'bg-indigo-50 border-indigo-500 shadow-xs ring-1 ring-indigo-500'
-                          : 'bg-white border-slate-200 hover:border-slate-300'
-                      }`}
+                      onClick={() => selectExisting(d.id)}
+                      className={`list-card text-xs ${isSel ? 'is-selected' : ''}`}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900">{d.name}</span>
-                        <span className="text-[10px] font-mono font-bold text-indigo-700 bg-indigo-100/70 px-1.5 py-0.2 rounded">
-                          {getDriverDisplayCode(d)}
-                        </span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-[var(--color-ink)]">{d.name}</span>
+                        <span className="badge badge-neutral font-mono">{getDriverDisplayCode(d)}</span>
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono mt-0.5">📞 {d.phone}</div>
-                      <div className="text-[10px] text-slate-600 mt-1 flex items-center justify-between">
-                        <span>{vMatch ? `🚗 ${vMatch.vehicleNumber}` : 'अनावंटित'}</span>
-                        <span className="font-bold text-emerald-700">{formatCurrency(d.monthlySalary)}/mo</span>
+                      <div className="mt-0.5 font-mono text-[11px] text-[var(--color-muted)]">{d.phone}</div>
+                      <div className="mt-1.5 flex items-center justify-between text-[10px] text-[var(--color-muted)]">
+                        <span>{vMatch ? vMatch.vehicleNumber : 'Unassigned'}</span>
+                        <span className="font-bold text-teal-700">{formatCurrency(d.monthlySalary)}/mo</span>
                       </div>
                     </div>
                   );
@@ -506,28 +722,24 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
               {/* Vendors List */}
               {activeType === 'vendor' &&
                 filteredVendorsList.map((vnd) => {
-                  const isSel = vnd.id === selectedId;
+                  const isSel = !isCreating && vnd.id === selectedId;
                   return (
                     <div
                       key={vnd.id}
-                      onClick={() => setSelectedId(vnd.id)}
-                      className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
-                        isSel
-                          ? 'bg-emerald-50 border-emerald-500 shadow-xs ring-1 ring-emerald-500'
-                          : 'bg-white border-slate-200 hover:border-slate-300'
-                      }`}
+                      onClick={() => selectExisting(vnd.id)}
+                      className={`list-card text-xs ${isSel ? 'is-selected' : ''}`}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900">{vnd.name}</span>
-                        <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">
-                          {vnd.vendorType === 'owner_driver' ? 'मालिक-चालक' : 'वेंडर'}
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-[var(--color-ink)]">{vnd.name}</span>
+                        <span className="badge badge-neutral">
+                          {vnd.vendorType === 'owner_driver' ? 'Owner-driver' : 'Vendor'}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono mt-0.5">📞 {vnd.phone}</div>
-                      <div className="text-[10px] text-slate-600 mt-1 flex items-center justify-between">
-                        <span>{vnd.contactPerson || '-'}</span>
-                        <span className="font-bold text-slate-800 font-mono">
-                          {formatCurrency(vnd.monthlyAgreedRatePerVehicle)}/गाड़ी
+                      <div className="mt-0.5 font-mono text-[11px] text-[var(--color-muted)]">{vnd.phone}</div>
+                      <div className="mt-1.5 flex items-center justify-between text-[10px] text-[var(--color-muted)]">
+                        <span>{vnd.contactPerson || '—'}</span>
+                        <span className="font-mono font-bold text-[var(--color-ink)]">
+                          {formatCurrency(vnd.monthlyAgreedRatePerVehicle)}/mo
                         </span>
                       </div>
                     </div>
@@ -537,28 +749,22 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
               {/* Officers List */}
               {activeType === 'officer' &&
                 filteredOfficersList.map((off) => {
-                  const isSel = off.id === selectedId;
+                  const isSel = !isCreating && off.id === selectedId;
                   const vMatch = vehicles.find((v) => v.id === off.assignedVehicleId);
                   return (
                     <div
                       key={off.id}
-                      onClick={() => setSelectedId(off.id)}
-                      className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
-                        isSel
-                          ? 'bg-amber-50 border-amber-500 shadow-xs ring-1 ring-amber-500'
-                          : 'bg-white border-slate-200 hover:border-slate-300'
-                      }`}
+                      onClick={() => selectExisting(off.id)}
+                      className={`list-card text-xs ${isSel ? 'is-selected' : ''}`}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900">{off.name}</span>
-                        <span className="text-[10px] font-mono text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded">
-                          {getOfficerDisplayCode(off)}
-                        </span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-[var(--color-ink)]">{off.name}</span>
+                        <span className="badge badge-neutral font-mono">{getOfficerDisplayCode(off)}</span>
                       </div>
-                      <div className="text-[11px] text-slate-600 mt-0.5 truncate">{off.designation}</div>
-                      <div className="text-[10px] text-slate-500 mt-1 flex items-center justify-between">
-                        <span className="font-mono">📞 {off.mobile}</span>
-                        <span>{vMatch ? `🚗 ${vMatch.vehicleNumber}` : 'कार खाली'}</span>
+                      <div className="mt-0.5 truncate text-[11px] text-[var(--color-muted)]">{off.designation}</div>
+                      <div className="mt-1.5 flex items-center justify-between text-[10px] text-[var(--color-muted)]">
+                        <span className="font-mono">{off.mobile}</span>
+                        <span>{vMatch ? vMatch.vehicleNumber : 'No vehicle'}</span>
                       </div>
                     </div>
                   );
@@ -567,27 +773,21 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
               {/* Vehicles List */}
               {activeType === 'vehicle' &&
                 filteredVehiclesList.map((veh) => {
-                  const isSel = veh.id === selectedId;
+                  const isSel = !isCreating && veh.id === selectedId;
                   const drvMatch = drivers.find((d) => d.id === veh.currentDriverId);
                   return (
                     <div
                       key={veh.id}
-                      onClick={() => setSelectedId(veh.id)}
-                      className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
-                        isSel
-                          ? 'bg-teal-50 border-teal-500 shadow-xs ring-1 ring-teal-500'
-                          : 'bg-white border-slate-200 hover:border-slate-300'
-                      }`}
+                      onClick={() => selectExisting(veh.id)}
+                      className={`list-card text-xs ${isSel ? 'is-selected' : ''}`}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="font-mono font-bold text-slate-900">{veh.vehicleNumber}</span>
-                        <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded">
-                          {veh.ownershipType}
-                        </span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-mono font-bold text-[var(--color-ink)]">{veh.vehicleNumber}</span>
+                        <span className="badge badge-neutral">{veh.ownershipType}</span>
                       </div>
-                      <div className="text-[11px] text-slate-600 mt-0.5">{veh.makeModel}</div>
-                      <div className="text-[10px] text-emerald-800 font-semibold mt-1">
-                        👨‍✈️ {drvMatch?.name || veh.driverName || 'चालक अनावंटित'}
+                      <div className="mt-0.5 text-[11px] text-[var(--color-muted)]">{veh.makeModel}</div>
+                      <div className="mt-1.5 text-[10px] font-semibold text-teal-800">
+                        {drvMatch?.name || veh.driverName || 'No driver'}
                       </div>
                     </div>
                   );
@@ -596,29 +796,28 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
           </div>
 
           {/* RIGHT COLUMN: DETAILED EDITABLE PROFILE FORM */}
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs overflow-y-auto max-h-[650px]">
+          <div className="panel panel-pad max-h-[650px] overflow-y-auto lg:col-span-2">
             {/* 1. DRIVER PROFILE FORM */}
             {activeType === 'driver' && driverForm.id && (
               <form onSubmit={handleSaveCurrentDriver} className="space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div className="flex flex-col gap-3 border-b border-[var(--color-line)] pb-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h4 className="font-bold text-base text-slate-900 flex items-center gap-2">
-                      <span>चालक प्रोफ़ाइल विवरण (Driver Profile):</span>
-                      <span className="text-indigo-600 font-mono font-bold text-sm">
-                        {driverForm.name}
+                    <h4 className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-ink)]">
+                      {isCreating ? 'New driver' : 'Driver profile'}
+                      <span className="ml-2 font-mono text-sm text-teal-700">
+                        {driverForm.name || (isCreating ? '(unsaved)' : '')}
                       </span>
                     </h4>
-                    <p className="text-xs text-slate-500">
-                      व्यक्तिगत जानकारी, वेतन, डीएल व बैंक खाते का विवरण अपडेट करें
+                    <p className="text-xs text-[var(--color-muted)]">
+                      {isCreating
+                        ? 'Enter name and mobile, then save to add this driver.'
+                        : 'Update contact, salary, license, and bank details.'}
                     </p>
                   </div>
 
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>परिवर्तन सुरक्षित करें (Save Profile)</span>
+                  <button type="submit" className="btn btn-primary shrink-0" disabled={isSaving}>
+                    <Save className="h-4 w-4" />
+                    {isSaving ? 'Saving…' : isCreating ? 'Save new driver' : 'Save profile'}
                   </button>
                 </div>
 
@@ -629,7 +828,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={driverForm.name || ''}
                       onChange={(e) => setDriverForm({ ...driverForm, name: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-bold text-slate-900 focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       required
                     />
                   </div>
@@ -640,7 +839,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="tel"
                       value={driverForm.phone || ''}
                       onChange={(e) => setDriverForm({ ...driverForm, phone: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       required
                     />
                   </div>
@@ -651,7 +850,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="tel"
                       value={driverForm.alternatePhone || ''}
                       onChange={(e) => setDriverForm({ ...driverForm, alternatePhone: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -661,7 +860,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={driverForm.licenseNumber || ''}
                       onChange={(e) => setDriverForm({ ...driverForm, licenseNumber: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -671,7 +870,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="date"
                       value={driverForm.licenseExpiry || ''}
                       onChange={(e) => setDriverForm({ ...driverForm, licenseExpiry: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -680,7 +879,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={driverForm.employmentType || 'contractual_khata'}
                       onChange={(e) => setDriverForm({ ...driverForm, employmentType: e.target.value as any })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       <option value="company_statutory">कंपनी नियमित (Company Statutory / EPF)</option>
                       <option value="contractual_khata">अनुबंध / ठेका खाता (Contractual Khata)</option>
@@ -694,7 +893,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="number"
                       value={driverForm.monthlySalary ?? 16500}
                       onChange={(e) => setDriverForm({ ...driverForm, monthlySalary: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -704,7 +903,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="number"
                       value={driverForm.dailyDaRate ?? 350}
                       onChange={(e) => setDriverForm({ ...driverForm, dailyDaRate: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -713,7 +912,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={driverForm.currentVehicleId || ''}
                       onChange={(e) => setDriverForm({ ...driverForm, currentVehicleId: e.target.value || undefined })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       <option value="">कोई गाड़ी आवंटित नहीं (Pool / Standby)</option>
                       {vehicles.map((v) => (
@@ -729,7 +928,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={driverForm.status || 'active'}
                       onChange={(e) => setDriverForm({ ...driverForm, status: e.target.value as any })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       <option value="active">सक्रिय ड्यूटी (Active)</option>
                       <option value="on_leave">छुट्टी पर (On Leave)</option>
@@ -743,7 +942,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={driverForm.aadharNumber || ''}
                       onChange={(e) => setDriverForm({ ...driverForm, aadharNumber: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       placeholder="XXXX XXXX XXXX"
                     />
                   </div>
@@ -754,7 +953,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={driverForm.panNumber || ''}
                       onChange={(e) => setDriverForm({ ...driverForm, panNumber: e.target.value.toUpperCase() })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono uppercase focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono uppercase focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       placeholder="ABCDE1234F"
                     />
                   </div>
@@ -765,7 +964,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={driverForm.bankAccountDetails || ''}
                       onChange={(e) => setDriverForm({ ...driverForm, bankAccountDetails: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       placeholder="Bank Name, A/c Number, IFSC Code"
                     />
                   </div>
@@ -776,7 +975,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={driverForm.address || ''}
                       onChange={(e) => setDriverForm({ ...driverForm, address: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       placeholder="ग्राम / मोहल्ला, पोस्ट, जिला, राज्य, पिनकोड"
                     />
                   </div>
@@ -784,8 +983,8 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
 
                 <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-[11px] text-slate-500">
-                      यूनिक चालक कोड: <strong className="font-mono text-indigo-700">{getDriverDisplayCode(driverForm as Driver)}</strong>
+                    <span className="text-[11px] text-[var(--color-muted)]">
+                      यूनिक चालक कोड: <strong className="font-mono text-teal-700">{getDriverDisplayCode(driverForm as Driver)}</strong>
                     </span>
                     {onDeleteDriver && (
                       <button
@@ -801,7 +1000,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                   </div>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all"
+                    className="btn btn-primary"
                   >
                     <Save className="w-4 h-4" />
                     <span>अपडेट सुरक्षित करें (Update Driver)</span>
@@ -821,14 +1020,14 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                         {vendorForm.name}
                       </span>
                     </h4>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[var(--color-muted)]">
                       वेंडर का नाम, संपर्क, तय मासिक किराया व TDS दर अपडेट करें
                     </p>
                   </div>
 
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                    className="btn btn-primary"
                   >
                     <Save className="w-4 h-4" />
                     <span>वेंडर अपडेट करें (Save Vendor)</span>
@@ -842,7 +1041,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={vendorForm.name || ''}
                       onChange={(e) => setVendorForm({ ...vendorForm, name: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-bold text-slate-900 focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       required
                     />
                   </div>
@@ -853,7 +1052,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={vendorForm.contactPerson || ''}
                       onChange={(e) => setVendorForm({ ...vendorForm, contactPerson: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -863,7 +1062,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="tel"
                       value={vendorForm.phone || ''}
                       onChange={(e) => setVendorForm({ ...vendorForm, phone: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       required
                     />
                   </div>
@@ -873,7 +1072,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={vendorForm.vendorType || 'fleet_vendor'}
                       onChange={(e) => setVendorForm({ ...vendorForm, vendorType: e.target.value as any })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       <option value="owner_driver">एकल गाड़ी मालिक (Owner-Driver - 1% TDS)</option>
                       <option value="fleet_vendor">फ्लीट वेंडर / ट्रेवल्स कंपनी (Fleet Vendor - 2% TDS)</option>
@@ -886,7 +1085,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="number"
                       value={vendorForm.monthlyAgreedRatePerVehicle ?? 32000}
                       onChange={(e) => setVendorForm({ ...vendorForm, monthlyAgreedRatePerVehicle: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -895,7 +1094,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={vendorForm.tdsRate ?? 2}
                       onChange={(e) => setVendorForm({ ...vendorForm, tdsRate: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-bold text-indigo-700 focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-bold text-teal-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       <option value={1}>1% (व्यक्तिगत / Owner-Driver 194C)</option>
                       <option value={2}>2% (कंपनी / फर्म 194C)</option>
@@ -909,7 +1108,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={vendorForm.panNumber || ''}
                       onChange={(e) => setVendorForm({ ...vendorForm, panNumber: e.target.value.toUpperCase() })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono uppercase focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono uppercase focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -919,7 +1118,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={vendorForm.gstin || ''}
                       onChange={(e) => setVendorForm({ ...vendorForm, gstin: e.target.value.toUpperCase() })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono uppercase focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono uppercase focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       placeholder="09AAAAA0000A1Z5"
                     />
                   </div>
@@ -930,7 +1129,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={vendorForm.bankAccountDetails || ''}
                       onChange={(e) => setVendorForm({ ...vendorForm, bankAccountDetails: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       placeholder="Bank Name, A/c Number, IFSC Code"
                     />
                   </div>
@@ -941,14 +1140,14 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={vendorForm.address || ''}
                       onChange={(e) => setVendorForm({ ...vendorForm, address: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
                 </div>
 
                 <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-[var(--color-muted)]">
                       वेंडर कोड: <strong className="font-mono text-emerald-800">{getVendorDisplayCode(vendorForm as Vendor)}</strong>
                     </span>
                     {onDeleteVendor && (
@@ -965,7 +1164,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                   </div>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all"
+                    className="btn btn-primary"
                   >
                     <Save className="w-4 h-4" />
                     <span>वेंडर अपडेट सुरक्षित करें</span>
@@ -983,14 +1182,14 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       <span>सरकारी अधिकारी प्रोफ़ाइल (Govt Officer):</span>
                       <span className="text-amber-800 font-bold text-sm">{officerForm.name}</span>
                     </h4>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[var(--color-muted)]">
                       अधिकारी का नाम, पदनाम, विभाग, मोबाइल व गाड़ी आवंटन विवरण बदलें
                     </p>
                   </div>
 
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                    className="btn btn-primary"
                   >
                     <Save className="w-4 h-4" />
                     <span>अधिकारी सुरक्षित करें</span>
@@ -1004,7 +1203,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={officerForm.name || ''}
                       onChange={(e) => setOfficerForm({ ...officerForm, name: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-bold text-slate-900 focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       required
                     />
                   </div>
@@ -1015,7 +1214,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={officerForm.designation || ''}
                       onChange={(e) => setOfficerForm({ ...officerForm, designation: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       required
                     />
                   </div>
@@ -1026,7 +1225,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={officerForm.department || ''}
                       onChange={(e) => setOfficerForm({ ...officerForm, department: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -1036,7 +1235,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="tel"
                       value={officerForm.mobile || ''}
                       onChange={(e) => setOfficerForm({ ...officerForm, mobile: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       required
                     />
                   </div>
@@ -1047,7 +1246,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="tel"
                       value={officerForm.alternatePhone || ''}
                       onChange={(e) => setOfficerForm({ ...officerForm, alternatePhone: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -1056,7 +1255,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={officerForm.assignedVehicleId || ''}
                       onChange={(e) => setOfficerForm({ ...officerForm, assignedVehicleId: e.target.value || undefined })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       <option value="">कोई गाड़ी आवंटित नहीं (Vacant)</option>
                       {vehicles.map((v) => (
@@ -1072,7 +1271,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={officerForm.tenderId || ''}
                       onChange={(e) => setOfficerForm({ ...officerForm, tenderId: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       {tenders.map((t) => (
                         <option key={t.id} value={t.id}>
@@ -1088,7 +1287,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={officerForm.reportingTime || '09:30 AM'}
                       onChange={(e) => setOfficerForm({ ...officerForm, reportingTime: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       placeholder="e.g. 09:30 AM"
                     />
                   </div>
@@ -1099,7 +1298,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={officerForm.officeAddress || ''}
                       onChange={(e) => setOfficerForm({ ...officerForm, officeAddress: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       placeholder="e.g. कमरा नं. 304, निर्माण भवन, लखनऊ"
                     />
                   </div>
@@ -1110,7 +1309,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={officerForm.specialInstructions || ''}
                       onChange={(e) => setOfficerForm({ ...officerForm, specialInstructions: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       placeholder="VIP प्रोटोकॉल, साइट निरीक्षण आदि"
                     />
                   </div>
@@ -1118,7 +1317,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
 
                 <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-[var(--color-muted)]">
                       अधिकारी कोड: <strong className="font-mono text-amber-800">{getOfficerDisplayCode(officerForm as Officer)}</strong>
                     </span>
                     {onDeleteOfficer && (
@@ -1135,7 +1334,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                   </div>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all"
+                    className="btn btn-primary"
                   >
                     <Save className="w-4 h-4" />
                     <span>अधिकारी अपडेट सुरक्षित करें</span>
@@ -1155,7 +1354,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                         {vehicleForm.vehicleNumber}
                       </span>
                     </h4>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[var(--color-muted)]">
                       गाड़ी नंबर, मेक-मॉडल, चालक आवंटन, वेंडर व ओनरशिप विवरण बदलें
                     </p>
                   </div>
@@ -1176,7 +1375,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={vehicleForm.vehicleNumber || ''}
                       onChange={(e) => setVehicleForm({ ...vehicleForm, vehicleNumber: e.target.value.toUpperCase() })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 uppercase focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono font-bold text-slate-900 uppercase focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                       required
                     />
                   </div>
@@ -1187,7 +1386,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="text"
                       value={vehicleForm.makeModel || ''}
                       onChange={(e) => setVehicleForm({ ...vehicleForm, makeModel: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -1238,7 +1437,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={vehicleForm.ownershipType || 'Company Owned'}
                       onChange={(e) => setVehicleForm({ ...vehicleForm, ownershipType: e.target.value as any })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       <option value="Company Owned">🏢 Company Owned (कंपनी की अपनी)</option>
                       <option value="Owner-Driver">🚗👨‍✈️ Owner-Driver (मालिक ही ड्राइवर)</option>
@@ -1251,7 +1450,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={vehicleForm.vehicleType || 'Sedan'}
                       onChange={(e) => setVehicleForm({ ...vehicleForm, vehicleType: e.target.value as any })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       <option value="Sedan">Sedan (सेडान)</option>
                       <option value="SUV">SUV (एसयूवी)</option>
@@ -1266,7 +1465,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={vehicleForm.fuelType || 'Diesel'}
                       onChange={(e) => setVehicleForm({ ...vehicleForm, fuelType: e.target.value as any })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       <option value="Diesel">Diesel (डीजल)</option>
                       <option value="CNG">CNG (सीएनजी)</option>
@@ -1281,7 +1480,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                       type="number"
                       value={vehicleForm.currentOdometer ?? 25000}
                       onChange={(e) => setVehicleForm({ ...vehicleForm, currentOdometer: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-mono focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     />
                   </div>
 
@@ -1290,7 +1489,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={vehicleForm.tenderId || ''}
                       onChange={(e) => setVehicleForm({ ...vehicleForm, tenderId: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       {tenders.map((t) => (
                         <option key={t.id} value={t.id}>
@@ -1305,7 +1504,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                     <select
                       value={vehicleForm.assignedOfficerId || ''}
                       onChange={(e) => setVehicleForm({ ...vehicleForm, assignedOfficerId: e.target.value || undefined })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/25"
                     >
                       <option value="">कोई अधिकारी नहीं (Vacant)</option>
                       {officers.map((o) => (
@@ -1318,7 +1517,7 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
                 </div>
 
                 <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-[var(--color-muted)]">
                     गाड़ी आईडी: <strong className="font-mono text-teal-800">{vehicleForm.id}</strong>
                   </span>
                   <button
@@ -1335,5 +1534,18 @@ export const UnifiedProfileModal: React.FC<UnifiedProfileModalProps> = ({
         </div>
       </div>
     </div>
+
+    <ConfirmDialog
+      isOpen={Boolean(deleteConfirm)}
+      title={deleteConfirm?.title || ''}
+      message={deleteConfirm?.message || ''}
+      detail={deleteConfirm?.detail}
+      tone="danger"
+      confirmLabel="हाँ, हटाएं"
+      cancelLabel="रद्द करें"
+      onConfirm={confirmDeleteCurrent}
+      onCancel={() => setDeleteConfirm(null)}
+    />
+    </>
   );
 };

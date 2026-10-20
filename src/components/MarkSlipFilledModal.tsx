@@ -99,23 +99,23 @@ export const MarkSlipFilledModal: React.FC<MarkSlipFilledModalProps> = ({
             </div>
             <div>
               <h3 className="font-bold text-slate-900 text-sm">पंप से भराई दर्ज करें (Record Dispensed Fuel)</h3>
-              <p className="text-[11px] text-slate-500">पर्ची: {slip.slipNumber} &bull; {slip.vehicleNumber}</p>
+              <p className="text-[11px] text-[var(--color-muted)]">पर्ची: {slip.slipNumber} &bull; {slip.vehicleNumber}</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+          <button onClick={onClose} className="text-[var(--color-muted)] hover:text-slate-600 font-bold text-lg">&times;</button>
         </div>
 
         {/* Info Banner */}
-        <div className="bg-indigo-50/70 p-3 rounded-xl border border-indigo-200 text-xs grid grid-cols-2 gap-2">
+        <div className="bg-teal-50/70 p-3 rounded-xl border border-teal-200 text-xs grid grid-cols-2 gap-2">
           <div>
-            <span className="text-[10px] text-slate-500 uppercase block font-semibold">गाड़ी व चालक:</span>
+            <span className="text-[10px] text-[var(--color-muted)] uppercase block font-semibold">गाड़ी व चालक:</span>
             <span className="font-bold text-slate-900">{slip.vehicleNumber}</span>
             <div className="text-[10px] text-slate-600">{slip.driverName}</div>
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 uppercase block font-semibold">पेट्रोल पंप:</span>
-            <span className="font-bold text-indigo-900">{slip.pumpVendorName}</span>
-            <div className="text-[10px] text-indigo-700">स्वीकृत: {slip.authorizedQuantityType === 'full_tank' ? 'Full Tank' : `${slip.authorizedValue} ${slip.authorizedQuantityType === 'fixed_amount' ? '₹' : 'L'}`}</div>
+            <span className="text-[10px] text-[var(--color-muted)] uppercase block font-semibold">पेट्रोल पंप:</span>
+            <span className="font-bold text-teal-900">{slip.pumpVendorName}</span>
+            <div className="text-[10px] text-[var(--color-copper)]">स्वीकृत: {slip.authorizedQuantityType === 'full_tank' ? 'Full Tank' : `${slip.authorizedValue} ${slip.authorizedQuantityType === 'fixed_amount' ? '₹' : 'L'}`}</div>
           </div>
         </div>
 
@@ -152,7 +152,7 @@ export const MarkSlipFilledModal: React.FC<MarkSlipFilledModalProps> = ({
                 required
                 value={actualLiters || ''}
                 onChange={(e) => handleLitersRateChange(Number(e.target.value), ratePerLiter)}
-                className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-bold text-indigo-700 bg-white"
+                className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-bold text-[var(--color-copper)] bg-white"
               />
             </div>
             <div>

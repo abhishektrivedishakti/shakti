@@ -74,23 +74,23 @@ export const WhatsAppSlipStudio: React.FC<WhatsAppSlipStudioProps> = ({
   return (
     <div className="space-y-5">
       {/* Top Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+            <span className="badge badge-success inline-flex items-center gap-1 uppercase tracking-wider">
               <MessageSquare className="w-3.5 h-3.5" />
               WhatsApp Studio &bull; 1-क्लिक डिजिटल स्लिप जनरेटर
             </span>
           </div>
-          <h2 className="text-xl font-black text-white">व्हाट्सएप स्लिप स्टूडियो (Instant Duty Slips)</h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <h2 className="text-xl font-black text-[var(--color-ink)]">व्हाट्सएप स्लिप स्टूडियो (Instant Duty Slips)</h2>
+          <p className="text-xs text-[var(--color-muted)] mt-0.5">
             ड्राइवर, मुख्य सवार अधिकारी और बुकर तीनों के लिए अलग-अलग प्री-फॉर्मेटेड व्हाट्सएप ड्यूटी संदेश जारी करें।
           </p>
         </div>
 
         {/* Duty Selector Dropdown */}
-        <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 shrink-0">
-          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+        <div className="bg-[var(--color-surface-muted)] p-2.5 rounded-xl border border-[var(--color-line)] shrink-0">
+          <label className="block text-[10px] font-bold text-[var(--color-muted)] uppercase tracking-wider mb-1">
             ड्यूटी चालान चुनें:
           </label>
           <select
@@ -99,7 +99,7 @@ export const WhatsAppSlipStudio: React.FC<WhatsAppSlipStudioProps> = ({
               const b = allBookings.find((x) => x.id === e.target.value);
               if (b) onSelectBooking(b);
             }}
-            className="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono font-bold text-white focus:ring-2 focus:ring-emerald-500"
+            className="px-3 py-1.5 bg-white border border-[var(--color-line-strong)] rounded-lg text-xs font-mono font-bold text-[var(--color-ink)] focus:ring-2 focus:ring-teal-600"
           >
             {allBookings.map((b) => (
               <option key={b.id} value={b.id}>
@@ -113,8 +113,8 @@ export const WhatsAppSlipStudio: React.FC<WhatsAppSlipStudioProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Left Column: 3 Slip Type Tabs & Duty Meta */}
         <div className="space-y-3">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1 block">
+          <div className="panel p-3 space-y-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted)] px-1 block">
               स्लिप प्राप्तकर्ता (Choose Recipient):
             </span>
 
@@ -123,21 +123,21 @@ export const WhatsAppSlipStudio: React.FC<WhatsAppSlipStudioProps> = ({
               onClick={() => setActiveSlipType('driver')}
               className={`w-full text-left p-3 rounded-xl border transition-all ${
                 activeSlipType === 'driver'
-                  ? 'bg-emerald-950/60 border-emerald-500 text-white shadow-md'
-                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                  ? 'bg-teal-50 border-teal-600 text-[var(--color-ink)] shadow-md'
+                  : 'bg-[var(--color-surface-muted)] border-[var(--color-line)] text-[var(--color-muted)] hover:text-[var(--color-ink)]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-xs flex items-center gap-1.5 text-emerald-400">
+                <span className="font-bold text-xs flex items-center gap-1.5 text-teal-700">
                   <Car className="w-4 h-4" />
                   <span>1. चालक ड्यूटी आदेश (Driver Slip)</span>
                 </span>
-                <span className="text-[10px] font-mono bg-emerald-500/20 px-1.5 py-0.5 rounded text-emerald-300">
+                <span className="text-[10px] font-mono bg-teal-50 px-1.5 py-0.5 rounded text-teal-700">
                   {booking.driverPhone}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-300 mt-1">{booking.driverName}</p>
-              <p className="text-[10px] text-slate-500 mt-0.5">
+              <p className="text-[11px] text-[var(--color-muted)] mt-1">{booking.driverName}</p>
+              <p className="text-[10px] text-[var(--color-muted)] mt-0.5">
                 गाड़ी, अधिकारी का नाम, पिकअप स्थल व विशेष निर्देश
               </p>
             </button>
@@ -147,21 +147,21 @@ export const WhatsAppSlipStudio: React.FC<WhatsAppSlipStudioProps> = ({
               onClick={() => setActiveSlipType('passenger')}
               className={`w-full text-left p-3 rounded-xl border transition-all ${
                 activeSlipType === 'passenger'
-                  ? 'bg-indigo-950/60 border-indigo-500 text-white shadow-md'
-                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                  ? 'bg-teal-50 border-teal-500 text-[var(--color-ink)] shadow-md'
+                  : 'bg-[var(--color-surface-muted)] border-[var(--color-line)] text-[var(--color-muted)] hover:text-[var(--color-ink)]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-xs flex items-center gap-1.5 text-indigo-400">
+                <span className="font-bold text-xs flex items-center gap-1.5 text-teal-700">
                   <Users className="w-4 h-4" />
                   <span>2. सवार अधिकारी स्लिप (Pax / VIP)</span>
                 </span>
-                <span className="text-[10px] font-mono bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-300">
+                <span className="text-[10px] font-mono bg-teal-50 px-1.5 py-0.5 rounded text-teal-700">
                   {booking.passenger.phone}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-300 mt-1">{booking.passenger.name}</p>
-              <p className="text-[10px] text-slate-500 mt-0.5">
+              <p className="text-[11px] text-[var(--color-muted)] mt-1">{booking.passenger.name}</p>
+              <p className="text-[10px] text-[var(--color-muted)] mt-0.5">
                 गाड़ी नंबर, चालक का नाम व फोन नंबर, कंट्रोल रूम नंबर
               </p>
             </button>
@@ -171,47 +171,47 @@ export const WhatsAppSlipStudio: React.FC<WhatsAppSlipStudioProps> = ({
               onClick={() => setActiveSlipType('booker')}
               className={`w-full text-left p-3 rounded-xl border transition-all ${
                 activeSlipType === 'booker'
-                  ? 'bg-amber-950/60 border-amber-500 text-white shadow-md'
-                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                  ? 'bg-amber-50 border-amber-500 text-[var(--color-ink)] shadow-md'
+                  : 'bg-[var(--color-surface-muted)] border-[var(--color-line)] text-[var(--color-muted)] hover:text-[var(--color-ink)]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-xs flex items-center gap-1.5 text-amber-400">
+                <span className="font-bold text-xs flex items-center gap-1.5 text-amber-700">
                   <Briefcase className="w-4 h-4" />
                   <span>3. बुकर / क्लाइंट स्लिप (Booker)</span>
                 </span>
-                <span className="text-[10px] font-mono bg-amber-500/20 px-1.5 py-0.5 rounded text-amber-300">
+                <span className="text-[10px] font-mono bg-amber-50 px-1.5 py-0.5 rounded text-amber-700">
                   {booking.booker.phone}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-300 mt-1">{booking.booker.name}</p>
-              <p className="text-[10px] text-slate-500 mt-0.5">
+              <p className="text-[11px] text-[var(--color-muted)] mt-1">{booking.booker.name}</p>
+              <p className="text-[10px] text-[var(--color-muted)] mt-0.5">
                 बुकिंग पुष्टि, आवंटित वाहन, ड्यूटी पैकेज व सुपरवाइजर संपर्क
               </p>
             </button>
           </div>
 
           {/* Quick Duty Summary Box */}
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+          <div className="panel p-4 text-xs space-y-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted)] block">
               वर्तमान ड्यूटी सारांश:
             </span>
             <div className="space-y-1.5 text-[11px]">
               <div className="flex justify-between">
-                <span className="text-slate-400">गाड़ी नंबर:</span>
-                <strong className="font-mono text-white">{booking.vehicleNumber} ({booking.vehicleModel})</strong>
+                <span className="text-[var(--color-muted)]">गाड़ी नंबर:</span>
+                <strong className="font-mono text-[var(--color-ink)]">{booking.vehicleNumber} ({booking.vehicleModel})</strong>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">रिपोर्टिंग समय:</span>
-                <strong className="text-emerald-400 font-mono">{booking.reportingTime} ({booking.reportingDate})</strong>
+                <span className="text-[var(--color-muted)]">रिपोर्टिंग समय:</span>
+                <strong className="text-teal-700 font-mono">{booking.reportingTime} ({booking.reportingDate})</strong>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">पिकअप:</span>
-                <span className="text-slate-200 text-right truncate max-w-[180px]">{booking.pickupLocation}</span>
+                <span className="text-[var(--color-muted)]">पिकअप:</span>
+                <span className="text-[var(--color-ink)] text-right truncate max-w-[180px]">{booking.pickupLocation}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">गंतव्य:</span>
-                <span className="text-slate-200 text-right truncate max-w-[180px]">{booking.dropLocation}</span>
+                <span className="text-[var(--color-muted)]">गंतव्य:</span>
+                <span className="text-[var(--color-ink)] text-right truncate max-w-[180px]">{booking.dropLocation}</span>
               </div>
             </div>
           </div>
@@ -219,20 +219,20 @@ export const WhatsAppSlipStudio: React.FC<WhatsAppSlipStudioProps> = ({
 
         {/* Right 2-Columns: Message Preview & Actions */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <div className="panel panel-pad space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[var(--color-line)]">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span className="text-xs font-bold text-white">संदेश पूर्वावलोकन (Live Preview)</span>
-                <span className="text-xs text-slate-400">&bull; प्रेषित: {targetName}</span>
+                <span className="text-xs font-bold text-[var(--color-ink)]">संदेश पूर्वावलोकन (Live Preview)</span>
+                <span className="text-xs text-[var(--color-muted)]">&bull; प्रेषित: {targetName}</span>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopy}
-                  className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors shadow-xs"
+                  className="px-3.5 py-1.5 bg-[var(--color-sand-deep)] hover:bg-[var(--color-sand)] text-[var(--color-ink)] rounded-lg text-xs font-bold flex items-center gap-1.5 border border-[var(--color-line-strong)] transition-colors shadow-xs"
                 >
-                  {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                  {copied ? <Check className="w-4 h-4 text-teal-700" /> : <Copy className="w-4 h-4" />}
                   <span>{copied ? 'कॉपी हो गया ✓' : 'टेक्स्ट कॉपी करें'}</span>
                 </button>
 
@@ -241,30 +241,30 @@ export const WhatsAppSlipStudio: React.FC<WhatsAppSlipStudioProps> = ({
                     href={whatsAppUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-lg text-xs flex items-center gap-1.5 shadow-md shadow-emerald-500/25 transition-transform active:scale-95"
+                    className="btn btn-success text-xs"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>सीधे WhatsApp खोलें</span>
                   </a>
                 ) : (
-                  <span className="text-[11px] text-slate-500 italic">फोन नंबर दर्ज नहीं</span>
+                  <span className="text-[11px] text-[var(--color-muted)] italic">फोन नंबर दर्ज नहीं</span>
                 )}
               </div>
             </div>
 
             {/* WhatsApp Styled Message Bubble */}
-            <div className="p-4 bg-emerald-950/30 border border-emerald-900/60 rounded-xl relative">
-              <div className="absolute top-2 right-3 text-[10px] text-emerald-400/60 font-mono">
+            <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl relative">
+              <div className="absolute top-2 right-3 text-[10px] text-teal-700/60 font-mono">
                 WhatsApp Preview
               </div>
-              <pre className="font-sans text-xs text-slate-200 whitespace-pre-wrap leading-relaxed select-all">
+              <pre className="font-sans text-xs text-[var(--color-ink)] whitespace-pre-wrap leading-relaxed select-all">
                 {currentText}
               </pre>
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+            <div className="flex items-center justify-between text-[11px] text-[var(--color-muted)] pt-1">
               <span>💡 टिप: ऊपर दिए गए बटन से सीधे उनके मोबाइल नंबर पर व्हाट्सएप चैट खुल जाएगी।</span>
-              <span className="font-mono text-slate-500">{currentText.length} वर्ण (Characters)</span>
+              <span className="font-mono text-[var(--color-muted)]">{currentText.length} वर्ण (Characters)</span>
             </div>
           </div>
         </div>

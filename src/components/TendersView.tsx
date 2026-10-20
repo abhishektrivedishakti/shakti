@@ -76,8 +76,8 @@ export const getScopeMeta = (scope?: TenderServiceScope) => {
         label: 'केवल गाड़ी / Dry Lease (ड्राइवर विभाग का)',
         shortLabel: 'केवल गाड़ी (Dry Lease)',
         tag: 'Only Vehicle',
-        color: 'bg-purple-50 text-purple-800 border-purple-300',
-        badge: 'bg-purple-600 text-white',
+        color: 'bg-sky-50 text-sky-800 border-sky-300',
+        badge: 'bg-[var(--color-info)] text-white',
         icon: '🚗',
       };
     case 'only_driver':
@@ -888,13 +888,13 @@ export const TendersView: React.FC<TendersViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Header and Add Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+      <div className="panel panel-pad flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-indigo-600" />
+            <Building2 className="w-5 h-5 text-teal-700" />
             <span>Govt Tenders &amp; Work Orders &bull; सरकारी टेंडर व अनुबंध</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-[var(--color-muted)] mt-1">
             विभिन्न विभागों (PWD, NHAI, Income Tax आदि) के मासिक फिक्स टेंडर नियम, कोटा व रेट स्लैब
           </p>
         </div>
@@ -906,7 +906,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                 handleExtractFromSample('rdso');
               }, 150);
             }}
-            className="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
+            className="btn btn-success !text-xs"
             title="Auto-Fill with the uploaded Indian Railways RDSO GeM Contract"
           >
             <span>🚆 User GeM Contract (RDSO Railways)</span>
@@ -918,14 +918,14 @@ export const TendersView: React.FC<TendersViewProps> = ({
                 fileInputRef.current?.click();
               }, 200);
             }}
-            className="px-3.5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+            className="btn btn-primary !text-xs"
           >
-            <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+            <Sparkles className="h-4 w-4 text-teal-200 animate-pulse" />
             <span>AI Auto-Fill via Agreement PDF</span>
           </button>
           <button
             onClick={handleOpenAdd}
-            className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
+            className="btn btn-primary !text-xs"
           >
             <Plus className="w-4 h-4" />
             + Add New Tender / Work Order
@@ -948,7 +948,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                 setTenderSearch(e.target.value);
                 setTenderPage(1);
               }}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-hidden"
             />
           </div>
 
@@ -974,7 +974,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2">
+        <div className="flex items-center justify-between text-xs text-[var(--color-muted)] border-t border-slate-100 pt-2">
           <span>
             Showing <strong>{filteredTenders.length}</strong> tenders across UP &amp; North India
           </span>
@@ -985,7 +985,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                 setCityFilter('all');
                 setTenderPage(1);
               }}
-              className="text-indigo-600 hover:text-indigo-800 font-semibold"
+              className="text-teal-700 hover:text-teal-800 font-semibold"
             >
               Reset Filters &times;
             </button>
@@ -1006,7 +1006,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
           return (
             <div
               key={tender.id}
-              className="bg-white rounded-xl border border-slate-200 shadow-xs hover:border-indigo-300 transition-all flex flex-col justify-between overflow-hidden"
+              className="bg-white rounded-xl border border-slate-200 shadow-xs hover:border-teal-300 transition-all flex flex-col justify-between overflow-hidden"
             >
               <div className="p-5">
                 {/* Header */}
@@ -1022,12 +1022,12 @@ export const TendersView: React.FC<TendersViewProps> = ({
                           ऑन-कॉल ड्यूटी (On-Call)
                         </span>
                       ) : tender.contractType === 'hybrid' ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-300 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-300 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
                           मासिक + ऑन-कॉल
                         </span>
                       ) : (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
                           मासिक समर्पित
                         </span>
                       )}
@@ -1047,7 +1047,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-500 line-clamp-2 mb-4">
+                <p className="text-xs text-[var(--color-muted)] line-clamp-2 mb-4">
                   {tender.authorityOffice}
                 </p>
 
@@ -1055,11 +1055,11 @@ export const TendersView: React.FC<TendersViewProps> = ({
                 {tender.packages && tender.packages.length > 0 ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 pb-1 border-b border-slate-100">
-                      <span className="flex items-center gap-1.5 text-indigo-900 font-bold">
-                        <Layers className="w-3.5 h-3.5 text-indigo-600" />
+                      <span className="flex items-center gap-1.5 text-[var(--color-ink)] font-bold">
+                        <Layers className="w-3.5 h-3.5 text-teal-700" />
                         <span>{tender.packages.length} Vehicle Lots / Packages</span>
                       </span>
-                      <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-mono font-bold text-[10px]">
+                      <span className="bg-teal-50 text-teal-800 px-2 py-0.5 rounded font-mono font-bold text-[10px]">
                         Demand: {tender.packages.reduce((sum, p) => sum + (Number(p.quantity) || 1), 0)} Units
                       </span>
                     </div>
@@ -1077,7 +1077,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                                 <span className="font-bold text-slate-900 block leading-tight">
                                   {pkg.packageName || `Lot ${pIdx + 1}: ${pkg.vehicleCategory}`}
                                 </span>
-                                <span className="text-[10px] text-slate-500 font-medium">
+                                <span className="text-[10px] text-[var(--color-muted)] font-medium">
                                   {pkg.quantity}x {pkg.vehicleCategory} &bull; {pkg.usageDutyType || 'Duty'}
                                 </span>
                               </div>
@@ -1091,12 +1091,12 @@ export const TendersView: React.FC<TendersViewProps> = ({
                             <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/70">
                               <span className="font-extrabold text-slate-900">
                                 {formatCurrency(pkg.monthlyBaseRate)}
-                                <span className="font-normal text-slate-500 text-[10px]">/mo</span>
+                                <span className="font-normal text-[var(--color-muted)] text-[10px]">/mo</span>
                               </span>
-                              <span className="font-medium text-indigo-700">
+                              <span className="font-medium text-teal-800">
                                 {pkg.includedKms > 0 ? `${pkg.includedKms} KM` : 'Driver Only'} &bull; {pkg.includedHours} Hrs
                               </span>
-                              <span className="text-slate-500 text-[10px]">
+                              <span className="text-[var(--color-muted)] text-[10px]">
                                 +₹{pkg.extraKmRate}/km
                               </span>
                             </div>
@@ -1108,36 +1108,36 @@ export const TendersView: React.FC<TendersViewProps> = ({
                 ) : (
                   <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 space-y-2 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500">Base Monthly Rate:</span>
+                      <span className="text-[var(--color-muted)]">Base Monthly Rate:</span>
                       <span className="font-bold text-slate-900 text-sm">
                         {formatCurrency(tender.baseMonthlyRate)}
-                        <span className="text-[10px] font-normal text-slate-500">/car/mo</span>
+                        <span className="text-[10px] font-normal text-[var(--color-muted)]">/car/mo</span>
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500">Monthly Quota:</span>
-                      <span className="font-semibold text-indigo-700">
+                      <span className="text-[var(--color-muted)]">Monthly Quota:</span>
+                      <span className="font-semibold text-teal-800">
                         {tender.includedKms} KM / {tender.includedHours} Hrs
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-slate-500">Extra KM / Hr Rate:</span>
+                      <span className="text-[var(--color-muted)]">Extra KM / Hr Rate:</span>
                       <span className="font-medium text-slate-700">
                         ₹{tender.extraKmRate}/KM &bull; ₹{tender.extraHourRate}/Hr
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-slate-500">Night Halt DA:</span>
+                      <span className="text-[var(--color-muted)]">Night Halt DA:</span>
                       <span className="font-medium text-slate-700">
                         ₹{tender.nightHaltRate} / Night
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-slate-500">Toll &amp; Fastag:</span>
+                      <span className="text-[var(--color-muted)]">Toll &amp; Fastag:</span>
                       <span className="font-medium text-emerald-700">
                         {tender.tollTerms === 'reimbursable_actuals'
                           ? 'Reimbursed on actuals'
@@ -1150,21 +1150,21 @@ export const TendersView: React.FC<TendersViewProps> = ({
                 {/* Contract Dates & Attached Cars */}
                 <div className="mt-4 pt-3 border-t border-slate-100 space-y-2 text-xs text-slate-600">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">Contract Period:</span>
+                    <span className="text-[var(--color-muted)]">Contract Period:</span>
                     <span className="font-medium text-slate-800">
                       {formatDate(tender.contractPeriodStart)} to {formatDate(tender.contractPeriodEnd)}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">Billing Cycle:</span>
+                    <span className="text-[var(--color-muted)]">Billing Cycle:</span>
                     <span className="font-medium text-slate-800">
                       {tender.billingCycleDay}th of month ({tender.paymentTermsDays} days terms)
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">Deployed Vehicles:</span>
+                    <span className="text-[var(--color-muted)]">Deployed Vehicles:</span>
                     <span className="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">
                       {attachedVehicles.length} Vehicles attached
                     </span>
@@ -1180,7 +1180,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                 {/* Vehicle, Driver & Officer count pills */}
                 <div className="mt-3 grid grid-cols-5 gap-1 text-center text-[10px] font-semibold text-slate-600 bg-slate-100/80 p-1.5 rounded-lg">
                   <div>
-                    <span className="block text-slate-400 font-normal">Vehicles</span>
+                    <span className="block text-[var(--color-muted)] font-normal">Vehicles</span>
                     <span className="font-bold text-slate-800">{attachedVehicles.length}</span>
                   </div>
                   <div className="bg-amber-50/80 rounded border border-amber-200/60 p-0.5">
@@ -1190,19 +1190,19 @@ export const TendersView: React.FC<TendersViewProps> = ({
                     </span>
                   </div>
                   <div>
-                    <span className="block text-slate-400 font-normal">Officers</span>
+                    <span className="block text-[var(--color-muted)] font-normal">Officers</span>
                     <span className="font-bold text-slate-800">
                       {tenderOfficers.length}
                     </span>
                   </div>
                   <div>
-                    <span className="block text-slate-400 font-normal">Logs</span>
-                    <span className="font-bold text-indigo-700">
+                    <span className="block text-[var(--color-muted)] font-normal">Logs</span>
+                    <span className="font-bold text-teal-800">
                       {dailyLogs.filter((l) => l.tenderId === tender.id).length}
                     </span>
                   </div>
                   <div>
-                    <span className="block text-slate-400 font-normal">Bills</span>
+                    <span className="block text-[var(--color-muted)] font-normal">Bills</span>
                     <span className="font-bold text-emerald-700">
                       {bills.filter((b) => b.tenderId === tender.id).length}
                     </span>
@@ -1213,7 +1213,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                 <div className="mt-3 p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1.5">
-                      <Car className="w-3.5 h-3.5 text-indigo-600" />
+                      <Car className="w-3.5 h-3.5 text-teal-700" />
                       <span>तैनात गाड़ियाँ व चालक ({attachedVehicles.length})</span>
                     </span>
                     {unassignedVehiclesCount > 0 && (
@@ -1230,7 +1230,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                   </div>
 
                   {attachedVehicles.length === 0 ? (
-                    <div className="text-[11px] text-slate-400 italic py-1 text-center">
+                    <div className="text-[11px] text-[var(--color-muted)] italic py-1 text-center">
                       इस टेंडर में अभी कोई गाड़ी अटैच नहीं है। नीचे 360° हब से गाड़ी जोड़ें।
                     </div>
                   ) : (
@@ -1255,7 +1255,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                                   👨‍✈️ {drv?.name || veh.driverName || 'अनावंटित'}
                                 </span>
                               </div>
-                              <span className="text-[10px] text-slate-500 font-medium truncate max-w-[130px]">
+                              <span className="text-[10px] text-[var(--color-muted)] font-medium truncate max-w-[130px]">
                                 {veh.makeModel}
                               </span>
                             </div>
@@ -1267,7 +1267,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                                     <span className="font-bold text-emerald-800 flex items-center gap-1">
                                       👨‍✈️ {drv.name}
                                     </span>
-                                    <span className="text-[10px] text-slate-500 font-mono">
+                                    <span className="text-[10px] text-[var(--color-muted)] font-mono">
                                       📞 {drv.phone}
                                     </span>
                                   </div>
@@ -1297,7 +1297,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                               </div>
 
                               {off && (
-                                <div className="text-[10px] text-indigo-700 font-medium text-right truncate max-w-[110px]" title={`${off.name} (${off.designation})`}>
+                                <div className="text-[10px] text-teal-800 font-medium text-right truncate max-w-[110px]" title={`${off.name} (${off.designation})`}>
                                   👔 {off.name}
                                 </div>
                               )}
@@ -1314,7 +1314,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
               <div className="p-3.5 bg-slate-50 border-t border-slate-200/80 space-y-2">
                 <button
                   onClick={() => setSelectedTenderForHub(tender)}
-                  className="w-full py-2 px-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                  className="btn btn-primary w-full !text-xs"
                 >
                   <span>⚡ टेंडर 360° हब: गाड़ी/ड्राइवर बदलें व एंट्री बनाएं</span>
                 </button>
@@ -1341,7 +1341,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                     onClick={() => setSelectedTenderForDocs(tender)}
                     className="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded text-[11px] font-semibold flex items-center gap-1 transition-colors"
                   >
-                    <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                    <FileText className="w-3.5 h-3.5 text-teal-700" />
                     <span>दस्तावेज़ ({tender.documents?.length || 3})</span>
                   </button>
 
@@ -1362,7 +1362,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
       {/* Pagination Controls */}
       {totalTenderPages > 1 && (
         <div className="bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <span className="text-slate-500">
+          <span className="text-[var(--color-muted)]">
             Showing <strong>{(tenderPage - 1) * tendersPerPage + 1}</strong> to{' '}
             <strong>{Math.min(tenderPage * tendersPerPage, filteredTenders.length)}</strong> of{' '}
             <strong>{filteredTenders.length}</strong> tenders (Page {tenderPage} of {totalTenderPages})
@@ -1383,7 +1383,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
             >
               &lsaquo; Prev
             </button>
-            <span className="px-3 py-1.5 bg-indigo-50 text-indigo-700 font-bold rounded border border-indigo-100">
+            <span className="px-3 py-1.5 bg-teal-50 text-teal-800 font-bold rounded border border-teal-100">
               {tenderPage} / {totalTenderPages}
             </span>
             <button
@@ -1416,7 +1416,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -1439,16 +1439,16 @@ export const TendersView: React.FC<TendersViewProps> = ({
             />
 
             {/* AI Tender Document Extraction & Auto-Fill Section */}
-            <div className="mt-4 rounded-xl border-2 border-dashed border-indigo-300 bg-gradient-to-br from-indigo-50/70 via-purple-50/40 to-sky-50/60 p-4 transition-all">
+            <div className="mt-4 rounded-xl border-2 border-dashed border-teal-300 bg-gradient-to-br from-teal-50/70 via-sky-50/40 to-sky-50/60 p-4 transition-all">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-                    <Sparkles className="w-4 h-4 text-amber-300" />
+                  <div className="w-8 h-8 rounded-lg bg-[var(--color-ink)] text-white flex items-center justify-center shadow-xs">
+                    <Sparkles className="h-4 w-4 text-teal-200" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-xs text-indigo-950 flex items-center gap-1.5">
+                    <h4 className="font-bold text-xs text-[var(--color-ink)] flex items-center gap-1.5">
                       <span>AI Tender Agreement Auto-Fill &bull; एग्रीमेंट PDF से स्वतः विवरण भरें</span>
-                      <span className="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.2 rounded font-semibold uppercase tracking-wider">
+                      <span className="text-[10px] bg-teal-100 text-teal-800 px-1.5 py-0.2 rounded font-semibold uppercase tracking-wider">
                         Gemini AI
                       </span>
                     </h4>
@@ -1463,19 +1463,19 @@ export const TendersView: React.FC<TendersViewProps> = ({
               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="border border-indigo-200 hover:border-indigo-400 bg-white/90 hover:bg-white rounded-lg p-3 text-center cursor-pointer transition-all flex flex-col items-center justify-center group shadow-2xs"
+                  className="border border-teal-200 hover:border-teal-400 bg-white/90 hover:bg-white rounded-lg p-3 text-center cursor-pointer transition-all flex flex-col items-center justify-center group shadow-2xs"
                 >
-                  <UploadCloud className="w-6 h-6 text-indigo-600 group-hover:scale-110 transition-transform mb-1" />
-                  <span className="text-xs font-semibold text-indigo-900">
+                  <UploadCloud className="w-6 h-6 text-teal-700 group-hover:scale-110 transition-transform mb-1" />
+                  <span className="text-xs font-semibold text-[var(--color-ink)]">
                     Upload Agreement PDF / Scan Order
                   </span>
-                  <span className="text-[10px] text-slate-500 mt-0.5">
+                  <span className="text-[10px] text-[var(--color-muted)] mt-0.5">
                     Supports .PDF, PNG, JPG (Max 30MB)
                   </span>
                 </div>
 
                 {/* Quick 1-Click Samples for Testing */}
-                <div className="bg-white/90 rounded-lg p-2.5 border border-indigo-100 flex flex-col justify-between text-[11px]">
+                <div className="bg-white/90 rounded-lg p-2.5 border border-teal-100 flex flex-col justify-between text-[11px]">
                   <span className="font-semibold text-slate-700 block mb-1">
                     Or Test with 1-Click Govt Contract Samples:
                   </span>
@@ -1493,7 +1493,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                       type="button"
                       disabled={isAiExtracting}
                       onClick={() => handleExtractFromSample('gem')}
-                      className="px-2 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium rounded border border-indigo-200 text-center text-[10px] transition-colors disabled:opacity-50 cursor-pointer"
+                      className="px-2 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 font-medium rounded border border-teal-200 text-center text-[10px] transition-colors disabled:opacity-50 cursor-pointer"
                     >
                       📄 GeM (Disaster)
                     </button>
@@ -1519,8 +1519,8 @@ export const TendersView: React.FC<TendersViewProps> = ({
 
               {/* Live Extraction Progress */}
               {isAiExtracting && (
-                <div className="mt-3 p-3 bg-indigo-600 text-white rounded-lg flex items-center gap-2.5 text-xs shadow-xs animate-pulse">
-                  <Loader2 className="w-4 h-4 animate-spin text-amber-300 shrink-0" />
+                <div className="mt-3 p-3 bg-[var(--color-ink)] text-white rounded-lg flex items-center gap-2.5 text-xs shadow-xs animate-pulse">
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin text-teal-200" />
                   <div>
                     <span className="font-semibold">AI Extraction in Progress: </span>
                     <span>{aiExtractStatus || 'Reading document clauses & rates with Gemini AI...'}</span>
@@ -1570,7 +1570,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-200" />
               </div>
-              <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400">
+              <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-[var(--color-muted)]">
                 <span className="bg-white px-3 font-semibold">Tender Details &amp; Form Fields</span>
               </div>
             </div>
@@ -1587,7 +1587,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                     value={formData.departmentName || ''}
                     onChange={(e) => setFormData({ ...formData, departmentName: e.target.value })}
                     placeholder="e.g. Public Works Department (PWD)"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-hidden"
                   />
                 </div>
 
@@ -1601,7 +1601,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                     value={formData.tenderNumber || ''}
                     onChange={(e) => setFormData({ ...formData, tenderNumber: e.target.value })}
                     placeholder="e.g. GeM-GEM/2026/B/918230"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-hidden"
                   />
                 </div>
 
@@ -1614,7 +1614,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                     value={formData.workOrderNumber || ''}
                     onChange={(e) => setFormData({ ...formData, workOrderNumber: e.target.value })}
                     placeholder="e.g. WO-PWD-7892-C"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-hidden"
                   />
                 </div>
 
@@ -1627,23 +1627,23 @@ export const TendersView: React.FC<TendersViewProps> = ({
                     value={formData.authorityOffice || ''}
                     onChange={(e) => setFormData({ ...formData, authorityOffice: e.target.value })}
                     placeholder="e.g. Executive Engineer Division 1, Nirman Bhawan"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-hidden"
                   />
                 </div>
               </div>
 
               {/* Tender Contract Nature: Monthly Dedicated vs On-Call vs Hybrid */}
-              <div className="bg-gradient-to-r from-slate-50 via-indigo-50/30 to-emerald-50/30 p-4 rounded-xl border border-indigo-200 space-y-3">
+              <div className="bg-gradient-to-r from-slate-50 via-teal-50/30 to-emerald-50/30 p-4 rounded-xl border border-teal-200 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <label className="block font-bold text-slate-900 text-xs">
                       अनुबंध का स्वरूप / टेंडर प्रकार (Tender Contract Nature) *
                     </label>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-[var(--color-muted)]">
                       मासिक अनुबंधित (Fixed Rate/KM), ऑन-कॉल (स्पॉट ड्यूटी / दैनिक पैकेज) या दोनों संयुक्त (Hybrid)
                     </p>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">
                     {formData.contractType === 'on_call'
                       ? '⚡ On-Call Spot Duty'
                       : formData.contractType === 'hybrid'
@@ -1656,7 +1656,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                   <label
                     className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition ${
                       formData.contractType === 'monthly_attached' || !formData.contractType
-                        ? 'bg-white border-indigo-500 shadow-xs ring-2 ring-indigo-200'
+                        ? 'bg-white border-teal-500 shadow-xs ring-2 ring-teal-200'
                         : 'bg-white/80 border-slate-200 hover:bg-white'
                     }`}
                   >
@@ -1666,11 +1666,11 @@ export const TendersView: React.FC<TendersViewProps> = ({
                       value="monthly_attached"
                       checked={formData.contractType === 'monthly_attached' || !formData.contractType}
                       onChange={() => setFormData({ ...formData, contractType: 'monthly_attached' })}
-                      className="mt-1 text-indigo-600 focus:ring-0"
+                      className="mt-1 text-teal-700 focus:ring-0"
                     />
                     <div>
                       <div className="font-bold text-slate-900 text-xs">मासिक समर्पित (Monthly)</div>
-                      <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      <div className="text-[11px] text-[var(--color-muted)] mt-0.5 leading-snug">
                         अधिकारी हेतु 24x7 या 10-12 घंटे मासिक फिक्स KM व मासिक बिलिंग
                       </div>
                     </div>
@@ -1715,7 +1715,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                     />
                     <div>
                       <div className="font-bold text-emerald-950 text-xs">ऑन-कॉल ड्यूटी (On-Call)</div>
-                      <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      <div className="text-[11px] text-[var(--color-muted)] mt-0.5 leading-snug">
                         आवश्यकतानुसार 8Hr/80KM, 12Hr/100KM या आउटस्टेशन स्पॉट ड्यूटी
                       </div>
                     </div>
@@ -1724,7 +1724,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                   <label
                     className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition ${
                       formData.contractType === 'hybrid'
-                        ? 'bg-purple-50 border-purple-500 shadow-xs ring-2 ring-purple-200'
+                        ? 'bg-sky-50 border-sky-500 shadow-xs ring-2 ring-sky-200'
                         : 'bg-white/80 border-slate-200 hover:bg-white'
                     }`}
                   >
@@ -1756,11 +1756,11 @@ export const TendersView: React.FC<TendersViewProps> = ({
                         };
                         setFormData({ ...formData, contractType: 'hybrid', onCallDefaults: defaults });
                       }}
-                      className="mt-1 text-purple-600 focus:ring-0"
+                      className="mt-1 text-sky-700 focus:ring-0"
                     />
                     <div>
-                      <div className="font-bold text-purple-950 text-xs">संयुक्त (मासिक + ऑन-कॉल)</div>
-                      <div className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      <div className="font-bold text-[var(--color-ink)] text-xs">संयुक्त (मासिक + ऑन-कॉल)</div>
+                      <div className="text-[11px] text-[var(--color-muted)] mt-0.5 leading-snug">
                         समर्पित गाड़ियां + आवश्यकता पड़ने पर अतिरिक्त ऑन-कॉल ड्यूटी
                       </div>
                     </div>
@@ -1778,14 +1778,14 @@ export const TendersView: React.FC<TendersViewProps> = ({
                             Auto-Fill Enabled
                           </span>
                         </span>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
+                        <p className="text-[11px] text-[var(--color-muted)] mt-0.5">
                           जब भी आप बुकिंग फॉर्म में इस टेंडर का चयन करेंगे, ये सभी बेसिक विवरण स्वतः भर जाएंगे।
                         </p>
                       </div>
 
                       {/* 1-Click Preset Buttons */}
                       <div className="flex items-center gap-1.5 self-start sm:self-auto">
-                        <span className="text-[10px] text-slate-400 font-semibold">1-क्लिक प्रीसेट:</span>
+                        <span className="text-[10px] text-[var(--color-muted)] font-semibold">1-क्लिक प्रीसेट:</span>
                         <button
                           type="button"
                           onClick={() => {
@@ -1828,7 +1828,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                               },
                             });
                           }}
-                          className="px-2 py-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 rounded text-[10px] font-bold transition"
+                          className="px-2 py-1 bg-teal-100 hover:bg-teal-200 text-teal-800 rounded text-[10px] font-bold transition"
                         >
                           12Hr/100KM (₹3100)
                         </button>
@@ -1851,7 +1851,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                               },
                             });
                           }}
-                          className="px-2 py-1 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded text-[10px] font-bold transition"
+                          className="px-2 py-1 bg-sky-100 hover:bg-sky-200 text-sky-800 rounded text-[10px] font-bold transition"
                         >
                           VIP Crysta आउटस्टेशन (₹3800)
                         </button>
@@ -2035,13 +2035,13 @@ export const TendersView: React.FC<TendersViewProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
                   <div>
                     <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                      <Layers className="w-4 h-4 text-indigo-600" />
+                      <Layers className="w-4 h-4 text-teal-700" />
                       <span>Vehicle Requirements, Variants &amp; Service Scope</span>
-                      <span className="bg-indigo-100 text-indigo-800 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                      <span className="bg-teal-100 text-teal-800 text-[10px] px-2 py-0.5 rounded-full font-bold">
                         {(formData.packages || []).length} Lot(s)
                       </span>
                     </h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
+                    <p className="text-[11px] text-[var(--color-muted)] mt-0.5">
                       टेंडर में अलग-अलग वैरिएंट की गाड़ियां (Sedan, SUV, Bus), अलग-अलग उपयोग व अलग-अलग KM/घंटे व दरों पर हो सकती हैं। सेवा का स्वरूप (गाड़ी+ड्राइवर+ईंधन, केवल गाड़ी या केवल ड्राइवर) चुनें।
                     </p>
                   </div>
@@ -2049,7 +2049,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                   <button
                     type="button"
                     onClick={handleAddPackage}
-                    className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs self-start sm:self-auto cursor-pointer transition-colors"
+                    className="btn btn-primary !text-xs"
                   >
                     <PlusCircle className="w-3.5 h-3.5" />
                     <span>+ Add Another Variant / Lot (अन्य गाड़ी जोड़ें)</span>
@@ -2063,12 +2063,12 @@ export const TendersView: React.FC<TendersViewProps> = ({
                     return (
                       <div
                         key={pkg.id || idx}
-                        className="bg-white rounded-xl border-2 border-indigo-100 shadow-xs p-4 space-y-3.5 transition-all hover:border-indigo-300"
+                        className="bg-white rounded-xl border-2 border-teal-100 shadow-xs p-4 space-y-3.5 transition-all hover:border-teal-300"
                       >
                         {/* Package Header */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
                           <div className="flex items-center gap-2 flex-1">
-                            <span className="px-2 py-0.5 rounded bg-indigo-600 text-white font-mono font-bold text-xs shrink-0">
+                            <span className="px-2 py-0.5 rounded bg-[var(--color-ink)] text-white font-mono font-bold text-xs shrink-0">
                               Lot #{idx + 1}
                             </span>
                             <input
@@ -2090,7 +2090,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleRemovePackage(pkg.id)}
-                                className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors cursor-pointer"
+                                className="p-1 text-[var(--color-muted)] hover:text-rose-600 hover:bg-rose-50 rounded transition-colors cursor-pointer"
                                 title="Remove this vehicle lot"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -2125,7 +2125,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                                 <span className="font-bold text-slate-900 text-xs block">
                                   🚗👨‍✈️⛽ Full Package
                                 </span>
-                                <span className="text-[10px] text-slate-500 block leading-tight mt-0.5">
+                                <span className="text-[10px] text-[var(--color-muted)] block leading-tight mt-0.5">
                                   गाड़ी + ड्राइवर + ईंधन (संपूर्ण व्यवस्था कांट्रेक्टर की)
                                 </span>
                               </div>
@@ -2151,7 +2151,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                                 <span className="font-bold text-slate-900 text-xs block">
                                   🚗👨‍✈️ Vehicle + Driver
                                 </span>
-                                <span className="text-[10px] text-slate-500 block leading-tight mt-0.5">
+                                <span className="text-[10px] text-[var(--color-muted)] block leading-tight mt-0.5">
                                   गाड़ी + ड्राइवर (ईंधन विभाग देगा या पर्ची/बिल पर)
                                 </span>
                               </div>
@@ -2160,7 +2160,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                             <label
                               className={`p-2.5 rounded-lg border cursor-pointer flex items-start gap-2 transition-all ${
                                 pkg.serviceScope === 'only_vehicle'
-                                  ? 'bg-purple-50/80 border-purple-500 ring-1 ring-purple-400 shadow-2xs'
+                                  ? 'bg-sky-50/80 border-sky-500 ring-1 ring-sky-400 shadow-2xs'
                                   : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
                               }`}
                             >
@@ -2171,13 +2171,13 @@ export const TendersView: React.FC<TendersViewProps> = ({
                                 onChange={() =>
                                   handleUpdatePackage(pkg.id, { serviceScope: 'only_vehicle' })
                                 }
-                                className="mt-0.5 text-purple-600 focus:ring-purple-500"
+                                className="mt-0.5 text-sky-700 focus:ring-teal-500"
                               />
                               <div>
                                 <span className="font-bold text-slate-900 text-xs block">
                                   🚗 Only Vehicle (Dry Lease)
                                 </span>
-                                <span className="text-[10px] text-slate-500 block leading-tight mt-0.5">
+                                <span className="text-[10px] text-[var(--color-muted)] block leading-tight mt-0.5">
                                   केवल गाड़ी (ड्राइवर सरकारी विभाग का होगा)
                                 </span>
                               </div>
@@ -2203,7 +2203,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                                 <span className="font-bold text-slate-900 text-xs block">
                                   👨‍✈️ Only Driver Service
                                 </span>
-                                <span className="text-[10px] text-slate-500 block leading-tight mt-0.5">
+                                <span className="text-[10px] text-[var(--color-muted)] block leading-tight mt-0.5">
                                   केवल चालक सेवा (गाड़ी सरकारी विभाग की होगी)
                                 </span>
                               </div>
@@ -2272,7 +2272,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
 
                         {/* Commercial Pricing & Rates for this Variant */}
                         <div className="bg-slate-50/70 p-3 rounded-lg border border-slate-200">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">
+                          <span className="text-[10px] font-bold text-[var(--color-muted)] uppercase tracking-wider block mb-2">
                             Rates &amp; Quotas for {pkg.vehicleCategory} (इस वैरिएंट की दरें व सीमाएं):
                           </span>
 
@@ -2304,7 +2304,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                                   handleUpdatePackage(pkg.id, { includedKms: Number(e.target.value) })
                                 }
                                 placeholder="2000"
-                                className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white font-semibold text-indigo-700"
+                                className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white font-semibold text-teal-800"
                               />
                             </div>
 
@@ -2510,7 +2510,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
               </div>
 
               {/* Bill Series & EMD Details */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 bg-indigo-50/40 rounded-xl border border-indigo-100">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 bg-teal-50/40 rounded-xl border border-teal-100">
                 <div>
                   <label className="block font-semibold text-slate-800 mb-1">
                     Custom Bill Series Prefix (इस टेंडर की बिल सीरीज)
@@ -2522,7 +2522,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                     placeholder="e.g. PWD/LKO/2026/ or SFT/NHAI/"
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono text-slate-900 bg-white"
                   />
-                  <span className="text-[10px] text-slate-500 block mt-0.5">
+                  <span className="text-[10px] text-[var(--color-muted)] block mt-0.5">
                     Leave blank to use default company bill numbering
                   </span>
                 </div>
@@ -2550,7 +2550,7 @@ export const TendersView: React.FC<TendersViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Save Tender Terms
                 </button>

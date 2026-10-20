@@ -67,17 +67,17 @@ export const PumpVendorModal: React.FC<PumpVendorModalProps> = ({ vendor, onClos
       <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl my-6 space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-200">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700">
+            <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-800">
               <Building2 className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-bold text-slate-900 text-sm">
                 {vendor ? 'पेट्रोल पंप विवरण संशोधित करें' : 'नया अनुबंधित पेट्रोल पंप जोड़ें'}
               </h3>
-              <p className="text-[11px] text-slate-500">Tied-up Credit Fuel Pump Vendor Master</p>
+              <p className="text-[11px] text-[var(--color-muted)]">Tied-up Credit Fuel Pump Vendor Master</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+          <button onClick={onClose} className="text-[var(--color-muted)] hover:text-slate-600 font-bold text-lg">&times;</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
@@ -200,7 +200,7 @@ export const PumpVendorModal: React.FC<PumpVendorModalProps> = ({ vendor, onClos
             </div>
 
             <div className="flex flex-col justify-end">
-              <span className="text-[11px] text-slate-500 mb-1">Billing Cycle: Day {billingCycleDay}</span>
+              <span className="text-[11px] text-[var(--color-muted)] mb-1">Billing Cycle: Day {billingCycleDay}</span>
             </div>
           </div>
 
@@ -211,7 +211,7 @@ export const PumpVendorModal: React.FC<PumpVendorModalProps> = ({ vendor, onClos
                 <span className="font-bold text-slate-900 block text-xs">
                   TDS (टैक्स कटौती) विकल्प
                 </span>
-                <span className="text-[11px] text-slate-500">
+                <span className="text-[11px] text-[var(--color-muted)]">
                   क्या इस पेट्रोल पंप के मासिक बिल से TDS काटना है?
                 </span>
               </div>
@@ -251,7 +251,7 @@ export const PumpVendorModal: React.FC<PumpVendorModalProps> = ({ vendor, onClos
                         onClick={() => setTdsRate(rate)}
                         className={`px-2 py-1 rounded border text-xs font-bold transition-all ${
                           tdsRate === rate
-                            ? 'bg-indigo-600 text-white border-indigo-600'
+                            ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)]'
                             : 'bg-white text-slate-700 border-slate-300'
                         }`}
                       >
@@ -340,7 +340,7 @@ export const PumpVendorModal: React.FC<PumpVendorModalProps> = ({ vendor, onClos
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-xs"
+              className="btn btn-primary"
             >
               सुरक्षित करें (Save Vendor)
             </button>

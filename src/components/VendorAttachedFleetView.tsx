@@ -582,226 +582,166 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <div className="page-stack">
+      {/* Page header */}
+      <div className="page-header">
         <div>
-          <div className="flex items-center gap-2">
-            <Handshake className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-lg font-bold text-slate-900">
-              Market Attached Fleet &amp; Owner-Drivers Hub (अनुबंधित गाड़ियाँ व वेंडर)
-            </h2>
-          </div>
-          <p className="text-xs text-slate-500 mt-1">
-            सरकारी टेंडरों में लगी अनुबंधित गाड़ियों, वेंडरों, एवं अपनी गाड़ी खुद चलाने वाले मालिक-चालकों का सम्पूर्ण प्रबंधन व टीडीएस हिसाब
+          <span className="page-kicker">
+            <Handshake className="h-3.5 w-3.5" />
+            Attached fleet
+          </span>
+          <h2 className="page-title">Market attached fleet &amp; partners</h2>
+          <p className="page-subtitle">
+            Manage vendor partners, owner-drivers, attached vehicles, and monthly TDS settlements.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Segmented View Switcher */}
-          <div className="flex items-center p-1 bg-slate-100 rounded-lg text-xs">
+        <div className="flex flex-col items-stretch gap-3 lg:items-end">
+          <div className="segmented self-start lg:self-end">
             <button
+              type="button"
               onClick={() => setActiveTab('partners')}
-              className={`px-3 py-1.5 font-medium rounded-md transition-colors ${
-                activeTab === 'partners'
-                  ? 'bg-white text-slate-900 shadow-xs font-semibold'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`segmented-btn ${activeTab === 'partners' ? 'is-active' : ''}`}
             >
-              वेंडर व गाड़ियाँ ({vendors.length})
+              Partners ({vendors.length})
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('attached_logs')}
-              className={`px-3 py-1.5 font-medium rounded-md transition-colors ${
-                activeTab === 'attached_logs'
-                  ? 'bg-white text-slate-900 shadow-xs font-semibold'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`segmented-btn ${activeTab === 'attached_logs' ? 'is-active' : ''}`}
             >
-              लॉग बुक रन ({attachedLogs.length})
+              Log runs ({attachedLogs.length})
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('settlements')}
-              className={`px-3 py-1.5 font-medium rounded-md transition-colors ${
-                activeTab === 'settlements'
-                  ? 'bg-white text-slate-900 shadow-xs font-semibold'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`segmented-btn ${activeTab === 'settlements' ? 'is-active' : ''}`}
             >
-              मासिक सेटलमेंट वाउचर ({vendorSettlements.length})
+              Settlements ({vendorSettlements.length})
             </button>
           </div>
 
-          {/* Quick Action Buttons for adding Owner-Driver vs Car Owner */}
           <div className="flex flex-wrap items-center gap-2">
             <button
+              type="button"
               onClick={() => setIsAddOwnerDriverModalOpen(true)}
-              className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all active:scale-[0.98]"
-              title="मालिक-चालक: गाड़ी भी अपनी और खुद ही चलाएगा"
+              className="btn btn-success"
+              title="Owner-driver: owns and drives the car"
             >
-              <UserCheck className="w-4 h-4 text-emerald-200" />
-              <span>+ मालिक-चालक जोड़ें</span>
+              <UserCheck className="h-4 w-4" />
+              Owner-driver
             </button>
-
             <button
+              type="button"
               onClick={() => setIsAddCarOwnerModalOpen(true)}
-              className="px-3.5 py-2 bg-indigo-700 hover:bg-indigo-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all active:scale-[0.98]"
-              title="केवल गाड़ी मालिक: गाड़ी वेंडर की, ड्राइवर अलग रहेगा"
+              className="btn btn-primary"
+              title="Car owner only: vehicle attached, driver separate"
             >
-              <Car className="w-4 h-4 text-indigo-200" />
-              <span>+ केवल गाड़ी मालिक जोड़ें</span>
+              <Car className="h-4 w-4" />
+              Car owner
             </button>
-
             <button
+              type="button"
               onClick={() => setIsBulkModalOpen(true)}
-              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all active:scale-[0.98]"
-              title="एक्सेल शीट डाउनलोड करें या भरी हुई शीट अपलोड करके एक साथ दर्जनों गाड़ियाँ व ड्राइवर जोड़ें"
+              className="btn btn-secondary"
+              title="Bulk upload vehicles and drivers via Excel"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-100" />
-              <span>📥 एक्सेल बल्क अपलोड</span>
+              <FileSpreadsheet className="h-4 w-4" />
+              Excel upload
             </button>
-
             <button
+              type="button"
               onClick={handleOpenAddVendor}
-              className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium flex items-center gap-1 border border-slate-300 transition-colors"
-              title="अन्य वेंडर मास्टर"
+              className="btn btn-ghost"
+              title="Add vendor master"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">वेंडर मास्टर</span>
+              <Plus className="h-3.5 w-3.5" />
+              Vendor
             </button>
           </div>
         </div>
       </div>
 
-      {/* Helpful Bilingual Visual Guidance Strip */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white p-4 rounded-xl border border-slate-700/80 shadow-xs">
-        <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0 text-emerald-300 font-black text-sm">
-            1
-          </div>
+      {/* Compact guidance */}
+      <div className="tip-strip">
+        <div className="tip-item">
+          <div className="tip-num">1</div>
           <div>
-            <div className="flex items-center gap-2">
-              <h4 className="font-bold text-xs text-emerald-300 uppercase tracking-wide flex items-center gap-1">
-                <span>केस 1: मालिक-चालक (Owner-Driver)</span>
-              </h4>
-              <span className="text-[10px] bg-emerald-500/30 text-emerald-200 px-1.5 py-0.5 rounded border border-emerald-400/30 font-medium">
-                गाड़ी + ड्राइवर खुद
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
-              अगर कोई व्यक्ति अपनी खुद की गाड़ी लाया है और वह <strong>खुद ही गाड़ी चलाएगा</strong>, तो ऊपर दिए गए <strong className="text-emerald-300">"+ मालिक-चालक जोड़ें"</strong> बटन को दबाएं। इससे वेंडर, ड्राइवर और गाड़ी तीनों एक साथ लिंक हो जाएंगे और 1% TDS (धारा 194C) अथवा 10 से कम वाहन होने पर 0% छूट लागू होगी।
+            <h4 className="tip-title">Owner-driver</h4>
+            <p className="tip-body">
+              Person brings their own car and drives it. Creates vendor + driver + vehicle together, with 1% TDS (194C) or Nil if exempt.
             </p>
           </div>
         </div>
-
-        <div className="flex items-start gap-3 border-t md:border-t-0 md:border-l border-slate-700/60 pt-3 md:pt-0 md:pl-4">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center shrink-0 text-indigo-300 font-black text-sm">
-            2
-          </div>
+        <div className="tip-item">
+          <div className="tip-num">2</div>
           <div>
-            <div className="flex items-center gap-2">
-              <h4 className="font-bold text-xs text-indigo-300 uppercase tracking-wide flex items-center gap-1">
-                <span>केस 2: केवल गाड़ी मालिक (Attached Car Owner)</span>
-              </h4>
-              <span className="text-[10px] bg-indigo-500/30 text-indigo-200 px-1.5 py-0.5 rounded border border-indigo-400/30 font-medium">
-                गाड़ी वेंडर की, ड्राइवर अलग
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
-              अगर किसी व्यक्ति या ट्रेवल्स कंपनी की <strong>सिर्फ गाड़ी लगी है</strong> और ड्राइवर कंपनी का या अलग चालक है, तो <strong className="text-indigo-300">"+ केवल गाड़ी मालिक जोड़ें"</strong> चुनें। इससे वेंडर का मासिक किराया (2% या 1% TDS) तय होगा और गाड़ी को अलग से ड्राइवर अलॉट किया जा सकेगा।
+            <h4 className="tip-title">Car owner only</h4>
+            <p className="tip-body">
+              Vendor supplies the vehicle; driver is assigned separately. Sets monthly rent and TDS (1–2%).
             </p>
           </div>
         </div>
       </div>
 
-      {/* High-Level Partner Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
-            Total Attached Fleet
-          </span>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-bold text-slate-900">{attachedVehicles.length}</span>
-            <span className="text-xs text-indigo-600 font-semibold">
-              {Math.round((attachedVehicles.length / (vehicles.length || 1)) * 100)}% of total fleet
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            {fleetVendorVehicles.length} Fleet Vendors &bull; {ownerDriverVehicles.length} Owner-Drivers
+      {/* Stats */}
+      <div className="stat-grid">
+        <div className="stat-card">
+          <span className="stat-label">Attached fleet</span>
+          <span className="stat-value">{attachedVehicles.length}</span>
+          <p className="stat-meta">
+            {fleetVendorVehicles.length} vendor cars · {ownerDriverVehicles.length} owner-drivers ·{' '}
+            {Math.round((attachedVehicles.length / (vehicles.length || 1)) * 100)}% of fleet
           </p>
         </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
-            Active Vendor Partners
-          </span>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-bold text-purple-700">{vendors.length}</span>
-            <span className="text-xs text-purple-600 font-medium">100% Verified</span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            TDS Settings, PAN, GST &amp; Bank Details
-          </p>
+        <div className="stat-card">
+          <span className="stat-label">Active partners</span>
+          <span className="stat-value">{vendors.length}</span>
+          <p className="stat-meta">PAN, GST, bank &amp; TDS on file</p>
         </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
-            Avg Monthly Rent Payout
-          </span>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-bold text-slate-900">₹31,500</span>
-            <span className="text-xs text-slate-500">Per Car / Month</span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            Agreed contractor-to-vendor hiring rate
-          </p>
+        <div className="stat-card">
+          <span className="stat-label">Avg monthly rent</span>
+          <span className="stat-value">₹31,500</span>
+          <p className="stat-meta">Agreed hire rate per vehicle</p>
         </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
-            Settled Vouchers
-          </span>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-bold text-emerald-700">{vendorSettlements.length}</span>
-            <span className="text-xs text-emerald-600 font-semibold">Processed</span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            Reconciled with advances &amp; TDS deductions
-          </p>
+        <div className="stat-card">
+          <span className="stat-label">Settled vouchers</span>
+          <span className="stat-value">{vendorSettlements.length}</span>
+          <p className="stat-meta">Advances &amp; TDS reconciled</p>
         </div>
       </div>
 
       {activeTab === 'partners' ? (
-        /* Partners and Attached Fleet View */
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Vendors List */}
-          <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-3">
-            <div className="border-b border-slate-100 pb-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-sm text-slate-900">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          {/* Left: Partners list */}
+          <div className="panel panel-pad space-y-3 lg:col-span-1">
+            <div className="space-y-2.5 border-b border-[var(--color-line)] pb-3">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--color-ink)]">
                   Partners ({filteredVendors.length})
                 </h3>
                 <select
                   value={vendorTypeFilter}
                   onChange={(e) => setVendorTypeFilter(e.target.value)}
-                  className="text-xs px-2 py-1 border border-slate-300 rounded bg-white"
+                  className="rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-2.5 py-1.5 text-xs font-medium text-[var(--color-ink)] outline-none focus:border-[var(--color-copper-light)]"
                 >
-                  <option value="all">All Partners</option>
-                  <option value="fleet_vendor">Fleet Vendors</option>
-                  <option value="owner_driver">Owner-Drivers</option>
+                  <option value="all">All</option>
+                  <option value="fleet_vendor">Fleet vendors</option>
+                  <option value="owner_driver">Owner-drivers</option>
                 </select>
               </div>
-
-              <input
-                type="text"
-                placeholder="Search vendor name, PAN, phone..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs"
-              />
+              <div className="search-field">
+                <Search className="h-4 w-4 shrink-0 text-[var(--color-muted)]" />
+                <input
+                  type="text"
+                  placeholder="Search name, PAN, phone…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="space-y-2.5 overflow-y-auto max-h-[580px] pr-1">
+            <div className="max-h-[580px] space-y-2 overflow-y-auto pr-0.5">
               {filteredVendors.map((vnd) => {
                 const isSelected = selectedVendorForDetail?.id === vnd.id;
                 const vndVehicles = vehicles.filter((v) => v.vendorId === vnd.id);
@@ -810,66 +750,60 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                   <div
                     key={vnd.id}
                     onClick={() => setSelectedVendorForDetail(vnd)}
-                    className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
-                      isSelected
-                        ? 'border-indigo-600 bg-indigo-50/50 shadow-xs'
-                        : 'border-slate-200 hover:border-slate-300 bg-white'
-                    }`}
+                    className={`list-card text-xs ${isSelected ? 'is-selected' : ''}`}
                   >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-bold text-slate-900 text-sm">{vnd.name}</span>
-                          <span className="text-[10px] font-mono font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.2 rounded">
-                            {getVendorDisplayCode(vnd)}
-                          </span>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="truncate text-sm font-bold text-[var(--color-ink)]">{vnd.name}</span>
+                          <span className="badge badge-neutral font-mono">{getVendorDisplayCode(vnd)}</span>
                         </div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">{vnd.contactPerson} &bull; {vnd.phone}</div>
+                        <div className="mt-0.5 text-[11px] text-[var(--color-muted)]">
+                          {vnd.contactPerson} · {vnd.phone}
+                        </div>
                       </div>
-                    <div className="flex items-center gap-1.5">
-                      {onOpenProfileModal && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenProfileModal('vendor', vnd.id);
-                          }}
-                          className="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-colors"
-                          title="वेंडर प्रोफ़ाइल एडिट करें"
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        {onOpenProfileModal && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpenProfileModal('vendor', vnd.id);
+                            }}
+                            className="rounded-md p-1 text-[var(--color-muted)] transition-colors hover:bg-[var(--color-sand-deep)] hover:text-[var(--color-ink)]"
+                            title="Edit vendor profile"
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                        <span
+                          className={`badge ${
+                            vnd.vendorType === 'owner_driver' ? 'badge-warning' : 'badge-success'
+                          }`}
                         >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                      <span
-                        className={`text-[10px] px-2 py-0.5 rounded font-semibold uppercase ${
-                          vnd.vendorType === 'owner_driver'
-                            ? 'bg-purple-100 text-purple-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}
-                      >
-                        {vnd.vendorType.replace('_', ' ')}
-                      </span>
-                    </div>
+                          {vnd.vendorType.replace('_', ' ')}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="mt-2 flex items-center justify-between text-[11px] text-slate-600">
-                      <span>PAN: <strong className="font-mono text-slate-900">{vnd.panNumber || 'N/A'}</strong></span>
-                      <span className="font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
-                        {vndVehicles.length} Attached Cars
+                    <div className="mt-2.5 flex items-center justify-between text-[11px] text-[var(--color-muted)]">
+                      <span>
+                        PAN <strong className="font-mono text-[var(--color-ink)]">{vnd.panNumber || 'N/A'}</strong>
                       </span>
+                      <span className="badge badge-neutral">{vndVehicles.length} cars</span>
                     </div>
 
                     <div className="mt-1.5 flex items-center justify-between text-[10px]">
                       {vnd.isTdsApplicable === false || vnd.tdsRate === 0 ? (
-                        <span className="bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-semibold">
-                          TDS: नहीं (0% छूट)
-                        </span>
+                        <span className="badge badge-warning">Nil TDS</span>
                       ) : (
-                        <span className="bg-purple-50 text-purple-800 border border-purple-200 px-2 py-0.5 rounded font-semibold">
-                          TDS: {vnd.tdsRate}% ({vnd.tdsSection || '194C'})
+                        <span className="badge badge-neutral">
+                          TDS {vnd.tdsRate}% ({vnd.tdsSection || '194C'})
                         </span>
                       )}
-                      <span className="text-slate-500 font-mono">₹{vnd.monthlyAgreedRatePerVehicle?.toLocaleString('en-IN')}/गाड़ी</span>
+                      <span className="font-mono text-[var(--color-ink)]">
+                        ₹{vnd.monthlyAgreedRatePerVehicle?.toLocaleString('en-IN')}/mo
+                      </span>
                     </div>
                   </div>
                 );
@@ -877,67 +811,68 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
             </div>
           </div>
 
-          {/* Right Column: Selected Vendor Profile & Attached Vehicles Grid */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Right: Selected vendor */}
+          <div className="space-y-5 lg:col-span-2">
             {selectedVendorForDetail ? (
               <>
-                {/* Vendor Profile Header */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-                    <div>
+                <div className="panel panel-pad">
+                  <div className="flex flex-col gap-4 border-b border-[var(--color-line)] pb-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-base font-bold text-slate-900">
+                        <h3 className="font-[family-name:var(--font-display)] text-lg font-bold text-[var(--color-ink)]">
                           {selectedVendorForDetail.name}
                         </h3>
-                        <div className="inline-flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 px-2.5 py-0.5 rounded-md text-xs font-mono font-bold shadow-2xs">
-                          <span>🆔 {getVendorDisplayCode(selectedVendorForDetail)}</span>
+                        <div className="inline-flex items-center gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] px-2 py-0.5 font-mono text-xs font-bold text-[var(--color-ink-soft)]">
+                          <span>{getVendorDisplayCode(selectedVendorForDetail)}</span>
                           <button
                             type="button"
                             onClick={() => handleCopyVendorCode(getVendorDisplayCode(selectedVendorForDetail))}
-                            className="hover:text-indigo-950 p-0.5 rounded transition-colors text-indigo-500 hover:bg-indigo-100"
-                            title="यूनिक वेंडर कोड कॉपी करें"
+                            className="rounded p-0.5 text-[var(--color-muted)] transition-colors hover:bg-white hover:text-[var(--color-ink)]"
+                            title="Copy vendor code"
                           >
-                            {copiedVendorCode ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                            {copiedVendorCode ? <Check className="h-3 w-3 text-[var(--color-success)]" /> : <Copy className="h-3 w-3" />}
                           </button>
                         </div>
-                        <span className="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-700 font-mono">
-                          PAN: {selectedVendorForDetail.panNumber || 'N/A'}
+                        <span className="badge badge-neutral font-mono">
+                          PAN {selectedVendorForDetail.panNumber || 'N/A'}
                         </span>
                         {selectedVendorForDetail.isTdsApplicable === false || selectedVendorForDetail.tdsRate === 0 ? (
-                          <span className="text-[11px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200">
-                            TDS छूट (Nil TDS)
-                          </span>
+                          <span className="badge badge-warning">Nil TDS</span>
                         ) : (
-                          <span className="text-[11px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded border border-purple-200">
+                          <span className="badge badge-neutral">
                             TDS {selectedVendorForDetail.tdsRate}% ({selectedVendorForDetail.tdsSection || '194C'})
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-slate-500 mt-0.5">
-                        Contact Person: <strong>{selectedVendorForDetail.contactPerson}</strong> &bull; Phone: {selectedVendorForDetail.phone}
-                      </div>
+                      <p className="mt-1 text-sm text-[var(--color-muted)]">
+                        <strong className="font-semibold text-[var(--color-ink)]">{selectedVendorForDetail.contactPerson}</strong>
+                        {' · '}
+                        {selectedVendorForDetail.phone}
+                      </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex shrink-0 flex-nowrap items-center gap-2 overflow-x-auto">
                       {onOpenProfileModal && (
                         <button
                           type="button"
                           onClick={() => onOpenProfileModal('vendor', selectedVendorForDetail.id)}
-                          className="px-3.5 py-2 bg-indigo-700 hover:bg-indigo-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                          title="वेंडर या मालिक की प्रोफ़ाइल, संपर्क, पैन, बैंक खाता एडिट करें"
+                          className="btn btn-primary shrink-0 whitespace-nowrap"
+                          title="Edit vendor profile"
                         >
-                          <Edit2 className="w-4 h-4 text-indigo-200" />
-                          <span>✏️ वेंडर प्रोफ़ाइल एडिट करें (Edit Profile)</span>
+                          <Edit2 className="h-4 w-4" />
+                          Edit profile
                         </button>
                       )}
                       <button
+                        type="button"
                         onClick={() => handleOpenEditVendor(selectedVendorForDetail)}
-                        className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-300 shadow-2xs"
+                        className="btn btn-secondary shrink-0 whitespace-nowrap"
                       >
-                        <FileCheck className="w-4 h-4 text-indigo-600" />
-                        TDS व वेंडर सेटिंग बदलें
+                        <FileCheck className="h-4 w-4" />
+                        TDS settings
                       </button>
                       <button
+                        type="button"
                         onClick={() => {
                           const firstVeh = vehicles.find((v) => v.vendorId === selectedVendorForDetail.id);
                           if (firstVeh) {
@@ -945,86 +880,73 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                           }
                           setIsSettlementModalOpen(true);
                         }}
-                        className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors"
+                        className="btn btn-success shrink-0 whitespace-nowrap"
                       >
-                        <IndianRupee className="w-4 h-4" />
-                        Generate Monthly Payout Voucher
+                        <IndianRupee className="h-4 w-4" />
+                        Payout voucher
                       </button>
                     </div>
                   </div>
 
-                  {/* Commercial Terms Strip */}
-                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                      <span className="text-slate-500 text-[10px] block uppercase font-semibold">
-                        Agreed Monthly Rent
-                      </span>
-                      <span className="text-base font-bold text-slate-900">
+                  <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div className="metric-chip">
+                      <span className="metric-chip-label">Monthly rent</span>
+                      <span className="metric-chip-value">
                         {formatCurrency(selectedVendorForDetail.monthlyAgreedRatePerVehicle)}
                       </span>
-                      <span className="text-[10px] text-slate-400 block mt-0.5">/ vehicle / month</span>
+                      <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">per vehicle</span>
                     </div>
-
-                    <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
-                      <span className="text-indigo-700 text-[10px] block uppercase font-semibold">
-                        Attached Fleet Size
+                    <div className="metric-chip">
+                      <span className="metric-chip-label">Attached fleet</span>
+                      <span className="metric-chip-value">
+                        {vehicles.filter((v) => v.vendorId === selectedVendorForDetail.id).length} cars
                       </span>
-                      <span className="text-base font-bold text-indigo-900">
-                        {vehicles.filter((v) => v.vendorId === selectedVendorForDetail.id).length} Cars
-                      </span>
-                      <span className="text-[10px] text-indigo-600 block mt-0.5">Deployed in tenders</span>
+                      <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">on tenders</span>
                     </div>
-
-                    <div className="bg-purple-50 p-3 rounded-lg border border-purple-100">
-                      <span className="text-purple-700 text-[10px] block uppercase font-semibold">
-                        TDS कटौती दर (TDS Rate)
-                      </span>
-                      <span className="text-base font-bold text-purple-900">
+                    <div className="metric-chip">
+                      <span className="metric-chip-label">TDS rate</span>
+                      <span className="metric-chip-value">
                         {selectedVendorForDetail.isTdsApplicable === false || selectedVendorForDetail.tdsRate === 0
-                          ? '0% (TDS छूट)'
-                          : `${selectedVendorForDetail.tdsRate}% (${selectedVendorForDetail.tdsSection || '194C'})`}
+                          ? '0% exempt'
+                          : `${selectedVendorForDetail.tdsRate}%`}
                       </span>
-                      <span className="text-[10px] text-purple-600 block mt-0.5 truncate" title={selectedVendorForDetail.tdsExemptionReason || 'Income Tax Sec 194C'}>
+                      <span className="mt-0.5 block truncate text-[10px] text-[var(--color-muted)]" title={selectedVendorForDetail.tdsExemptionReason || 'Sec 194C'}>
                         {selectedVendorForDetail.isTdsApplicable === false || selectedVendorForDetail.tdsRate === 0
-                          ? (selectedVendorForDetail.tdsExemptionReason || 'Nil TDS Declaration (Sec 194C(6))')
-                          : (selectedVendorForDetail.vendorType === 'owner_driver' ? 'Individual (1%)' : 'Company/Firm (2%)')}
+                          ? (selectedVendorForDetail.tdsExemptionReason || 'Sec 194C(6)')
+                          : (selectedVendorForDetail.vendorType === 'owner_driver' ? 'Individual' : 'Firm / company')}
                       </span>
                     </div>
-
-                    <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-100">
-                      <span className="text-emerald-700 text-[10px] block uppercase font-semibold">
-                        Bank Details
+                    <div className="metric-chip">
+                      <span className="metric-chip-label">Bank</span>
+                      <span className="metric-chip-value truncate !text-sm" title={selectedVendorForDetail.bankAccountDetails}>
+                        {selectedVendorForDetail.bankAccountDetails || 'Not set'}
                       </span>
-                      <span className="text-xs font-medium text-emerald-900 block truncate" title={selectedVendorForDetail.bankAccountDetails}>
-                        {selectedVendorForDetail.bankAccountDetails || 'Not specified'}
-                      </span>
-                      <span className="text-[10px] text-emerald-600 block mt-0.5">For RTGS / NEFT</span>
+                      <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">RTGS / NEFT</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Attached Vehicles Table */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <h4 className="font-bold text-sm text-slate-900">
-                      Vehicles Attached by this Partner ({vehicles.filter((v) => v.vendorId === selectedVendorForDetail.id).length})
+                <div className="panel panel-pad space-y-3">
+                  <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-2.5">
+                    <h4 className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--color-ink)]">
+                      Attached vehicles ({vehicles.filter((v) => v.vendorId === selectedVendorForDetail.id).length})
                     </h4>
-                    <span className="text-xs text-slate-500">Live deployment &amp; tender assignments</span>
+                    <span className="text-xs text-[var(--color-muted)]">Deployment &amp; assignments</span>
                   </div>
 
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50 text-slate-600 uppercase font-semibold text-[11px] border-b border-slate-200">
+                      <thead className="border-b border-[var(--color-line)] text-[11px] font-bold uppercase tracking-wide text-[var(--color-muted)]">
                         <tr>
-                          <th className="py-2.5 px-3">Vehicle Number</th>
-                          <th className="py-2.5 px-3">Make / Model</th>
-                          <th className="py-2.5 px-3">Attached Tender &amp; Dept</th>
-                          <th className="py-2.5 px-3">Assigned Officer</th>
-                          <th className="py-2.5 px-3">Driver</th>
-                          <th className="py-2.5 px-3 text-right">Agreed Rent</th>
+                          <th className="px-3 py-2.5">Vehicle</th>
+                          <th className="px-3 py-2.5">Make / model</th>
+                          <th className="px-3 py-2.5">Tender</th>
+                          <th className="px-3 py-2.5">Officer</th>
+                          <th className="px-3 py-2.5">Driver</th>
+                          <th className="px-3 py-2.5 text-right">Rent</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 text-slate-700">
+                      <tbody className="divide-y divide-[var(--color-line)] text-[var(--color-ink-soft)]">
                         {vehicles
                           .filter((v) => v.vendorId === selectedVendorForDetail.id)
                           .map((veh) => {
@@ -1033,24 +955,22 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                             const drv = drivers.find((d) => d.id === veh.currentDriverId);
 
                             return (
-                              <tr key={veh.id} className="hover:bg-slate-50/70">
-                                <td className="py-2.5 px-3 font-bold font-mono text-slate-900">
+                              <tr key={veh.id} className="transition-colors hover:bg-[var(--color-surface-muted)]">
+                                <td className="px-3 py-3 font-mono font-bold text-[var(--color-ink)]">
                                   {veh.vehicleNumber}
                                 </td>
-                                <td className="py-2.5 px-3">
+                                <td className="px-3 py-3">
                                   {veh.makeModel} ({veh.fuelType})
                                 </td>
-                                <td className="py-2.5 px-3">
-                                  <div className="font-semibold text-slate-900">{tender?.departmentName || '-'}</div>
-                                  <div className="text-[10px] text-slate-500">{tender?.tenderNumber}</div>
+                                <td className="px-3 py-3">
+                                  <div className="font-semibold text-[var(--color-ink)]">{tender?.departmentName || '—'}</div>
+                                  <div className="text-[10px] text-[var(--color-muted)]">{tender?.tenderNumber}</div>
                                 </td>
-                                <td className="py-2.5 px-3 text-slate-800">
-                                  {off?.name || 'Pool / Transit'}
+                                <td className="px-3 py-3">{off?.name || 'Pool / transit'}</td>
+                                <td className="px-3 py-3">
+                                  {drv?.name || <span className="font-semibold text-[var(--color-danger)]">No driver</span>}
                                 </td>
-                                <td className="py-2.5 px-3">
-                                  {drv?.name || <span className="text-rose-600">No Driver</span>}
-                                </td>
-                                <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono">
+                                <td className="px-3 py-3 text-right font-mono font-bold text-[var(--color-ink)]">
                                   {formatCurrency(veh.monthlyVendorRent || selectedVendorForDetail.monthlyAgreedRatePerVehicle)}
                                 </td>
                               </tr>
@@ -1107,39 +1027,39 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                 {/* Summary Metrics Strip */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                    <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+                    <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
                       Attached Running KM
                     </span>
                     <div className="mt-1 flex items-baseline justify-between">
                       <span className="text-2xl font-bold text-slate-900 font-mono">
                         {totalAttachedKm.toLocaleString()} KM
                       </span>
-                      <span className="text-xs text-indigo-600 font-semibold">
+                      <span className="text-xs text-teal-700 font-semibold">
                         {filteredAttachedLogs.length} Slips
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-1">
+                    <p className="text-[11px] text-[var(--color-muted)] mt-1">
                       Certified distance run in govt duty
                     </p>
                   </div>
 
                   <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                    <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+                    <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
                       Duty Hours Clocked
                     </span>
                     <div className="mt-1 flex items-baseline justify-between">
-                      <span className="text-2xl font-bold text-purple-700 font-mono">
+                      <span className="text-2xl font-bold text-sky-700 font-mono">
                         {totalAttachedHours} Hrs
                       </span>
-                      <span className="text-xs text-purple-600 font-medium">Recorded</span>
+                      <span className="text-xs text-sky-700 font-medium">Recorded</span>
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-1">
+                    <p className="text-[11px] text-[var(--color-muted)] mt-1">
                       Includes camp &amp; outstation duty
                     </p>
                   </div>
 
                   <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                    <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+                    <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
                       Officer Certified
                     </span>
                     <div className="mt-1 flex items-baseline justify-between">
@@ -1150,13 +1070,13 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                         {filteredAttachedLogs.length > 0 ? Math.round((verifiedCount / filteredAttachedLogs.length) * 100) : 0}%
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-1">
+                    <p className="text-[11px] text-[var(--color-muted)] mt-1">
                       Signed duty slips for billing claim
                     </p>
                   </div>
 
                   <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                    <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">
+                    <span className="text-[var(--color-muted)] text-[10px] font-bold uppercase tracking-wider block">
                       Toll &amp; Fastag Borne
                     </span>
                     <div className="mt-1 flex items-baseline justify-between">
@@ -1165,7 +1085,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                       </span>
                       <span className="text-xs text-amber-600 font-medium">Reimbursable</span>
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-1">
+                    <p className="text-[11px] text-[var(--color-muted)] mt-1">
                       Highway &amp; bridge toll slips
                     </p>
                   </div>
@@ -1189,7 +1109,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                           }}
                           className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg text-xs"
                         />
-                        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+                        <Search className="w-3.5 h-3.5 text-[var(--color-muted)] absolute left-2.5 top-2.5" />
                       </div>
                     </div>
 
@@ -1233,7 +1153,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-500">
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-[var(--color-muted)]">
                     <span>
                       Showing <strong>{filteredAttachedLogs.length}</strong> duty logs for attached vehicles and owner-drivers
                     </span>
@@ -1273,11 +1193,11 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                             <tr key={log.id} className="hover:bg-slate-50/70">
                               <td className="py-2.5 px-3">
                                 <div className="font-semibold text-slate-900">{formatDate(log.date)}</div>
-                                <span className="font-mono text-[10px] text-slate-500">Slip #{log.slipNumber}</span>
+                                <span className="font-mono text-[10px] text-[var(--color-muted)]">Slip #{log.slipNumber}</span>
                               </td>
                               <td className="py-2.5 px-3">
                                 <div className="font-bold font-mono text-slate-900">{log.vehicleNumber}</div>
-                                <div className="text-[10px] text-slate-500">{veh?.makeModel}</div>
+                                <div className="text-[10px] text-[var(--color-muted)]">{veh?.makeModel}</div>
                               </td>
                               <td className="py-2.5 px-3">
                                 <div className="font-semibold text-slate-800 truncate max-w-[150px]" title={vnd?.name}>
@@ -1286,7 +1206,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                                 <span
                                   className={`text-[9px] px-1.5 py-0.2 rounded font-semibold uppercase ${
                                     veh?.ownershipType === 'Owner-Driver'
-                                      ? 'bg-purple-100 text-purple-800'
+                                      ? 'bg-sky-100 text-sky-800'
                                       : 'bg-blue-100 text-blue-800'
                                   }`}
                                 >
@@ -1295,7 +1215,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                               </td>
                               <td className="py-2.5 px-3">
                                 <div className="font-medium text-slate-900">{log.officerName}</div>
-                                <div className="text-[10px] text-slate-500 truncate max-w-[140px]" title={log.purpose}>
+                                <div className="text-[10px] text-[var(--color-muted)] truncate max-w-[140px]" title={log.purpose}>
                                   {log.purpose}
                                 </div>
                               </td>
@@ -1306,8 +1226,8 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                                 {log.openingKm} &rarr; <strong>{log.closingKm}</strong>
                               </td>
                               <td className="py-2.5 px-3 text-right">
-                                <div className="font-bold font-mono text-indigo-700">{log.totalKm} KM</div>
-                                <div className="text-[10px] text-slate-500 font-mono">{log.totalHours} hrs</div>
+                                <div className="font-bold font-mono text-teal-800">{log.totalKm} KM</div>
+                                <div className="text-[10px] text-[var(--color-muted)] font-mono">{log.totalHours} hrs</div>
                               </td>
                               <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-700">
                                 {log.tollParkingCost > 0 ? formatCurrency(log.tollParkingCost) : '-'}
@@ -1371,7 +1291,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
               </h3>
               <button
                 onClick={() => setIsSettlementModalOpen(true)}
-                className="text-xs text-indigo-600 font-semibold hover:text-indigo-800"
+                className="text-xs text-teal-700 font-semibold hover:text-teal-800"
               >
                 + New Settlement
               </button>
@@ -1387,7 +1307,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                     onClick={() => setSelectedSettlementForPrint(vset)}
                     className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
                       isSelected
-                        ? 'border-indigo-600 bg-indigo-50/50 shadow-xs'
+                        ? 'border-teal-600 bg-teal-50/50 shadow-xs'
                         : 'border-slate-200 hover:border-slate-300 bg-white'
                     }`}
                   >
@@ -1405,12 +1325,12 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                     </div>
 
                     <div className="font-semibold text-slate-900 mt-1">{vset.vendorName}</div>
-                    <div className="text-[11px] text-slate-500 font-mono">
+                    <div className="text-[11px] text-[var(--color-muted)] font-mono">
                       {vset.vehicleNumber} &bull; Month: {vset.monthYear}
                     </div>
 
                     <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-[11px] text-slate-500">Net Payable:</span>
+                      <span className="text-[11px] text-[var(--color-muted)]">Net Payable:</span>
                       <span className="font-bold text-sm text-slate-900 font-mono">
                         {formatCurrency(vset.netPayableToVendor)}
                       </span>
@@ -1427,7 +1347,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
               <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 print:p-0 print:border-none space-y-6">
                 <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
                   <div>
-                    <span className="text-xs text-slate-500 uppercase font-semibold">
+                    <span className="text-xs text-[var(--color-muted)] uppercase font-semibold">
                       Attached Vehicle Payout Voucher
                     </span>
                     <h3 className="font-bold text-base text-slate-900 font-mono">
@@ -1449,7 +1369,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                     )}
                     <button
                       onClick={() => window.print()}
-                      className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs"
+                      className="btn btn-primary !text-xs"
                     >
                       <Printer className="w-4 h-4" />
                       Print Voucher
@@ -1459,30 +1379,30 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
 
                 {/* Printable Document Body */}
                 <div className="border border-slate-300 p-6 rounded-lg space-y-5 bg-white text-slate-900">
-                  <div className="text-center border-b-2 border-slate-800 pb-3">
-                    <span className="text-xs uppercase font-bold tracking-wider text-slate-500">
+                  <div className="text-center border-b-2 border-[var(--color-line)] pb-3">
+                    <span className="text-xs uppercase font-bold tracking-wider text-[var(--color-muted)]">
                       ATTACHED VEHICLE MONTHLY HIRING SETTLEMENT VOUCHER
                     </span>
                     <h2 className="text-lg font-black uppercase mt-0.5">
                       SARKARI FLEET SERVICES
                     </h2>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-[var(--color-muted)]">
                       Tender Transport Contractor &bull; 42, Transport Nagar, Lucknow
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 text-xs">
                     <div>
-                      <span className="text-slate-500 block text-[10px] uppercase">Vendor / Partner:</span>
+                      <span className="text-[var(--color-muted)] block text-[10px] uppercase">Vendor / Partner:</span>
                       <strong className="text-sm text-slate-900 block">{selectedSettlementForPrint.vendorName}</strong>
                       <span className="text-slate-600">Vehicle No: </span>
                       <strong className="font-mono">{selectedSettlementForPrint.vehicleNumber}</strong>
                     </div>
 
                     <div className="text-right">
-                      <div><span className="text-slate-500">Voucher No: </span><strong className="font-mono">{selectedSettlementForPrint.voucherNumber}</strong></div>
-                      <div><span className="text-slate-500">Billing Month: </span><strong>{selectedSettlementForPrint.monthYear}</strong></div>
-                      <div><span className="text-slate-500">Date: </span><strong>{formatDate(selectedSettlementForPrint.settlementDate)}</strong></div>
+                      <div><span className="text-[var(--color-muted)]">Voucher No: </span><strong className="font-mono">{selectedSettlementForPrint.voucherNumber}</strong></div>
+                      <div><span className="text-[var(--color-muted)]">Billing Month: </span><strong>{selectedSettlementForPrint.monthYear}</strong></div>
+                      <div><span className="text-[var(--color-muted)]">Date: </span><strong>{formatDate(selectedSettlementForPrint.settlementDate)}</strong></div>
                     </div>
                   </div>
 
@@ -1558,7 +1478,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                                 <span className="font-semibold text-slate-800">
                                   TDS Deduction u/s {selectedSettlementForPrint.tdsSection || '194C'} @ {selectedSettlementForPrint.tdsPercent}%
                                 </span>
-                                <span className="block text-[10px] text-slate-500">
+                                <span className="block text-[10px] text-[var(--color-muted)]">
                                   (आयकर कटौती - Income Tax TDS on Vehicle Hire)
                                 </span>
                               </>
@@ -1591,7 +1511,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                       <span className="text-emerald-800 font-bold block text-sm">
                         Net Amount Payable to Vendor / Owner:
                       </span>
-                      <span className="text-slate-500 text-[11px]">
+                      <span className="text-[var(--color-muted)] text-[11px]">
                         Status: <strong className="uppercase">{selectedSettlementForPrint.paymentStatus}</strong>
                         {selectedSettlementForPrint.paymentRef && ` (${selectedSettlementForPrint.paymentRef})`}
                       </span>
@@ -1601,7 +1521,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                     </span>
                   </div>
 
-                  <div className="pt-6 border-t border-slate-300 flex justify-between text-[11px] text-slate-500">
+                  <div className="pt-6 border-t border-slate-300 flex justify-between text-[11px] text-[var(--color-muted)]">
                     <div>
                       <p>Prepared By: Accounts Section</p>
                       <p className="mt-8">Authorized Signatory (Contractor)</p>
@@ -1614,7 +1534,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                 </div>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-400">
+              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-[var(--color-muted)]">
                 Select a settlement voucher to view or print.
               </div>
             )}
@@ -1628,7 +1548,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
           <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Handshake className="w-5 h-5 text-indigo-600" />
+                <Handshake className="w-5 h-5 text-teal-700" />
                 <span>
                   {isEditingVendor
                     ? 'वेंडर व TDS विवरण संशोधित करें (Edit Partner & TDS)'
@@ -1637,7 +1557,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
               </h3>
               <button
                 onClick={() => setIsAddVendorModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -1645,13 +1565,13 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
 
             <form onSubmit={handleSaveVendorSubmit} className="mt-4 space-y-4 text-xs">
               {/* Unique Vendor ID / Code */}
-              <div className="p-3 bg-indigo-50/70 rounded-xl border border-indigo-200">
+              <div className="p-3 bg-teal-50/70 rounded-xl border border-teal-200">
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                    <Sparkles className="w-3.5 h-3.5 text-teal-700" />
                     <span>वेंडर यूनिक कोड (Vendor Unique ID / Code) *</span>
                   </label>
-                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-100 border border-indigo-300 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="text-[10px] font-bold text-teal-800 bg-teal-100 border border-teal-300 px-2 py-0.5 rounded-full flex items-center gap-1">
                     ✨ स्वतः तैयार (Auto-Generated)
                   </span>
                 </div>
@@ -1662,19 +1582,19 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                     value={vendorFormData.vendorCode || ''}
                     onChange={(e) => setVendorFormData({ ...vendorFormData, vendorCode: e.target.value.toUpperCase() })}
                     placeholder="e.g. VND-101"
-                    className="w-full px-3 py-2 border border-indigo-300 rounded-lg font-mono font-bold text-slate-900 bg-white uppercase tracking-wider text-sm shadow-2xs focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-teal-300 rounded-lg font-mono font-bold text-slate-900 bg-white uppercase tracking-wider text-sm shadow-2xs focus:ring-2 focus:ring-teal-500"
                   />
                   <button
                     type="button"
                     onClick={() => setVendorFormData({ ...vendorFormData, vendorCode: generateVendorUniqueId(vendors, vendorFormData.vendorType) })}
-                    className="px-3 py-2 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold shrink-0 flex items-center gap-1 shadow-2xs transition-colors"
+                    className="btn btn-primary !text-xs"
                     title="नया यूनिक कोड पुनः जनरेट करें"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>नया कोड</span>
                   </button>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1.5 leading-tight">
+                <p className="text-[10px] text-[var(--color-muted)] mt-1.5 leading-tight">
                   यह अद्वितीय वेंडर आईडी सभी रेंट वाउचर, TDS प्रमाण पत्र, गाड़ी अटैचमेंट और बैंक विवरण पर दर्ज रहेगी।
                 </p>
               </div>
@@ -1801,7 +1721,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                     <span className="font-bold text-slate-900 block text-xs">
                       TDS (आयकर कटौती) विकल्प
                     </span>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-[var(--color-muted)]">
                       गाड़ी वेंडर के किराये से TDS काटना है या नहीं
                     </span>
                   </div>
@@ -1864,36 +1784,36 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                           onClick={() => setVendorFormData({ ...vendorFormData, tdsRate: 1, tdsSection: '194C' })}
                           className={`p-2 rounded-lg border text-center font-bold text-xs transition-all ${
                             vendorFormData.tdsRate === 1
-                              ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-2xs ring-1 ring-indigo-500'
+                              ? 'border-teal-600 bg-teal-50 text-teal-800 shadow-2xs ring-1 ring-teal-500'
                               : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           1%
-                          <span className="block text-[9px] font-normal text-slate-500">व्यक्तिगत / वाहन स्वामी</span>
+                          <span className="block text-[9px] font-normal text-[var(--color-muted)]">व्यक्तिगत / वाहन स्वामी</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setVendorFormData({ ...vendorFormData, tdsRate: 2, tdsSection: '194C' })}
                           className={`p-2 rounded-lg border text-center font-bold text-xs transition-all ${
                             vendorFormData.tdsRate === 2
-                              ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-2xs ring-1 ring-indigo-500'
+                              ? 'border-teal-600 bg-teal-50 text-teal-800 shadow-2xs ring-1 ring-teal-500'
                               : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           2%
-                          <span className="block text-[9px] font-normal text-slate-500">कंपनी / फर्म / LLP</span>
+                          <span className="block text-[9px] font-normal text-[var(--color-muted)]">कंपनी / फर्म / LLP</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setVendorFormData({ ...vendorFormData, tdsRate: 5, tdsSection: '194C' })}
                           className={`p-2 rounded-lg border text-center font-bold text-xs transition-all ${
                             vendorFormData.tdsRate === 5
-                              ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-2xs ring-1 ring-indigo-500'
+                              ? 'border-teal-600 bg-teal-50 text-teal-800 shadow-2xs ring-1 ring-teal-500'
                               : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           5%
-                          <span className="block text-[9px] font-normal text-slate-500">अन्य विशेष दर</span>
+                          <span className="block text-[9px] font-normal text-[var(--color-muted)]">अन्य विशेष दर</span>
                         </button>
                         <div className="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2">
                           <input
@@ -1917,7 +1837,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                             }
                             className="w-full text-xs font-bold py-1.5 outline-hidden"
                           />
-                          <span className="text-slate-400 font-bold text-xs">%</span>
+                          <span className="text-[var(--color-muted)] font-bold text-xs">%</span>
                         </div>
                       </div>
                     </div>
@@ -1938,9 +1858,9 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                           <option value="Other">अन्य धारा (Other)</option>
                         </select>
                       </div>
-                      <div className="bg-indigo-50/60 p-2.5 rounded-lg border border-indigo-100 flex flex-col justify-center">
-                        <span className="text-[10px] text-indigo-700 font-semibold">लागू TDS कटौती दर:</span>
-                        <span className="text-sm font-black text-indigo-900 font-mono">
+                      <div className="bg-teal-50/60 p-2.5 rounded-lg border border-teal-100 flex flex-col justify-center">
+                        <span className="text-[10px] text-teal-800 font-semibold">लागू TDS कटौती दर:</span>
+                        <span className="text-sm font-black text-[var(--color-ink)] font-mono">
                           {vendorFormData.tdsRate || 0}% ({vendorFormData.tdsSection || '194C'})
                         </span>
                       </div>
@@ -2017,7 +1937,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   {isEditingVendor ? 'अपडेट करें (Update Partner)' : 'सुरक्षित करें (Save Partner)'}
                 </button>
@@ -2033,12 +1953,12 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
           <div className="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <IndianRupee className="w-5 h-5 text-indigo-600" />
+                <IndianRupee className="w-5 h-5 text-teal-700" />
                 <span>Calculate Monthly Vendor Payout (वेंडर किराया पर्ची बनाएं)</span>
               </h3>
               <button
                 onClick={() => setIsSettlementModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -2145,7 +2065,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                     <span className="font-bold text-slate-800 block text-xs">
                       3. TDS कटौती विकल्प (TDS Deduction Settings)
                     </span>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-[var(--color-muted)]">
                       {selectedVendor ? `${selectedVendor.name} (PAN: ${selectedVendor.panNumber || 'N/A'})` : 'वेंडर TDS'}
                     </span>
                   </div>
@@ -2189,7 +2109,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                             onClick={() => setSettleTdsPercent(rate)}
                             className={`px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all ${
                               settleTdsPercent === rate
-                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                                ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)] shadow-2xs'
                                 : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                             }`}
                           >
@@ -2211,7 +2131,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                             className="w-14 text-xs font-bold py-1 outline-hidden"
                             placeholder="अन्य %"
                           />
-                          <span className="text-slate-400 font-bold text-xs">%</span>
+                          <span className="text-[var(--color-muted)] font-bold text-xs">%</span>
                         </div>
                       </div>
                     </div>
@@ -2242,7 +2162,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
               <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-300 flex items-center justify-between">
                 <div>
                   <span className="text-xs text-emerald-800 block font-semibold">Net Payout to Vendor / Owner</span>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-[var(--color-muted)]">
                     (Gross Earnings ₹{totalEarned.toLocaleString('en-IN')} - Deductions ₹{totalDeductions.toLocaleString('en-IN')} - TDS ₹{calculatedTds.toLocaleString('en-IN')})
                   </span>
                 </div>
@@ -2261,7 +2181,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Save &amp; Generate Voucher
                 </button>

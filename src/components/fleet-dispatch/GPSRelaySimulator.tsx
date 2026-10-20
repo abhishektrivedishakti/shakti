@@ -127,20 +127,20 @@ export const GPSRelaySimulator: React.FC<GPSRelaySimulatorProps> = ({ bookings, 
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+      <div className="panel panel-pad flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-teal-800 flex items-center justify-center text-white shadow-lg">
               <Radio className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white flex items-center gap-2">
+              <h1 className="text-xl font-bold text-[var(--color-ink)] flex items-center gap-2">
                 लाइव जीपीएस रिले ट्रैकिंग (GPS Relay Simulator)
-                <span className="text-xs px-2.5 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full font-medium">
+                <span className="badge badge-success">
                   {vehicles.length} वाहन ऑन-रडार
                 </span>
               </h1>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[var(--color-muted)]">
                 फ्लीट रियल-टाइम टेलीमैटिक्स, स्पीडोमीटर, गति नियंत्रण, आपातकालीन एसओएस व लाइव ट्रैकिंग शेयर
               </p>
             </div>
@@ -151,11 +151,7 @@ export const GPSRelaySimulator: React.FC<GPSRelaySimulatorProps> = ({ bookings, 
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsSimulating(!isSimulating)}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
-              isSimulating
-                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/30'
-                : 'bg-slate-800 text-slate-300 border border-slate-700'
-            }`}
+            className={`text-xs ${isSimulating ? 'btn btn-success' : 'btn btn-secondary'}`}
           >
             {isSimulating ? (
               <>
@@ -177,21 +173,21 @@ export const GPSRelaySimulator: React.FC<GPSRelaySimulatorProps> = ({ bookings, 
         {vehicles.map((v) => (
           <div
             key={v.bookingId}
-            className={`bg-slate-900 border rounded-2xl p-5 shadow-lg relative transition-all ${
+            className={`bg-white border rounded-2xl p-5 shadow-lg relative transition-all ${
               v.status === 'sos'
-                ? 'border-rose-500/80 bg-rose-950/20 ring-2 ring-rose-500/30'
-                : 'border-slate-800 hover:border-slate-700'
+                ? 'border-rose-400 bg-rose-50 ring-2 ring-rose-500/30'
+                : 'border-[var(--color-line)] hover:border-[var(--color-line-strong)]'
             }`}
           >
             {/* Header info */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--color-line)]">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+                <div className="p-2 rounded-lg bg-teal-50 text-teal-700">
                   <Car className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-white font-mono">{v.vehicleNumber}</div>
-                  <div className="text-[11px] text-indigo-400 font-medium">ड्यूटी #{v.bookingNumber}</div>
+                  <div className="text-sm font-bold text-[var(--color-ink)] font-mono">{v.vehicleNumber}</div>
+                  <div className="text-[11px] text-teal-700 font-medium">ड्यूटी #{v.bookingNumber}</div>
                 </div>
               </div>
 
@@ -202,7 +198,7 @@ export const GPSRelaySimulator: React.FC<GPSRelaySimulatorProps> = ({ bookings, 
                   SOS अलार्म
                 </span>
               ) : (
-                <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                <span className="badge badge-success inline-flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                   {v.speedKmH} KM/H
                 </span>
@@ -211,38 +207,38 @@ export const GPSRelaySimulator: React.FC<GPSRelaySimulatorProps> = ({ bookings, 
 
             {/* Middle telemetry metrics */}
             <div className="py-3.5 space-y-2 text-xs">
-              <div className="flex items-start gap-1.5 text-slate-300">
-                <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-1.5 text-[var(--color-muted)]">
+                <MapPin className="w-3.5 h-3.5 text-teal-700 shrink-0 mt-0.5" />
                 <span className="truncate">{v.currentLocation}</span>
               </div>
 
-              <div className="flex items-center justify-between text-slate-400 pt-1">
+              <div className="flex items-center justify-between text-[var(--color-muted)] pt-1">
                 <span>सवारी (VIP):</span>
-                <span className="text-white font-semibold truncate max-w-[150px]">{v.passengerName}</span>
+                <span className="text-[var(--color-ink)] font-semibold truncate max-w-[150px]">{v.passengerName}</span>
               </div>
 
-              <div className="flex items-center justify-between text-slate-400">
+              <div className="flex items-center justify-between text-[var(--color-muted)]">
                 <span>चालक (Driver):</span>
-                <span className="text-slate-200 font-medium">
+                <span className="text-[var(--color-ink)] font-medium">
                   {v.driverName} ({v.driverPhone})
                 </span>
               </div>
 
-              <div className="flex items-center justify-between text-slate-400">
+              <div className="flex items-center justify-between text-[var(--color-muted)]">
                 <span>अपेक्षित समय (ETA):</span>
-                <span className="text-cyan-300 font-bold">{v.etaMinutes} मिनट शेष</span>
+                <span className="text-[var(--color-info)] font-bold">{v.etaMinutes} मिनट शेष</span>
               </div>
             </div>
 
             {/* Bottom hardware sensor bar */}
-            <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+            <div className="pt-3 border-t border-[var(--color-line)] flex items-center justify-between text-[11px] text-[var(--color-muted)]">
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1">
-                  <Battery className="w-3.5 h-3.5 text-emerald-400" />
+                  <Battery className="w-3.5 h-3.5 text-teal-700" />
                   {v.batteryPercent}%
                 </span>
                 <span className="flex items-center gap-1">
-                  <Wifi className="w-3.5 h-3.5 text-cyan-400" />
+                  <Wifi className="w-3.5 h-3.5 text-teal-700" />
                   4G LTE
                 </span>
               </div>
@@ -250,11 +246,12 @@ export const GPSRelaySimulator: React.FC<GPSRelaySimulatorProps> = ({ bookings, 
               {/* Action buttons */}
               <div className="flex items-center gap-1.5">
                 <button
+                  type="button"
                   onClick={() => handleTriggerSOS(v.vehicleNumber)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  className={`cursor-pointer rounded-lg px-2.5 py-1 text-xs font-bold transition ${
                     v.status === 'sos'
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-rose-950/60 text-rose-400 border border-rose-800/80 hover:bg-rose-900/80'
+                      ? 'btn btn-success !px-2.5 !py-1'
+                      : 'border border-rose-300 bg-rose-50 text-rose-600 hover:bg-rose-100'
                   }`}
                   title="एसओएस आपातकालीन अलार्म चालू/बंद करें"
                 >
@@ -262,8 +259,9 @@ export const GPSRelaySimulator: React.FC<GPSRelaySimulatorProps> = ({ bookings, 
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => handleShareTrackingLink(v)}
-                  className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shadow transition cursor-pointer"
+                  className="btn btn-success !px-2.5 !py-1 text-xs"
                   title="व्हाट्सएप पर लाइव ट्रैकिंग लिंक शेयर करें"
                 >
                   <Share2 className="w-3 h-3" />
@@ -276,9 +274,11 @@ export const GPSRelaySimulator: React.FC<GPSRelaySimulatorProps> = ({ bookings, 
       </div>
 
       {copiedLink && (
-        <div className="fixed bottom-6 right-6 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 text-sm font-semibold z-50 animate-fade-in">
-          <CheckCircle className="w-4 h-4" />
-          ड्यूटी #{copiedLink} का लाइव ट्रैकिंग लिंक कॉपी व शेयर कर दिया गया!
+        <div className="alert-banner fixed bottom-6 right-6 z-50 animate-fade-in shadow-2xl">
+          <CheckCircle className="h-4 w-4 text-teal-700" />
+          <span className="text-sm font-semibold">
+            ड्यूटी #{copiedLink} का लाइव ट्रैकिंग लिंक कॉपी व शेयर कर दिया गया!
+          </span>
         </div>
       )}
     </div>

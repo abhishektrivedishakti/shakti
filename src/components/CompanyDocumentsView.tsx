@@ -83,7 +83,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
   // Helper function to get days info
   const getExpiryStatus = (doc: CompanyDocument) => {
     if (doc.isLifetime || !doc.expiryDate) {
-      return { status: 'lifetime', label: 'Lifetime Valid (आजीवन मान्य)', badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200', days: 99999 };
+      return { status: 'lifetime', label: 'Lifetime Valid (आजीवन मान्य)', badgeColor: 'bg-teal-50 text-teal-800 border-teal-200', days: 99999 };
     }
     const days = getDaysDiff(doc.expiryDate);
     const alertThreshold = doc.alertDaysBefore || 30;
@@ -368,7 +368,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
       case 'tour_transport':
         return { label: 'Tour & Permit (टूर व AITP परमिट)', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
       case 'digital_token_gem':
-        return { label: 'DSC Token & GeM (डिजिटल सिग्नेचर)', color: 'bg-purple-50 text-purple-700 border-purple-200' };
+        return { label: 'DSC Token & GeM (डिजिटल सिग्नेचर)', color: 'bg-sky-50 text-sky-700 border-sky-200' };
       case 'trade_license':
         return { label: 'Trade License (गुमाश्ता लाइसेंस)', color: 'bg-amber-50 text-amber-700 border-amber-200' };
       case 'banking_guarantee':
@@ -380,9 +380,9 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
       case 'labour_statutory':
         return { label: 'Labour Law (EPF व ESIC कोड)', color: 'bg-teal-50 text-teal-700 border-teal-200' };
       case 'pollution_noc':
-        return { label: 'NOC & Fire (अनापत्ति प्रमाणपत्र)', color: 'bg-orange-50 text-orange-700 border-orange-200' };
+        return { label: 'NOC & Fire (अनापत्ति प्रमाणपत्र)', color: 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border-amber-200' };
       case 'iso_quality':
-        return { label: 'MSME & Quality (उद्यम आधार)', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
+        return { label: 'MSME & Quality (उद्यम आधार)', color: 'bg-teal-50 text-teal-800 border-teal-200' };
       default:
         return { label: 'Other Document (अन्य दस्तावेज)', color: 'bg-slate-100 text-slate-700 border-slate-200' };
     }
@@ -403,21 +403,21 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Header Card */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1">
-              <FolderOpen className="w-3.5 h-3.5 text-indigo-600" />
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 text-teal-800 border border-teal-200 flex items-center gap-1">
+              <FolderOpen className="w-3.5 h-3.5 text-teal-700" />
               Company Legal Vault &bull; कंपनी दस्तावेज़ भंडार
             </span>
-            <span className="text-xs font-mono text-slate-500 font-bold">
+            <span className="text-xs font-mono text-[var(--color-muted)] font-bold">
               Shakti Travels and Tours
             </span>
           </div>
           <h2 className="text-xl font-black text-slate-900 mt-1 flex items-center gap-2">
             <span>Company Important Documents &amp; Expiry Tracker</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-[var(--color-muted)] mt-0.5">
             शक्ति ट्रैवल्स एंड टूर्स के समस्त मुख्य दस्तावेज (GST, डिजिटल सिग्नेचर टोकन, टूर परमिट, बैंक गारंटी, गुमाश्ता, रेंट एग्रीमेंट) सुरक्षित रखें व एक्सपायरी ट्रैक करें
           </p>
         </div>
@@ -434,7 +434,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
 
           <button
             onClick={handleOpenAdd}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
+            className="btn btn-primary !text-xs"
           >
             <Plus className="w-4 h-4" />
             <span>+ Add Company Document (नया दस्तावेज़ जोड़ें)</span>
@@ -448,19 +448,19 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
           onClick={() => setStatusFilter('all')}
           className={`bg-white p-4 rounded-xl border transition-all cursor-pointer ${
             statusFilter === 'all'
-              ? 'border-indigo-500 ring-2 ring-indigo-200 shadow-sm'
+              ? 'border-teal-500 ring-2 ring-teal-200 shadow-sm'
               : 'border-slate-200 hover:border-slate-300'
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase">Total Documents</span>
-            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+            <span className="text-xs font-semibold text-[var(--color-muted)] uppercase">Total Documents</span>
+            <div className="p-2 bg-teal-50 text-teal-700 rounded-lg">
               <FileCheck className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-black text-slate-900">{stats.total}</span>
-            <span className="text-xs text-slate-400">कुल दस्तावेज़</span>
+            <span className="text-xs text-[var(--color-muted)]">कुल दस्तावेज़</span>
           </div>
         </div>
 
@@ -563,7 +563,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
               </button>
               <button
                 onClick={() => setStatusFilter('expiring_soon')}
-                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs"
+                className="btn btn-success !text-xs shadow-2xs"
               >
                 Expiring Soon ({stats.expiringSoon})
               </button>
@@ -589,7 +589,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                     <span className="block font-bold text-xs text-slate-900 truncate">
                       {doc.title}
                     </span>
-                    <span className="text-[11px] text-slate-500 block">
+                    <span className="text-[11px] text-[var(--color-muted)] block">
                       {doc.docNumber || 'No number'} &bull; {doc.issuingAuthority}
                     </span>
                   </div>
@@ -597,7 +597,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                     <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold border ${exp.badgeColor}`}>
                       {isPast ? `Expired (${Math.abs(exp.days)}d ago)` : `In ${exp.days} days`}
                     </span>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                    <span className="text-[10px] text-[var(--color-muted)] block mt-0.5">
                       {formatDate(doc.expiryDate || '')}
                     </span>
                   </div>
@@ -613,18 +613,18 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
           {/* Search */}
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <Search className="w-4 h-4 text-[var(--color-muted)] absolute left-3 top-2.5" />
             <input
               type="text"
               placeholder="Search by title, number, authority, locker..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500"
+              className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600"
+                className="absolute right-2.5 top-2.5 text-[var(--color-muted)] hover:text-slate-600"
               >
                 &times;
               </button>
@@ -668,14 +668,14 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
 
           {/* View Mode Toggle */}
           <div className="flex items-center justify-between bg-slate-100 p-1 rounded-lg">
-            <span className="text-[11px] text-slate-500 font-semibold px-2">
+            <span className="text-[11px] text-[var(--color-muted)] font-semibold px-2">
               Showing {filteredDocuments.length} of {documents.length}
             </span>
             <div className="flex items-center space-x-1">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
-                  viewMode === 'grid' ? 'bg-white text-indigo-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                  viewMode === 'grid' ? 'bg-white text-teal-800 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Cards
@@ -683,7 +683,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
               <button
                 onClick={() => setViewMode('table')}
                 className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
-                  viewMode === 'table' ? 'bg-white text-indigo-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                  viewMode === 'table' ? 'bg-white text-teal-800 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Table
@@ -698,7 +698,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
             onClick={() => setStatusFilter('all')}
             className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
               statusFilter === 'all'
-                ? 'bg-slate-900 text-white font-bold'
+                ? 'bg-[var(--color-ink)] text-white font-bold'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -744,8 +744,8 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
             onClick={() => setStatusFilter('lifetime')}
             className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
               statusFilter === 'lifetime'
-                ? 'bg-indigo-600 text-white font-bold'
-                : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200'
+                ? 'bg-[var(--color-ink)] text-white font-bold'
+                : 'bg-teal-50 text-teal-800 hover:bg-teal-100 border border-teal-200'
             }`}
           >
             Lifetime / No Expiry ({stats.lifetime})
@@ -755,21 +755,21 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
 
       {/* Main Document Listing: Grid vs Table */}
       {documents.length === 0 ? (
-        <div className="bg-white rounded-2xl border-2 border-dashed border-indigo-200 p-12 text-center space-y-4">
-          <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto text-indigo-600 shadow-xs">
+        <div className="bg-white rounded-2xl border-2 border-dashed border-teal-200 p-12 text-center space-y-4">
+          <div className="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center mx-auto text-teal-700 shadow-xs">
             <FolderOpen className="w-8 h-8" />
           </div>
           <div className="space-y-1">
             <h4 className="font-black text-slate-900 text-lg">
               Shakti Travels and Tours &bull; कंपनी दस्तावेज़ भंडार खाली है
             </h4>
-            <p className="text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
+            <p className="text-xs text-[var(--color-muted)] max-w-lg mx-auto leading-relaxed">
               पुराना डेमो डेटा हटा दिया गया है। अब अपनी कंपनी के सभी महत्वपूर्ण कागज़ात (जैसे GST, डिजिटल सिग्नेचर डोंगल टोकन, AITP टूर परमिट, बैंक गारंटी, गुमाश्ता/ट्रेड लाइसेंस, रेंट एग्रीमेंट, बीमा पॉलिसी) यहाँ जोड़ें और उनकी एक्सपायरी तिथि पर ऑटोमैटिक अलर्ट पाएं।
             </p>
           </div>
           <button
             onClick={handleOpenAdd}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-md transition-all inline-flex items-center gap-2"
+            className="btn btn-primary !text-xs"
           >
             <Plus className="w-4 h-4" />
             + Add First Company Document (पहला दस्तावेज़ जोड़ें)
@@ -777,11 +777,11 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
         </div>
       ) : filteredDocuments.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
-          <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400">
+          <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-[var(--color-muted)]">
             <FolderOpen className="w-7 h-7" />
           </div>
           <h4 className="font-bold text-slate-800 text-base">No company documents match your filters</h4>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
+          <p className="text-xs text-[var(--color-muted)] max-w-md mx-auto">
             Try resetting your search query or status filter, or click &ldquo;+ Add Company Document&rdquo; to add a new certificate or permit.
           </p>
           <button
@@ -790,7 +790,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
               setCategoryFilter('all');
               setStatusFilter('all');
             }}
-            className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-semibold"
+            className="px-4 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg text-xs font-semibold"
           >
             Reset All Filters
           </button>
@@ -818,7 +818,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-slate-900 text-sm leading-snug group-hover:text-indigo-600 transition-colors">
+                    <h3 className="font-bold text-slate-900 text-sm leading-snug group-hover:text-teal-700 transition-colors">
                       {doc.title}
                     </h3>
                     <div className="flex items-center space-x-2 mt-1">
@@ -830,19 +830,19 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
 
                   {/* Issuing Authority */}
                   <div className="text-xs text-slate-600 flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <Building2 className="w-3.5 h-3.5 text-[var(--color-muted)] shrink-0" />
                     <span className="truncate">{doc.issuingAuthority}</span>
                   </div>
 
                   {/* Dates Box */}
                   <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 grid grid-cols-2 gap-2 text-[11px]">
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Issued On:</span>
+                      <span className="text-[var(--color-muted)] block text-[10px]">Issued On:</span>
                       <strong className="text-slate-700">{formatDate(doc.issueDate)}</strong>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Expires On:</span>
-                      <strong className={doc.isLifetime ? 'text-indigo-700' : exp.days < 0 ? 'text-rose-600' : 'text-slate-900'}>
+                      <span className="text-[var(--color-muted)] block text-[10px]">Expires On:</span>
+                      <strong className={doc.isLifetime ? 'text-teal-800' : exp.days < 0 ? 'text-rose-600' : 'text-slate-900'}>
                         {doc.isLifetime ? 'Lifetime Valid' : formatDate(doc.expiryDate || '')}
                       </strong>
                     </div>
@@ -850,7 +850,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
 
                   {/* Physical Custody / Location */}
                   {doc.custodyLocation && (
-                    <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                    <div className="text-[11px] text-[var(--color-muted)] flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                       <span className="truncate"><strong>Locker/File:</strong> {doc.custodyLocation}</span>
                     </div>
@@ -858,15 +858,15 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
 
                   {/* Contact / Agent */}
                   {doc.contactPersonOrAgent && (
-                    <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                    <div className="text-[11px] text-[var(--color-muted)] flex items-center gap-1.5">
+                      <Phone className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                       <span className="truncate"><strong>Agent/Renewal:</strong> {doc.contactPersonOrAgent}</span>
                     </div>
                   )}
 
                   {/* Notes Preview */}
                   {doc.notes && (
-                    <p className="text-[11px] text-slate-500 line-clamp-2 italic bg-slate-50/60 p-2 rounded-lg border border-slate-100">
+                    <p className="text-[11px] text-[var(--color-muted)] line-clamp-2 italic bg-slate-50/60 p-2 rounded-lg border border-slate-100">
                       &ldquo;{doc.notes}&rdquo;
                     </p>
                   )}
@@ -876,7 +876,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                 <div className="p-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between text-xs">
                   <button
                     onClick={() => setPreviewDoc(doc)}
-                    className="text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1"
+                    className="text-teal-700 hover:text-teal-800 font-bold flex items-center gap-1"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     <span>View / Preview</span>
@@ -885,7 +885,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                   <div className="flex items-center space-x-1.5">
                     <button
                       onClick={() => setShareTextModalDoc(doc)}
-                      className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                      className="p-1.5 text-[var(--color-muted)] hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                       title="Share / WhatsApp Reminder to CA or Agent"
                     >
                       <Share2 className="w-4 h-4" />
@@ -893,7 +893,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
 
                     <button
                       onClick={() => handleOpenEdit(doc)}
-                      className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-1.5 text-[var(--color-muted)] hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
                       title="Edit Document Details"
                     >
                       <Edit className="w-4 h-4" />
@@ -905,7 +905,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                           onDeleteDocument(doc.id);
                         }
                       }}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                      className="p-1.5 text-[var(--color-muted)] hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                       title="Delete Document"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -941,7 +941,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                     <tr key={doc.id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="py-3 px-4">
                         <div className="font-bold text-slate-900">{doc.title}</div>
-                        <div className="font-mono text-[11px] text-slate-500">{doc.docNumber || 'No number'}</div>
+                        <div className="font-mono text-[11px] text-[var(--color-muted)]">{doc.docNumber || 'No number'}</div>
                       </td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${cat.color}`}>
@@ -952,7 +952,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                         {doc.issuingAuthority}
                       </td>
                       <td className="py-3 px-4">
-                        <span className={doc.isLifetime ? 'text-indigo-700 font-semibold' : exp.days < 0 ? 'text-rose-600 font-bold' : 'font-medium'}>
+                        <span className={doc.isLifetime ? 'text-teal-800 font-semibold' : exp.days < 0 ? 'text-rose-600 font-bold' : 'font-medium'}>
                           {doc.isLifetime ? 'Lifetime Valid' : formatDate(doc.expiryDate || '')}
                         </span>
                       </td>
@@ -961,28 +961,28 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                           {exp.label}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-slate-500 text-[11px]">
+                      <td className="py-3 px-4 text-[var(--color-muted)] text-[11px]">
                         {doc.custodyLocation || '-'}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end space-x-1.5">
                           <button
                             onClick={() => setPreviewDoc(doc)}
-                            className="p-1 text-slate-500 hover:text-indigo-600"
+                            className="p-1 text-[var(--color-muted)] hover:text-teal-700"
                             title="Preview"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => setShareTextModalDoc(doc)}
-                            className="p-1 text-slate-500 hover:text-emerald-600"
+                            className="p-1 text-[var(--color-muted)] hover:text-emerald-600"
                             title="Share Reminder"
                           >
                             <Share2 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleOpenEdit(doc)}
-                            className="p-1 text-slate-500 hover:text-indigo-600"
+                            className="p-1 text-[var(--color-muted)] hover:text-teal-700"
                             title="Edit"
                           >
                             <Edit className="w-4 h-4" />
@@ -991,7 +991,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                             onClick={() => {
                               if (confirm(`Delete ${doc.title}?`)) onDeleteDocument(doc.id);
                             }}
-                            className="p-1 text-slate-400 hover:text-rose-600"
+                            className="p-1 text-[var(--color-muted)] hover:text-rose-600"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1013,21 +1013,21 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+                <div className="p-2 bg-teal-50 text-teal-700 rounded-xl">
                   <FileText className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900">
                     {editingDoc ? 'Edit Company Document (दस्तावेज़ विवरण संपादित करें)' : 'Add Company Document (नया कंपनी दस्तावेज़ जोड़ें)'}
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[var(--color-muted)]">
                     Shakti Travels and Tours &bull; कंपनी दस्तावेज व एक्सपायरी विवरण दर्ज करें
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -1043,14 +1043,14 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => applyPreset('gst')}
-                    className="px-2.5 py-1 bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 rounded-lg border border-slate-300 font-medium transition-colors"
+                    className="px-2.5 py-1 bg-white hover:bg-teal-50 text-slate-700 hover:text-teal-800 rounded-lg border border-slate-300 font-medium transition-colors"
                   >
                     + GST Certificate
                   </button>
                   <button
                     type="button"
                     onClick={() => applyPreset('dsc')}
-                    className="px-2.5 py-1 bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 rounded-lg border border-slate-300 font-medium transition-colors"
+                    className="px-2.5 py-1 bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 rounded-lg border border-slate-300 font-medium transition-colors"
                   >
                     + Class-3 DSC Token
                   </button>
@@ -1170,12 +1170,12 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                     <label className="font-semibold text-slate-700">
                       Expiry Date (समाप्ति / रिन्यूअल तिथि)
                     </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-indigo-700 font-bold">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-teal-800 font-bold">
                       <input
                         type="checkbox"
                         checked={formIsLifetime}
                         onChange={(e) => setFormIsLifetime(e.target.checked)}
-                        className="w-3.5 h-3.5 text-indigo-600 rounded"
+                        className="w-3.5 h-3.5 text-teal-700 rounded"
                       />
                       Lifetime / No Expiry (आजीवन मान्य)
                     </label>
@@ -1188,7 +1188,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                     placeholder="YYYY-MM-DD"
                     className={`w-full px-3 py-2 border rounded-lg ${
                       formIsLifetime
-                        ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                        ? 'bg-slate-100 text-[var(--color-muted)] border-slate-200 cursor-not-allowed'
                         : 'bg-white text-slate-900 border-slate-300'
                     }`}
                   />
@@ -1241,10 +1241,10 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
               </div>
 
               {/* File Attachment Upload */}
-              <div className="p-3.5 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-2">
+              <div className="p-3.5 bg-teal-50/50 rounded-xl border border-teal-100 space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <Upload className="w-4 h-4 text-indigo-600" />
+                    <Upload className="w-4 h-4 text-teal-700" />
                     Attach Document File / Scan Copy (दस्तावेज़ की प्रति अपलोड करें)
                   </label>
                   {formFileName && (
@@ -1259,9 +1259,9 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                   ref={fileInputRef}
                   onChange={handleFileUpload}
                   accept=".pdf,image/*,.doc,.docx"
-                  className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
+                  className="w-full text-xs text-[var(--color-muted)] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[var(--color-ink)] file:text-white hover:file:bg-teal-500 cursor-pointer"
                 />
-                <span className="text-[10px] text-slate-400 block">
+                <span className="text-[10px] text-[var(--color-muted)] block">
                   PDF, JPG, PNG स्वीकार्य हैं। सरकारी टेंडर व आरटीओ चेकिंग हेतु स्कैन सुरक्षित रहेगा।
                 </span>
               </div>
@@ -1290,7 +1290,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold shadow-xs flex items-center gap-1.5"
+                  className="btn btn-primary"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   Save Company Document (सुरक्षित करें)
@@ -1313,13 +1313,13 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                 <h3 className="text-lg font-bold text-slate-900 mt-1">
                   {previewDoc.title}
                 </h3>
-                <span className="font-mono text-xs text-indigo-700 font-bold">
+                <span className="font-mono text-xs text-teal-800 font-bold">
                   Document ID: {previewDoc.docNumber || 'N/A'}
                 </span>
               </div>
               <button
                 onClick={() => setPreviewDoc(null)}
-                className="text-slate-400 hover:text-slate-600 text-2xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-2xl font-bold"
               >
                 &times;
               </button>
@@ -1358,29 +1358,29 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
             {/* Detailed Grid */}
             <div className="grid grid-cols-2 gap-3 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
               <div>
-                <span className="text-slate-400 text-[10px] block">Company Name:</span>
+                <span className="text-[var(--color-muted)] text-[10px] block">Company Name:</span>
                 <strong className="text-slate-900 font-bold">Shakti Travels and Tours</strong>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block">Issuing Authority:</span>
+                <span className="text-[var(--color-muted)] text-[10px] block">Issuing Authority:</span>
                 <strong className="text-slate-800">{previewDoc.issuingAuthority}</strong>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block">Date of Issue:</span>
+                <span className="text-[var(--color-muted)] text-[10px] block">Date of Issue:</span>
                 <span className="font-medium text-slate-700">{formatDate(previewDoc.issueDate)}</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block">Expiry Date:</span>
+                <span className="text-[var(--color-muted)] text-[10px] block">Expiry Date:</span>
                 <span className="font-bold text-slate-900">
                   {previewDoc.isLifetime ? 'Lifetime Valid (No Expiry)' : formatDate(previewDoc.expiryDate || '')}
                 </span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block">Physical Custody / Locker:</span>
+                <span className="text-[var(--color-muted)] text-[10px] block">Physical Custody / Locker:</span>
                 <span className="font-medium text-slate-800">{previewDoc.custodyLocation || 'Main Office Safe'}</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] block">Renewal Contact:</span>
+                <span className="text-[var(--color-muted)] text-[10px] block">Renewal Contact:</span>
                 <span className="font-medium text-slate-800">{previewDoc.contactPersonOrAgent || 'Office Admin'}</span>
               </div>
             </div>
@@ -1396,12 +1396,12 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
             <div className="border border-slate-200 p-4 rounded-xl space-y-3 bg-slate-50/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <FileBadge className="w-5 h-5 text-indigo-600" />
+                  <FileBadge className="w-5 h-5 text-teal-700" />
                   <div>
                     <span className="font-bold text-xs text-slate-900 block">
                       {previewDoc.fileName || `${previewDoc.title}.pdf`}
                     </span>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-[var(--color-muted)]">
                       Digital Verified Certificate &bull; {previewDoc.fileSize || '1.2 MB'}
                     </span>
                   </div>
@@ -1412,7 +1412,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                     <a
                       href={previewDoc.fileUrl}
                       download={previewDoc.fileName || 'company_document.pdf'}
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold flex items-center gap-1"
+                      className="btn btn-primary !text-xs"
                     >
                       <Download className="w-3.5 h-3.5" />
                       Download Scan
@@ -1431,17 +1431,17 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
 
               {/* Simulated Visual Preview */}
               <div className="bg-white border border-slate-200 rounded-lg p-6 text-center space-y-2 shadow-2xs">
-                <div className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+                <div className="text-[10px] uppercase tracking-widest text-[var(--color-muted)] font-bold">
                   Official Document Transcript &bull; शक्ति ट्रैवल्स एंड टूर्स
                 </div>
                 <div className="text-base font-black text-slate-900">{previewDoc.title}</div>
-                <div className="font-mono text-sm font-bold text-indigo-700 bg-indigo-50 inline-block px-3 py-1 rounded border border-indigo-200">
+                <div className="font-mono text-sm font-bold text-teal-800 bg-teal-50 inline-block px-3 py-1 rounded border border-teal-200">
                   {previewDoc.docNumber}
                 </div>
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-[var(--color-muted)]">
                   Issued by: {previewDoc.issuingAuthority}
                 </div>
-                <div className="pt-2 text-[11px] text-slate-400">
+                <div className="pt-2 text-[11px] text-[var(--color-muted)]">
                   {previewDoc.isLifetime ? 'Authorized for Lifetime Commercial Transport' : `Valid through: ${formatDate(previewDoc.expiryDate || '')}`}
                 </div>
               </div>
@@ -1454,7 +1454,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                   setPreviewDoc(null);
                   handleOpenEdit(docToEdit);
                 }}
-                className="text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1"
+                className="text-teal-700 hover:text-teal-800 font-bold flex items-center gap-1"
               >
                 <Edit className="w-3.5 h-3.5" />
                 Edit Document
@@ -1484,14 +1484,14 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
                   <h3 className="text-base font-bold text-slate-900">
                     Share Renewal Reminder (नवीनीकरण तगादा साझा करें)
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[var(--color-muted)]">
                     CA, वकील या एजेंट को सीधे WhatsApp या मैसेज भेजने हेतु तैयार संदेश
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShareTextModalDoc(null)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -1502,7 +1502,7 @@ export const CompanyDocumentsView: React.FC<CompanyDocumentsViewProps> = ({
             </div>
 
             <div className="pt-2 flex items-center justify-between">
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] text-[var(--color-muted)]">
                 {copiedShareText ? 'Copied to clipboard! ✓' : 'Ready to paste in WhatsApp / Email'}
               </span>
 

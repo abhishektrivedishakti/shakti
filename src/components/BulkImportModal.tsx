@@ -1182,29 +1182,30 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 sm:p-5 backdrop-blur-xs overflow-y-auto">
       <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[94vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between sticky top-0 z-20">
+        <div className="sticky top-0 z-20 flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-[var(--color-ink)] sm:p-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-bold shadow-md">
-              <FileSpreadsheet className="w-6 h-6" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700 border border-teal-200 shadow-md">
+              <FileSpreadsheet className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
+              <h3 className="flex flex-wrap items-center gap-2 text-base font-bold sm:text-lg">
                 <span>एक्सेल व मैन्युअल डेटा फीडिंग हब (Data Feeding & Excel Import Center)</span>
-                <span className="text-[10px] bg-emerald-400 text-slate-950 font-black px-2 py-0.5 rounded uppercase">
+                <span className="rounded bg-teal-50 px-2 py-0.5 text-[10px] font-black uppercase text-teal-800 border border-teal-200">
                   Fast-Track
                 </span>
               </h3>
-              <p className="text-xs text-slate-300 mt-0.5">
+              <p className="mt-0.5 text-xs text-[var(--color-muted)]">
                 गाड़ियाँ, चालक (ड्राइवर), अधिकारी, टेंडर व वेंडर अलग-अलग टैब में फीड करें या एक्सेल/CSV से अपलोड करें
               </p>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-surface-muted)] text-[var(--color-muted)] transition-colors hover:bg-[var(--color-sand-deep)] hover:text-[var(--color-ink)]"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 h-5" />
           </button>
         </div>
 
@@ -1222,7 +1223,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                   : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
               }`}
             >
-              <Car className="w-4 h-4 text-amber-300" />
+              <Car className="h-4 w-4 text-teal-600" />
               <span>1. गाड़ियाँ (Vehicles & Drivers)</span>
               <span className="bg-black/20 text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono">
                 {existingVehicles.length}
@@ -1236,11 +1237,11 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
               }}
               className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
                 activeType === 'drivers'
-                  ? 'bg-indigo-600 text-white border-indigo-700 shadow-sm'
+                  ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)] shadow-sm'
                   : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
               }`}
             >
-              <Users className="w-4 h-4 text-indigo-200" />
+              <Users className="w-4 h-4 text-teal-200" />
               <span>2. चालक (Drivers Master)</span>
               <span className="bg-black/20 text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono">
                 {existingDrivers.length}
@@ -1254,7 +1255,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
               }}
               className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
                 activeType === 'officers'
-                  ? 'bg-amber-600 text-white border-amber-700 shadow-sm'
+                  ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)] shadow-sm'
                   : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -1272,7 +1273,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
               }}
               className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
                 activeType === 'tenders'
-                  ? 'bg-blue-600 text-white border-blue-700 shadow-sm'
+                  ? 'bg-blue-600 text-[var(--color-ink)] border-blue-700 shadow-sm'
                   : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -1322,11 +1323,11 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
               }}
               className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
                 activeType === 'combined'
-                  ? 'bg-purple-600 text-white border-purple-700 shadow-sm'
+                  ? 'bg-[var(--color-copper)] text-white border-teal-800 shadow-sm'
                   : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
               }`}
             >
-              <Layers className="w-4 h-4 text-purple-200" />
+              <Layers className="w-4 h-4 text-sky-200" />
               <span>7. संयुक्त मास्टर शीट (All-in-One)</span>
             </button>
           </div>
@@ -1382,7 +1383,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                 <>
                   <button
                     onClick={downloadDriverExcelTemplate}
-                    className="px-3 py-1.5 bg-indigo-700 hover:bg-indigo-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors"
+                    className="btn btn-primary !text-xs"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" />
                     चालक एक्सेल टेम्पलेट (.xlsx)
@@ -1401,7 +1402,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                 <>
                   <button
                     onClick={downloadOfficerExcelTemplate}
-                    className="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors"
+                    className="btn btn-success !text-xs"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" />
                     अधिकारी एक्सेल टेम्पलेट (.xlsx)
@@ -1420,7 +1421,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                 <>
                   <button
                     onClick={downloadTenderExcelTemplate}
-                    className="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors"
+                    className="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 text-[var(--color-ink)] text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" />
                     टेंडर एक्सेल टेम्पलेट (.xlsx)
@@ -1476,7 +1477,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
               {activeType === 'combined' && (
                 <button
                   onClick={downloadCombinedFleetExcelTemplate}
-                  className="px-3 py-1.5 bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors"
+                  className="btn btn-primary !text-xs"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5" />
                   संयुक्त मल्टी-शीट एक्सेल टेम्पलेट (.xlsx)
@@ -1491,7 +1492,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                 onClick={() => setEntryMode('upload')}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                   entryMode === 'upload'
-                    ? 'bg-slate-900 text-white shadow-xs'
+                    ? 'bg-[var(--color-ink)] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1502,7 +1503,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                 onClick={() => setEntryMode('manual')}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                   entryMode === 'manual'
-                    ? 'bg-slate-900 text-white shadow-xs'
+                    ? 'bg-[var(--color-ink)] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -1532,7 +1533,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                     <span>अपनी एक्सेल (.xlsx) या CSV फाइल यहाँ ड्रैग करें या क्लिक करके चुनें</span>
                   )}
                 </div>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[var(--color-muted)]">
                   सॉफ्टवेयर ऑटोमैटिक शीट में लिखे ड्राइवर के नाम, गाड़ी नंबर और सभी विवरण को तुरंत पहचान कर लिंक कर देगा
                 </p>
               </div>
@@ -1547,7 +1548,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                   <Sparkles className="w-4 h-4 text-emerald-600" />
                   सीधे सॉफ्टवेयर में नई पंक्ति जोड़ें (Direct Feeding Form):
                 </span>
-                <span className="text-[11px] text-slate-500">
+                <span className="text-[11px] text-[var(--color-muted)]">
                   फार्म भरकर "+ पंक्ति जोड़ें" दबाएं, नीचे सूची में जुड़ जाएगा
                 </span>
               </div>
@@ -1710,7 +1711,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                     <button
                       type="button"
                       onClick={handleAddManualDriver}
-                      className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                      className="btn btn-primary"
                     >
                       <Plus className="w-4 h-4" />
                       <span>+ चालक पंक्ति जोड़ें</span>
@@ -1770,7 +1771,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                     <button
                       type="button"
                       onClick={handleAddManualOfficer}
-                      className="px-6 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                      className="btn btn-success"
                     >
                       <Plus className="w-4 h-4" />
                       <span>+ अधिकारी पंक्ति जोड़ें</span>
@@ -1810,7 +1811,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                         onClick={() => setPreviewSubTab('drivers')}
                         className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
                           previewSubTab === 'drivers'
-                            ? 'bg-indigo-600 text-white'
+                            ? 'bg-[var(--color-ink)] text-white'
                             : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                         }`}
                       >
@@ -1822,7 +1823,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                         onClick={() => setPreviewSubTab('officers')}
                         className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
                           previewSubTab === 'officers'
-                            ? 'bg-amber-600 text-white'
+                            ? 'bg-[var(--color-ink)] text-white'
                             : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                         }`}
                       >
@@ -1834,7 +1835,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                         onClick={() => setPreviewSubTab('tenders')}
                         className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
                           previewSubTab === 'tenders'
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-blue-600 text-[var(--color-ink)]'
                             : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                         }`}
                       >
@@ -1868,7 +1869,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
               {previewSubTab === 'vehicles' && parsedVehicles.length > 0 && (
                 <div className="border border-slate-200 rounded-xl overflow-hidden max-h-80 overflow-y-auto">
                   <table className="w-full text-left text-xs border-collapse">
-                    <thead className="bg-slate-800 text-white sticky top-0 z-10 text-[11px] uppercase tracking-wider font-semibold">
+                    <thead className="bg-[var(--color-sand-deep)] text-[var(--color-ink)] sticky top-0 z-10 text-[11px] uppercase tracking-wider font-semibold">
                       <tr>
                         <th className="p-2.5 w-12 text-center">#</th>
                         <th className="p-2.5">गाड़ी नंबर</th>
@@ -1891,11 +1892,11 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                               isDup ? 'bg-amber-50/60' : !v.isValid ? 'bg-rose-50/60' : ''
                             }`}
                           >
-                            <td className="p-2.5 text-center text-slate-400 font-mono">{i + 1}</td>
+                            <td className="p-2.5 text-center text-[var(--color-muted)] font-mono">{i + 1}</td>
                             <td className="p-2.5 font-mono font-bold text-slate-900">{v.vehicleNumber}</td>
                             <td className="p-2.5">
                               <div>{v.makeModel}</div>
-                              <div className="text-[10px] text-slate-500">{v.vehicleType} &bull; {v.fuelType}</div>
+                              <div className="text-[10px] text-[var(--color-muted)]">{v.vehicleType} &bull; {v.fuelType}</div>
                             </td>
                             {/* PROMINENT DRIVER NAME DISPLAY */}
                             <td className="p-2.5 bg-emerald-50/60 border-x border-emerald-200">
@@ -1923,7 +1924,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                                     ? 'bg-slate-100 text-slate-700'
                                     : v.ownershipType === 'Owner-Driver'
                                     ? 'bg-amber-100 text-amber-800'
-                                    : 'bg-purple-100 text-purple-800'
+                                    : 'bg-sky-100 text-sky-800'
                                 }`}
                               >
                                 {v.ownershipType}
@@ -1949,7 +1950,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                             <td className="p-2.5 text-center">
                               <button
                                 onClick={() => setParsedVehicles(parsedVehicles.filter((_, idx) => idx !== i))}
-                                className="text-slate-400 hover:text-rose-600"
+                                className="text-[var(--color-muted)] hover:text-rose-600"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -1966,7 +1967,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
               {previewSubTab === 'drivers' && parsedDrivers.length > 0 && (
                 <div className="border border-slate-200 rounded-xl overflow-hidden max-h-80 overflow-y-auto">
                   <table className="w-full text-left text-xs border-collapse">
-                    <thead className="bg-slate-800 text-white sticky top-0 z-10 text-[11px] uppercase tracking-wider font-semibold">
+                    <thead className="bg-[var(--color-sand-deep)] text-[var(--color-ink)] sticky top-0 z-10 text-[11px] uppercase tracking-wider font-semibold">
                       <tr>
                         <th className="p-2.5 w-12 text-center">#</th>
                         <th className="p-2.5">चालक का नाम</th>
@@ -1982,7 +1983,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                     <tbody className="divide-y divide-slate-100 text-slate-800">
                       {parsedDrivers.map((d, i) => (
                         <tr key={i} className="hover:bg-slate-50">
-                          <td className="p-2.5 text-center text-slate-400">{i + 1}</td>
+                          <td className="p-2.5 text-center text-[var(--color-muted)]">{i + 1}</td>
                           <td className="p-2.5 font-bold text-slate-900">👨‍✈️ {d.name}</td>
                           <td className="p-2.5 font-mono">{d.phone}</td>
                           <td className="p-2.5 font-mono">{d.licenseNumber}</td>
@@ -1997,7 +1998,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                           <td className="p-2.5 text-center">
                             <button
                               onClick={() => setParsedDrivers(parsedDrivers.filter((_, idx) => idx !== i))}
-                              className="text-slate-400 hover:text-rose-600"
+                              className="text-[var(--color-muted)] hover:text-rose-600"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -2013,7 +2014,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
               {previewSubTab === 'officers' && parsedOfficers.length > 0 && (
                 <div className="border border-slate-200 rounded-xl overflow-hidden max-h-80 overflow-y-auto">
                   <table className="w-full text-left text-xs border-collapse">
-                    <thead className="bg-slate-800 text-white sticky top-0 z-10 text-[11px] uppercase tracking-wider font-semibold">
+                    <thead className="bg-[var(--color-sand-deep)] text-[var(--color-ink)] sticky top-0 z-10 text-[11px] uppercase tracking-wider font-semibold">
                       <tr>
                         <th className="p-2.5 w-12 text-center">#</th>
                         <th className="p-2.5">अधिकारी का नाम</th>
@@ -2028,17 +2029,17 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                     <tbody className="divide-y divide-slate-100 text-slate-800">
                       {parsedOfficers.map((o, i) => (
                         <tr key={i} className="hover:bg-slate-50">
-                          <td className="p-2.5 text-center text-slate-400">{i + 1}</td>
+                          <td className="p-2.5 text-center text-[var(--color-muted)]">{i + 1}</td>
                           <td className="p-2.5 font-bold text-slate-900">👔 {o.name}</td>
                           <td className="p-2.5">{o.designation}</td>
                           <td className="p-2.5">{o.department}</td>
                           <td className="p-2.5 font-mono">{o.mobile}</td>
-                          <td className="p-2.5 font-mono font-bold text-indigo-800">{o.assignedVehicleNumber || '-'}</td>
+                          <td className="p-2.5 font-mono font-bold text-teal-800">{o.assignedVehicleNumber || '-'}</td>
                           <td className="p-2.5 truncate max-w-[140px]">{o.tenderName}</td>
                           <td className="p-2.5 text-center">
                             <button
                               onClick={() => setParsedOfficers(parsedOfficers.filter((_, idx) => idx !== i))}
-                              className="text-slate-400 hover:text-rose-600"
+                              className="text-[var(--color-muted)] hover:text-rose-600"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -2054,7 +2055,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
               {previewSubTab === 'tenders' && parsedTenders.length > 0 && (
                 <div className="border border-slate-200 rounded-xl overflow-hidden max-h-80 overflow-y-auto">
                   <table className="w-full text-left text-xs border-collapse">
-                    <thead className="bg-slate-800 text-white sticky top-0 z-10 text-[11px] uppercase tracking-wider font-semibold">
+                    <thead className="bg-[var(--color-sand-deep)] text-[var(--color-ink)] sticky top-0 z-10 text-[11px] uppercase tracking-wider font-semibold">
                       <tr>
                         <th className="p-2.5 w-12 text-center">#</th>
                         <th className="p-2.5">टेंडर नंबर</th>
@@ -2068,16 +2069,16 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                     <tbody className="divide-y divide-slate-100 text-slate-800">
                       {parsedTenders.map((t, i) => (
                         <tr key={i} className="hover:bg-slate-50">
-                          <td className="p-2.5 text-center text-slate-400">{i + 1}</td>
+                          <td className="p-2.5 text-center text-[var(--color-muted)]">{i + 1}</td>
                           <td className="p-2.5 font-bold font-mono text-slate-900">{t.tenderNumber}</td>
                           <td className="p-2.5 font-semibold text-slate-800">{t.departmentName}</td>
                           <td className="p-2.5 text-slate-600">{t.authorityOffice}</td>
                           <td className="p-2.5 text-right font-mono font-bold">₹{t.sanctionedAmount.toLocaleString()}</td>
-                          <td className="p-2.5 text-center font-bold text-indigo-700">{t.vehiclesRequired}</td>
+                          <td className="p-2.5 text-center font-bold text-teal-800">{t.vehiclesRequired}</td>
                           <td className="p-2.5 text-center">
                             <button
                               onClick={() => setParsedTenders(parsedTenders.filter((_, idx) => idx !== i))}
-                              className="text-slate-400 hover:text-rose-600"
+                              className="text-[var(--color-muted)] hover:text-rose-600"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -2093,7 +2094,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
 
           {/* Bottom Action Footer */}
           <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-[var(--color-muted)]">
               {totalValidCount > 0 ? (
                 <span className="flex items-center gap-1.5 font-medium text-slate-700">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -2124,7 +2125,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                 className={`px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all ${
                   totalValidCount > 0
                     ? 'bg-emerald-700 hover:bg-emerald-600 text-white cursor-pointer active:scale-95'
-                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    : 'bg-slate-200 text-[var(--color-muted)] cursor-not-allowed'
                 }`}
               >
                 <Check className="w-4 h-4" />

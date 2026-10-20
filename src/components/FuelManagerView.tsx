@@ -199,20 +199,20 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Header Banner */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-[var(--color-ink)] text-teal-300 flex items-center justify-center shadow-md">
               <Fuel className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <span>Fuel Slip &amp; Tied-up Pump Vendor Manager</span>
-                <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-mono font-bold border border-indigo-200">
+                <span className="text-xs bg-teal-50 text-teal-800 px-2 py-0.5 rounded font-mono font-bold border border-teal-200">
                   पेट्रोल पंप पर्ची व मासिक बिलिंग
                 </span>
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-[var(--color-muted)] mt-0.5">
                 ऑफिस से ड्राइवर को पर्ची (Indent) देना, पेट्रोल पंप पर तेल भराई, एवं माह के अंत में पंप वेंडर का गाड़ी-वार बिल मिलान
               </p>
             </div>
@@ -223,16 +223,17 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => setIsIssueSlipModalOpen(true)}
-            className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all hover:shadow"
+            className="btn btn-primary !text-xs"
           >
             <Plus className="w-4 h-4" />
             + नई फ्यूल पर्ची काटें (Issue Slip)
           </button>
           <button
+            type="button"
             onClick={() => setIsCreateBillModalOpen(true)}
-            className="px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
+            className="btn btn-success !text-xs"
           >
-            <Receipt className="w-4 h-4 text-amber-400" />
+            <Receipt className="w-4 h-4" />
             मासिक वेंडर बिल दर्ज करें
           </button>
         </div>
@@ -242,10 +243,10 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div
           onClick={() => setActiveSubTab('slips')}
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-indigo-400 transition-colors"
+          className="metric-chip cursor-pointer hover:border-teal-400 transition-colors"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase text-slate-500">पर्चियां जारी (Pending Fill)</span>
+            <span className="text-[11px] font-bold uppercase text-[var(--color-muted)]">पर्चियां जारी (Pending Fill)</span>
             <span className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xs">
               <Clock className="w-3.5 h-3.5" />
             </span>
@@ -256,34 +257,34 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
               ड्राइवर के पास
             </span>
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">पंप पर जाना व तेल भराना बाकी</p>
+          <p className="text-[10px] text-[var(--color-muted)] mt-1">पंप पर जाना व तेल भराना बाकी</p>
         </div>
 
         <div
           onClick={() => setActiveSubTab('pump_vendors')}
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-indigo-400 transition-colors"
+          className="metric-chip cursor-pointer hover:border-teal-400 transition-colors"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase text-slate-500">अनुबंधित पेट्रोल पंप</span>
-            <span className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">
+            <span className="text-[11px] font-bold uppercase text-[var(--color-muted)]">अनुबंधित पेट्रोल पंप</span>
+            <span className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-xs">
               <Building2 className="w-3.5 h-3.5" />
             </span>
           </div>
           <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-black text-indigo-700 font-mono">{fuelPumpVendors.length}</span>
+            <span className="text-2xl font-black text-teal-800 font-mono">{fuelPumpVendors.length}</span>
             <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded">
               Active Tie-up
             </span>
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">IOCL, BPCL, HPCL क्रेडिट खाते</p>
+          <p className="text-[10px] text-[var(--color-muted)] mt-1">IOCL, BPCL, HPCL क्रेडिट खाते</p>
         </div>
 
         <div
           onClick={() => setActiveSubTab('monthly_bills')}
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-indigo-400 transition-colors"
+          className="metric-chip cursor-pointer hover:border-teal-400 transition-colors"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase text-slate-500">मासिक वेंडर बिल बकाया</span>
+            <span className="text-[11px] font-bold uppercase text-[var(--color-muted)]">मासिक वेंडर बिल बकाया</span>
             <span className="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xs">
               <IndianRupee className="w-3.5 h-3.5" />
             </span>
@@ -296,26 +297,26 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
               देय (Due)
             </span>
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">
+          <p className="text-[10px] text-[var(--color-muted)] mt-1">
             {fuelVendorBills.filter((b) => b.paymentStatus !== 'paid').length} बिल भुगतान हेतु लंबित
           </p>
         </div>
 
         <div
           onClick={() => setActiveSubTab('all_refills')}
-          className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:border-indigo-400 transition-colors"
+          className="metric-chip cursor-pointer hover:border-teal-400 transition-colors"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase text-slate-500">माह की कुल डीजल खपत</span>
+            <span className="text-[11px] font-bold uppercase text-[var(--color-muted)]">माह की कुल डीजल खपत</span>
             <span className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
               <TrendingUp className="w-3.5 h-3.5" />
             </span>
           </div>
           <div className="mt-2 flex items-baseline justify-between">
             <span className="text-2xl font-black text-emerald-800 font-mono">{totalFuelLitersThisMonth}</span>
-            <span className="text-[10px] text-slate-500 font-bold">Liters / Kg</span>
+            <span className="text-[10px] text-[var(--color-muted)] font-bold">Liters / Kg</span>
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">चालू माह में गाड़ियों में भरा ईंधन</p>
+          <p className="text-[10px] text-[var(--color-muted)] mt-1">चालू माह में गाड़ियों में भरा ईंधन</p>
         </div>
       </div>
 
@@ -325,7 +326,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
           onClick={() => setActiveSubTab('slips')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all whitespace-nowrap ${
             activeSubTab === 'slips'
-              ? 'bg-indigo-600 text-white shadow-xs'
+              ? 'bg-[var(--color-ink)] text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
@@ -333,7 +334,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
           <span>ईंधन पर्ची / इंडेंट (Fuel Slips)</span>
           <span
             className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
-              activeSubTab === 'slips' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              activeSubTab === 'slips' ? 'bg-white/20 text-[var(--color-ink)]' : 'bg-slate-200 text-slate-700'
             }`}
           >
             {fuelSlips.length}
@@ -344,7 +345,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
           onClick={() => setActiveSubTab('monthly_bills')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all whitespace-nowrap ${
             activeSubTab === 'monthly_bills'
-              ? 'bg-indigo-600 text-white shadow-xs'
+              ? 'bg-[var(--color-ink)] text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
@@ -352,7 +353,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
           <span>मासिक वेंडर बिल व गाड़ी-वार हिसाब (Monthly Bills)</span>
           <span
             className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
-              activeSubTab === 'monthly_bills' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              activeSubTab === 'monthly_bills' ? 'bg-white/20 text-[var(--color-ink)]' : 'bg-slate-200 text-slate-700'
             }`}
           >
             {fuelVendorBills.length}
@@ -363,7 +364,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
           onClick={() => setActiveSubTab('pump_vendors')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all whitespace-nowrap ${
             activeSubTab === 'pump_vendors'
-              ? 'bg-indigo-600 text-white shadow-xs'
+              ? 'bg-[var(--color-ink)] text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
@@ -371,7 +372,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
           <span>अनुबंधित पेट्रोल पंप वेंडर (Fuel Pumps)</span>
           <span
             className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
-              activeSubTab === 'pump_vendors' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              activeSubTab === 'pump_vendors' ? 'bg-white/20 text-[var(--color-ink)]' : 'bg-slate-200 text-slate-700'
             }`}
           >
             {fuelPumpVendors.length}
@@ -382,7 +383,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
           onClick={() => setActiveSubTab('all_refills')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all whitespace-nowrap ${
             activeSubTab === 'all_refills'
-              ? 'bg-indigo-600 text-white shadow-xs'
+              ? 'bg-[var(--color-ink)] text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
@@ -398,8 +399,8 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3 text-xs">
               <div className="flex items-center gap-1.5">
-                <Filter className="w-3.5 h-3.5 text-slate-400" />
-                <span className="text-slate-500 font-semibold">स्थिति:</span>
+                <Filter className="w-3.5 h-3.5 text-[var(--color-muted)]" />
+                <span className="text-[var(--color-muted)] font-semibold">स्थिति:</span>
                 <select
                   value={slipStatusFilter}
                   onChange={(e) => setSlipStatusFilter(e.target.value)}
@@ -414,7 +415,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
               </div>
 
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-semibold">पंप:</span>
+                <span className="text-[var(--color-muted)] font-semibold">पंप:</span>
                 <select
                   value={slipPumpFilter}
                   onChange={(e) => setSlipPumpFilter(e.target.value)}
@@ -430,7 +431,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
               </div>
 
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-semibold">गाड़ी:</span>
+                <span className="text-[var(--color-muted)] font-semibold">गाड़ी:</span>
                 <select
                   value={slipVehicleFilter}
                   onChange={(e) => setSlipVehicleFilter(e.target.value)}
@@ -448,7 +449,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
 
             {/* Search */}
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+              <Search className="w-3.5 h-3.5 text-[var(--color-muted)] absolute left-3 top-2.5" />
               <input
                 type="text"
                 placeholder="पर्ची नं, गाड़ी या ड्राइवर खोजें..."
@@ -478,10 +479,10 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                 <tbody className="divide-y divide-slate-100 text-slate-700">
                   {filteredSlips.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-8 text-center text-slate-500">
-                        <Fuel className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                      <td colSpan={8} className="py-8 text-center text-[var(--color-muted)]">
+                        <Fuel className="w-8 h-8 text-[var(--color-muted)] mx-auto mb-2" />
                         <p className="font-semibold">कोई ईंधन पर्ची नहीं मिली।</p>
-                        <p className="text-[11px] text-slate-400 mt-1">
+                        <p className="text-[11px] text-[var(--color-muted)] mt-1">
                           ऊपर '+ नई फ्यूल पर्ची काटें' बटन से नई पर्ची जारी करें।
                         </p>
                       </td>
@@ -490,10 +491,10 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                     filteredSlips.map((slip) => (
                       <tr key={slip.id} className="hover:bg-slate-50/70">
                         <td className="py-2.5 px-3 whitespace-nowrap">
-                          <div className="font-mono font-bold text-indigo-900 text-xs flex items-center gap-1">
+                          <div className="font-mono font-bold text-[var(--color-ink)] text-xs flex items-center gap-1">
                             <span>{slip.slipNumber}</span>
                           </div>
-                          <div className="text-[10px] text-slate-500">
+                          <div className="text-[10px] text-[var(--color-muted)]">
                             {formatDate(slip.issueDate)} {slip.issueTime || ''}
                           </div>
                         </td>
@@ -502,17 +503,17 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                           <div className="font-mono font-black text-slate-900 bg-yellow-300 text-[11px] px-1.5 py-0.5 rounded border border-yellow-500 inline-block">
                             {slip.vehicleNumber}
                           </div>
-                          <div className="text-[10px] text-slate-500 mt-0.5">{slip.vehicleModel || 'Fleet Vehicle'}</div>
+                          <div className="text-[10px] text-[var(--color-muted)] mt-0.5">{slip.vehicleModel || 'Fleet Vehicle'}</div>
                         </td>
 
                         <td className="py-2.5 px-3">
                           <div className="font-bold text-slate-900">{slip.driverName}</div>
-                          <div className="text-[10px] font-mono text-slate-500">{slip.driverPhone || 'No Phone'}</div>
+                          <div className="text-[10px] font-mono text-[var(--color-muted)]">{slip.driverPhone || 'No Phone'}</div>
                         </td>
 
                         <td className="py-2.5 px-3 max-w-xs">
                           <div className="font-semibold text-slate-800">{slip.pumpVendorName}</div>
-                          <span className="text-[10px] text-indigo-600 bg-indigo-50 px-1 rounded border border-indigo-200">
+                          <span className="text-[10px] text-teal-700 bg-teal-50 px-1 rounded border border-teal-200">
                             {slip.fuelType}
                           </span>
                         </td>
@@ -526,7 +527,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                               : `${slip.authorizedValue} Liters`}
                           </div>
                           {slip.openingOdometerKm ? (
-                            <div className="text-[10px] font-mono text-slate-500">
+                            <div className="text-[10px] font-mono text-[var(--color-muted)]">
                               Odo: {slip.openingOdometerKm.toLocaleString()} KM
                             </div>
                           ) : null}
@@ -538,7 +539,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                               <div className="font-mono font-bold text-emerald-800">
                                 {slip.actualLiters} L @ ₹{slip.ratePerLiter} = {formatCurrency(slip.totalAmount || 0)}
                               </div>
-                              <div className="text-[10px] text-slate-500 font-mono">
+                              <div className="text-[10px] text-[var(--color-muted)] font-mono">
                                 Rec: {slip.pumpReceiptNumber || 'N/A'} &bull; {slip.fillDate}
                               </div>
                             </div>
@@ -551,7 +552,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                           <span
                             className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                               slip.status === 'billed'
-                                ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                ? 'bg-sky-100 text-sky-800 border border-sky-200'
                                 : slip.status === 'filled'
                                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                                 : slip.status === 'cancelled'
@@ -613,13 +614,13 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
               <h3 className="font-bold text-slate-900 text-sm">
                 पेट्रोल पंप वेंडर के मासिक बिल व गाड़ी-वार विवरण (Monthly Fuel Vendor Bills)
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--color-muted)]">
                 महीने के अंत में वेंडर से आया बिल दर्ज करें जिसमें किस गाड़ी में कितना ईंधन पड़ा और क्या दर लगी उसका पूरा ब्रेकडाउन रहता है
               </p>
             </div>
             <button
               onClick={() => setIsCreateBillModalOpen(true)}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
+              className="btn btn-primary !text-xs"
             >
               <Plus className="w-4 h-4" />
               + नया मासिक वेंडर बिल दर्ज करें
@@ -627,15 +628,15 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
           </div>
 
           {fuelVendorBills.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-500 space-y-2">
-              <Receipt className="w-10 h-10 text-slate-300 mx-auto" />
+            <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-[var(--color-muted)] space-y-2">
+              <Receipt className="w-10 h-10 text-[var(--color-muted)] mx-auto" />
               <h4 className="font-bold text-slate-800 text-sm">अभी कोई मासिक वेंडर बिल दर्ज नहीं है</h4>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
+              <p className="text-xs text-[var(--color-muted)] max-w-md mx-auto">
                 जब पेट्रोल पंप वेंडर महीने के अंत में सभी पर्चियों का कुल बिल भेजे, तो आप '+ नया मासिक वेंडर बिल दर्ज करें' पर क्लिक करें। सिस्टम आपकी भरी हुई पर्चियों को स्वतः गाड़ी-वार जोड़कर बिल तैयार कर देगा!
               </p>
               <button
                 onClick={() => setIsCreateBillModalOpen(true)}
-                className="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold"
+                className="mt-3 px-4 py-2 bg-[var(--color-ink)] text-white rounded-lg text-xs font-bold"
               >
                 पहला मासिक बिल तैयार करें
               </button>
@@ -645,13 +646,13 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
               {fuelVendorBills.map((bill) => (
                 <div
                   key={bill.id}
-                  className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4 hover:border-indigo-300 transition-all cursor-pointer group"
+                  className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4 hover:border-teal-300 transition-all cursor-pointer group"
                   onClick={() => setSelectedBillForDetail(bill)}
                 >
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors">
+                        <span className="font-mono font-bold text-slate-900 text-sm group-hover:text-teal-700 transition-colors">
                           {bill.billNumber}
                         </span>
                         <span
@@ -665,13 +666,13 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                         </span>
                       </div>
                       <div className="font-bold text-slate-800 text-xs mt-1">{bill.pumpVendorName}</div>
-                      <div className="text-[11px] text-slate-500">
-                        माह: <span className="font-bold text-indigo-700">{bill.monthYear}</span> &bull; बिल तारीख: {formatDate(bill.billDate)}
+                      <div className="text-[11px] text-[var(--color-muted)]">
+                        माह: <span className="font-bold text-teal-800">{bill.monthYear}</span> &bull; बिल तारीख: {formatDate(bill.billDate)}
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-[10px] text-slate-500 block uppercase font-bold">Net Payable</span>
+                      <span className="text-[10px] text-[var(--color-muted)] block uppercase font-bold">Net Payable</span>
                       <span className="font-mono font-black text-emerald-700 text-base">
                         {formatCurrency(bill.netPayable)}
                       </span>
@@ -681,22 +682,22 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                   {/* Summary Bar */}
                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 flex items-center justify-between text-xs">
                     <div>
-                      <span className="text-slate-500 text-[10px] block font-semibold uppercase">Total Fuel:</span>
+                      <span className="text-[var(--color-muted)] text-[10px] block font-semibold uppercase">Total Fuel:</span>
                       <span className="font-mono font-bold text-slate-900">{bill.totalLiters.toFixed(1)} Liters</span>
                     </div>
                     <div>
-                      <span className="text-slate-500 text-[10px] block font-semibold uppercase">Billed Vehicles:</span>
+                      <span className="text-[var(--color-muted)] text-[10px] block font-semibold uppercase">Billed Vehicles:</span>
                       <span className="font-bold text-slate-900">{bill.vehicleBreakdown.length} गाड़ियां</span>
                     </div>
                     <div>
-                      <span className="text-slate-500 text-[10px] block font-semibold uppercase">Slips Reconciled:</span>
-                      <span className="font-bold text-indigo-700">{bill.reconciledSlipsCount} पर्चियां</span>
+                      <span className="text-[var(--color-muted)] text-[10px] block font-semibold uppercase">Slips Reconciled:</span>
+                      <span className="font-bold text-teal-800">{bill.reconciledSlipsCount} पर्चियां</span>
                     </div>
                   </div>
 
                   {/* Vehicle Breakdown Preview Pills */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-slate-500 uppercase font-bold block">
+                    <span className="text-[10px] text-[var(--color-muted)] uppercase font-bold block">
                       गाड़ी-वार खपत पूर्वावलोकन (Preview):
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -709,7 +710,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                         </span>
                       ))}
                       {bill.vehicleBreakdown.length > 4 && (
-                        <span className="text-[10px] text-indigo-600 font-bold self-center">
+                        <span className="text-[10px] text-teal-700 font-bold self-center">
                           +{bill.vehicleBreakdown.length - 4} more
                         </span>
                       )}
@@ -717,7 +718,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                   </div>
 
                   <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                    <span className="text-indigo-600 font-bold flex items-center gap-1 group-hover:underline">
+                    <span className="text-teal-700 font-bold flex items-center gap-1 group-hover:underline">
                       गाड़ी-वार पूरा विवरण व प्रिंट देखें &rarr;
                     </span>
                     {bill.paymentStatus !== 'paid' && (
@@ -741,13 +742,13 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
               <h3 className="font-bold text-slate-900 text-sm">
                 अनुबंधित पेट्रोल पंप वेंडर (Tied-up Credit Petrol Pumps)
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[var(--color-muted)]">
                 जिन पेट्रोल पंपों से हमारा फिक्स टाई-अप / मासिक क्रेडिट खाता है
               </p>
             </div>
             <button
               onClick={() => setEditingPumpVendor('new')}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
+              className="btn btn-primary !text-xs"
             >
               <Plus className="w-4 h-4" />
               + नया पेट्रोल पंप जोड़ें
@@ -765,7 +766,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
               return (
                 <div
                   key={pump.id}
-                  className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4 hover:border-indigo-300 transition-all"
+                  className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 space-y-4 hover:border-teal-300 transition-all"
                 >
                   <div className="flex items-start justify-between">
                     <div>
@@ -781,35 +782,35 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                         {pump.stationBrand} Station
                       </span>
                       <h4 className="font-bold text-slate-900 text-sm mt-1">{pump.name}</h4>
-                      <p className="text-[11px] text-slate-500">{pump.location}</p>
+                      <p className="text-[11px] text-[var(--color-muted)]">{pump.location}</p>
                     </div>
                   </div>
 
                   <div className="space-y-1.5 text-xs text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-100">
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Contact Person:</span>
+                      <span className="text-[var(--color-muted)]">Contact Person:</span>
                       <span className="font-semibold text-slate-900">{pump.contactPerson}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Mobile / Phone:</span>
-                      <span className="font-mono font-bold text-indigo-700">{pump.phone}</span>
+                      <span className="text-[var(--color-muted)]">Mobile / Phone:</span>
+                      <span className="font-mono font-bold text-teal-800">{pump.phone}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Billing Cycle:</span>
+                      <span className="text-[var(--color-muted)]">Billing Cycle:</span>
                       <span className="font-semibold text-slate-900">हर माह {pump.billingCycleDay} तारीख</span>
                     </div>
                     {pump.creditLimit ? (
                       <div className="flex justify-between">
-                        <span className="text-slate-500">Credit Line:</span>
+                        <span className="text-[var(--color-muted)]">Credit Line:</span>
                         <span className="font-mono font-bold text-emerald-700">{formatCurrency(pump.creditLimit)}</span>
                       </div>
                     ) : null}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-center text-xs">
-                    <div className="bg-indigo-50/60 p-2 rounded-lg border border-indigo-100">
-                      <span className="text-[10px] text-indigo-700 block uppercase font-bold">Slips Issued</span>
-                      <span className="font-bold text-indigo-950 font-mono text-sm">{pumpSlips.length} पर्चियां</span>
+                    <div className="bg-teal-50/60 p-2 rounded-lg border border-teal-100">
+                      <span className="text-[10px] text-teal-800 block uppercase font-bold">Slips Issued</span>
+                      <span className="font-bold text-[var(--color-ink)] font-mono text-sm">{pumpSlips.length} पर्चियां</span>
                     </div>
                     <div className="bg-emerald-50/60 p-2 rounded-lg border border-emerald-100">
                       <span className="text-[10px] text-emerald-700 block uppercase font-bold">Total Liters</span>
@@ -823,7 +824,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                         setSlipPumpFilter(pump.id);
                         setActiveSubTab('slips');
                       }}
-                      className="text-indigo-600 font-bold hover:underline"
+                      className="text-teal-700 font-bold hover:underline"
                     >
                       इस पंप की पर्चियां देखें &rarr;
                     </button>
@@ -845,20 +846,20 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
       {activeSubTab === 'all_refills' && (
         <div className="space-y-6">
           {/* Monthly Fixed Fuel Budget Summary */}
-          <div className="bg-linear-to-r from-purple-900 to-indigo-950 text-white rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="panel panel-pad space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-sm flex items-center gap-2">
                   <span>Driver Monthly Fixed Fuel Budget Monitor (मासिक फिक्स फ्यूल बजट स्थिति)</span>
-                  <span className="text-[10px] bg-purple-500/30 text-purple-200 px-2 py-0.5 rounded border border-purple-400/30">
+                  <span className="text-[10px] bg-teal-50 text-teal-800 px-2 py-0.5 rounded border border-teal-200">
                     Fixed Fuel Mode
                   </span>
                 </h3>
-                <p className="text-xs text-purple-200 mt-0.5">
+                <p className="text-xs text-[var(--color-muted)] mt-0.5">
                   जब ड्राइवर को महीने का फिक्स फ्यूल बजट (जैसे ₹12,000 या ₹13,000) दिया जाता है
                 </p>
               </div>
-              <span className="text-xs font-semibold bg-white/10 px-3 py-1 rounded-lg">
+              <span className="text-xs font-semibold metric-chip !py-1 !px-3">
                 {fixedBudgetVehicles.length} Vehicles On Fixed Fuel
               </span>
             </div>
@@ -878,24 +879,24 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                 return (
                   <div
                     key={v.id}
-                    className="bg-white/10 backdrop-blur-xs rounded-xl p-4 border border-white/10 space-y-3"
+                    className="bg-[var(--color-surface-muted)] rounded-xl p-4 border border-[var(--color-line)] space-y-3"
                   >
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="font-mono font-bold text-sm text-white">{v.vehicleNumber}</div>
-                        <div className="text-[11px] text-purple-200">Driver: {drv?.name || 'Unassigned'}</div>
+                        <div className="font-mono font-bold text-sm text-[var(--color-ink)]">{v.vehicleNumber}</div>
+                        <div className="text-[11px] text-[var(--color-muted)]">Driver: {drv?.name || 'Unassigned'}</div>
                       </div>
-                      <span className="text-[11px] font-bold text-purple-300">
+                      <span className="text-[11px] font-bold text-teal-700">
                         Budget: {formatCurrency(budget)}/mo
                       </span>
                     </div>
 
                     <div>
-                      <div className="flex justify-between text-[10px] text-purple-200 mb-1">
+                      <div className="flex justify-between text-[10px] text-[var(--color-muted)] mb-1">
                         <span>Spent: {formatCurrency(spentThisMonth)}</span>
                         <span>Remaining: {formatCurrency(balance)}</span>
                       </div>
-                      <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-[var(--color-sand-deep)] rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all ${
                             percentUsed > 90 ? 'bg-rose-400' : 'bg-emerald-400'
@@ -905,9 +906,9 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                       </div>
                     </div>
 
-                    <div className="text-[10px] text-purple-200 flex justify-between border-t border-white/10 pt-2">
+                    <div className="flex justify-between border-t border-[var(--color-line)] pt-2 text-[10px] text-[var(--color-muted)]">
                       <span>{vehFuel.length} Refills logged this month</span>
-                      <span className={balance >= 0 ? 'text-emerald-300 font-bold' : 'text-rose-300 font-bold'}>
+                      <span className={balance >= 0 ? 'font-bold text-teal-700' : 'font-bold text-rose-600'}>
                         {balance >= 0
                           ? `In Budget (+${formatCurrency(balance)})`
                           : `Exceeded (-${formatCurrency(Math.abs(balance))})`}
@@ -926,7 +927,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                 <h4 className="font-bold text-sm text-slate-900">
                   All Refill Records &amp; Pump Receipts (सम्पूर्ण ईंधन लॉग)
                 </h4>
-                <p className="text-xs text-slate-500">सभी ईंधन प्रविष्टियां, रसीद, दर व ओडोमीटर इतिहास</p>
+                <p className="text-xs text-[var(--color-muted)]">सभी ईंधन प्रविष्टियां, रसीद, दर व ओडोमीटर इतिहास</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -956,7 +957,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                 <tbody className="divide-y divide-slate-100 text-slate-700">
                   {fuelRecords.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-6 text-center text-slate-400">
+                      <td colSpan={7} className="py-6 text-center text-[var(--color-muted)]">
                         कोई ईंधन रिकॉर्ड नहीं मिला।
                       </td>
                     </tr>
@@ -965,17 +966,17 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                       <tr key={r.id} className="hover:bg-slate-50/70">
                         <td className="py-2.5 px-3 whitespace-nowrap">
                           <div className="font-semibold text-slate-900">{formatDate(r.date)}</div>
-                          <div className="text-[10px] font-mono text-slate-500">{r.receiptNumber}</div>
+                          <div className="text-[10px] font-mono text-[var(--color-muted)]">{r.receiptNumber}</div>
                         </td>
                         <td className="py-2.5 px-3">
                           <div className="font-bold text-slate-900 font-mono">{r.vehicleNumber}</div>
-                          <div className="text-[11px] text-slate-500">{r.driverName}</div>
+                          <div className="text-[11px] text-[var(--color-muted)]">{r.driverName}</div>
                         </td>
                         <td className="py-2.5 px-3">
                           <span
                             className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${
                               r.mode === 'monthly_fixed'
-                                ? 'bg-purple-100 text-purple-800'
+                                ? 'bg-sky-100 text-sky-800'
                                 : 'bg-blue-100 text-blue-800'
                             }`}
                           >
@@ -986,14 +987,14 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                           <div className="font-semibold text-slate-900">
                             {r.liters} {r.fuelType === 'CNG' ? 'Kg' : 'Liters'}
                           </div>
-                          <div className="text-[10px] text-slate-500">₹{r.ratePerLiter} / unit</div>
+                          <div className="text-[10px] text-[var(--color-muted)]">₹{r.ratePerLiter} / unit</div>
                         </td>
                         <td className="py-2.5 px-3 font-mono">
                           <div>{r.odometerKm.toLocaleString()} KM</div>
                         </td>
                         <td className="py-2.5 px-3 max-w-xs">
                           <div className="font-medium text-slate-800">{r.fuelStation}</div>
-                          <div className="text-[10px] text-slate-500 truncate">{r.notes || '-'}</div>
+                          <div className="text-[10px] text-[var(--color-muted)] truncate">{r.notes || '-'}</div>
                         </td>
                         <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono">
                           {formatCurrency(r.totalAmount)}
@@ -1078,7 +1079,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900">Record Direct Fuel Entry</h3>
-              <button onClick={() => setIsManualFuelModalOpen(false)} className="text-slate-400 text-xl font-bold">&times;</button>
+              <button onClick={() => setIsManualFuelModalOpen(false)} className="text-[var(--color-muted)] text-xl font-bold">&times;</button>
             </div>
             <form onSubmit={handleSaveDirectFuel} className="space-y-3 text-xs">
               <div>
@@ -1150,7 +1151,7 @@ export const FuelManagerView: React.FC<FuelManagerViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold"
+                  className="btn btn-primary"
                 >
                   Save Entry
                 </button>

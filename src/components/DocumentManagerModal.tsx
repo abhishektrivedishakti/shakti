@@ -232,29 +232,33 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-4xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-xs sm:p-4">
+      <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-2xl">
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-5 text-white flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-white/10 rounded-xl">
-              {entityType === 'vehicle' && <Car className="w-6 h-6 text-amber-400" />}
-              {entityType === 'driver' && <User className="w-6 h-6 text-emerald-400" />}
-              {entityType === 'tender' && <Building2 className="w-6 h-6 text-indigo-400" />}
+        <div className="flex shrink-0 flex-wrap items-start justify-between gap-3 border-b border-white/10 bg-[var(--color-ink)] p-4 text-white sm:p-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="rounded-xl bg-white/10 p-2.5">
+              {entityType === 'vehicle' && <Car className="h-6 w-6 text-teal-300" />}
+              {entityType === 'driver' && <User className="h-6 w-6 text-teal-300" />}
+              {entityType === 'tender' && <Building2 className="h-6 w-6 text-teal-300" />}
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold">
-                  {entityType === 'vehicle' && 'Vehicle Documents & Compliance Vault (गाड़ी के दस्तावेज)'}
-                  {entityType === 'driver' && 'Driver KYC & Compliance Dossier (चालक दस्तावेज व सत्यापन)'}
-                  {entityType === 'tender' && 'Tender & Work Order Documents (टेंडर व अनुबंध दस्तावेज)'}
-                </h3>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold uppercase tracking-wider border border-emerald-500/30">
+            <div className="min-w-0">
+              <div className="mb-1 flex flex-wrap items-center gap-2">
+                <span className="page-kicker !text-teal-300">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Documents
+                </span>
+                <span className="rounded border border-teal-400/30 bg-teal-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-teal-200">
                   Govt Compliant
                 </span>
               </div>
+              <h3 className="font-[family-name:var(--font-display)] text-lg font-bold tracking-tight">
+                {entityType === 'vehicle' && 'Vehicle Documents & Compliance Vault (गाड़ी के दस्तावेज)'}
+                {entityType === 'driver' && 'Driver KYC & Compliance Dossier (चालक दस्तावेज व सत्यापन)'}
+                {entityType === 'tender' && 'Tender & Work Order Documents (टेंडर व अनुबंध दस्तावेज)'}
+              </h3>
               <p
-                className="text-xs text-slate-300 mt-0.5"
+                className="mt-0.5 text-xs text-white/65"
                 dangerouslySetInnerHTML={{ __html: getEntityTitle() }}
               />
             </div>
@@ -262,21 +266,23 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => {
                 resetUploadForm();
                 setIsUploadFormOpen(true);
               }}
-              className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
+              className="btn btn-accent !py-1.5 !text-xs"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" />
               Upload Document (दस्तावेज अपलोड)
             </button>
 
             <button
+              type="button"
               onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors"
+              className="rounded-lg bg-white/10 p-1.5 text-white/55 transition-colors hover:bg-white/15 hover:text-white"
             >
-              <X className="w-5 h-5" />
+              <X className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -295,10 +301,10 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-200 text-xs">
                   <span className="font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-indigo-600" />
+                    <ShieldCheck className="w-4 h-4 text-teal-700" />
                     Mandatory Commercial Transport Documents Status (परिवहन विभाग अनिवार्यता)
                   </span>
-                  <span className="font-mono text-slate-500">Reg: {v.vehicleNumber}</span>
+                  <span className="font-mono text-[var(--color-muted)]">Reg: {v.vehicleNumber}</span>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 text-xs">
@@ -311,13 +317,13 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                           Active
                         </span>
                       </div>
-                      <span className="font-mono text-[11px] text-slate-500 block mt-1">
+                      <span className="font-mono text-[11px] text-[var(--color-muted)] block mt-1">
                         {v.rcNumber || v.vehicleNumber}
                       </span>
                     </div>
                     <button
                       onClick={() => handleQuickUploadCategory('rc', `Registration Certificate (RC) - ${v.vehicleNumber}`)}
-                      className="mt-2 text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold text-left flex items-center gap-1"
+                      className="mt-2 text-[11px] text-teal-700 hover:text-teal-900 font-semibold text-left flex items-center gap-1"
                     >
                       <Upload className="w-3 h-3" /> Update / Re-upload
                     </button>
@@ -351,13 +357,13 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                       <span className="text-[11px] text-slate-600 block mt-1">
                         Due: <strong>{formatDate(v.insuranceExpiry)}</strong>
                       </span>
-                      <span className="text-[10px] text-slate-400 block truncate">
+                      <span className="text-[10px] text-[var(--color-muted)] block truncate">
                         {v.insuranceCompany || 'Commercial Policy'}
                       </span>
                     </div>
                     <button
                       onClick={() => handleQuickUploadCategory('insurance', `Insurance Policy - ${v.vehicleNumber}`)}
-                      className="mt-2 text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold text-left flex items-center gap-1"
+                      className="mt-2 text-[11px] text-teal-700 hover:text-teal-900 font-semibold text-left flex items-center gap-1"
                     >
                       <Upload className="w-3 h-3" /> Update Policy
                     </button>
@@ -391,11 +397,11 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                       <span className="text-[11px] text-slate-600 block mt-1">
                         Due: <strong>{formatDate(v.pucExpiry)}</strong>
                       </span>
-                      <span className="text-[10px] text-slate-400 block">Bharat Stage VI Norms</span>
+                      <span className="text-[10px] text-[var(--color-muted)] block">Bharat Stage VI Norms</span>
                     </div>
                     <button
                       onClick={() => handleQuickUploadCategory('puc', `PUC Certificate - ${v.vehicleNumber}`)}
-                      className="mt-2 text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold text-left flex items-center gap-1"
+                      className="mt-2 text-[11px] text-teal-700 hover:text-teal-900 font-semibold text-left flex items-center gap-1"
                     >
                       <Upload className="w-3 h-3" /> Update PUC
                     </button>
@@ -413,13 +419,13 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                       <span className="text-[11px] text-slate-600 block mt-1">
                         Fitness: <strong>{formatDate(v.rtoFitnessExpiry)}</strong>
                       </span>
-                      <span className="text-[10px] text-slate-400 block">
+                      <span className="text-[10px] text-[var(--color-muted)] block">
                         Road Tax: {formatDate(v.roadTaxExpiry)}
                       </span>
                     </div>
                     <button
                       onClick={() => handleQuickUploadCategory('fitness', `Commercial Fitness Certificate - ${v.vehicleNumber}`)}
-                      className="mt-2 text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold text-left flex items-center gap-1"
+                      className="mt-2 text-[11px] text-teal-700 hover:text-teal-900 font-semibold text-left flex items-center gap-1"
                     >
                       <Upload className="w-3 h-3" /> Update Fitness
                     </button>
@@ -442,7 +448,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
                     Driver KYC &amp; Verification Status (चालक पहचान व चरित्र सत्यापन)
                   </span>
-                  <span className="font-mono text-slate-500">ID: {d.id}</span>
+                  <span className="font-mono text-[var(--color-muted)]">ID: {d.id}</span>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 text-xs">
@@ -461,7 +467,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     </div>
                     <button
                       onClick={() => handleQuickUploadCategory('aadhaar', `Aadhaar Card Copy - ${d.name}`)}
-                      className="mt-2 text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold text-left flex items-center gap-1"
+                      className="mt-2 text-[11px] text-teal-700 hover:text-teal-900 font-semibold text-left flex items-center gap-1"
                     >
                       <Upload className="w-3 h-3" /> Upload Copy
                     </button>
@@ -489,13 +495,13 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                       <span className="font-mono text-xs text-slate-900 font-semibold block mt-1">
                         {d.licenseNumber}
                       </span>
-                      <span className="text-[10px] text-slate-500 block">
+                      <span className="text-[10px] text-[var(--color-muted)] block">
                         Valid till: {formatDate(d.licenseExpiry)}
                       </span>
                     </div>
                     <button
                       onClick={() => handleQuickUploadCategory('driving_license', `Driving License Card - ${d.name}`)}
-                      className="mt-2 text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold text-left flex items-center gap-1"
+                      className="mt-2 text-[11px] text-teal-700 hover:text-teal-900 font-semibold text-left flex items-center gap-1"
                     >
                       <Upload className="w-3 h-3" /> Upload DL Card
                     </button>
@@ -516,7 +522,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     </div>
                     <button
                       onClick={() => handleQuickUploadCategory('pan', `PAN Card Copy - ${d.name}`)}
-                      className="mt-2 text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold text-left flex items-center gap-1"
+                      className="mt-2 text-[11px] text-teal-700 hover:text-teal-900 font-semibold text-left flex items-center gap-1"
                     >
                       <Upload className="w-3 h-3" /> Upload PAN
                     </button>
@@ -543,7 +549,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     </div>
                     <button
                       onClick={() => handleQuickUploadCategory('police_verification', `Police Verification Certificate - ${d.name}`)}
-                      className="mt-2 text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold text-left flex items-center gap-1"
+                      className="mt-2 text-[11px] text-teal-700 hover:text-teal-900 font-semibold text-left flex items-center gap-1"
                     >
                       <Upload className="w-3 h-3" /> Upload Certificate
                     </button>
@@ -557,19 +563,19 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                <FileCheck className="w-4 h-4 text-indigo-600" />
+                <FileCheck className="w-4 h-4 text-teal-700" />
                 <span>Uploaded Documents &amp; Certificates ({documents.length})</span>
               </h4>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-[var(--color-muted)]">
                 Click any document to view, print, or download certified copy
               </span>
             </div>
 
             {documents.length === 0 ? (
               <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300">
-                <FileText className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                <FileText className="w-10 h-10 text-[var(--color-muted)] mx-auto mb-2" />
                 <p className="text-sm font-semibold text-slate-700">No documents uploaded yet</p>
-                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                <p className="text-xs text-[var(--color-muted)] mt-1 max-w-sm mx-auto">
                   Click the &quot;Upload Document&quot; button above to attach scans of RC, insurance, driving license, or tender contracts.
                 </p>
                 <button
@@ -577,9 +583,9 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     resetUploadForm();
                     setIsUploadFormOpen(true);
                   }}
-                  className="mt-3 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm"
+                  className="btn btn-primary mt-3 !text-xs"
                 >
-                  <Upload className="w-3.5 h-3.5" /> Upload First Document
+                  <Upload className="h-3.5 w-3.5" /> Upload First Document (पहला दस्तावेज अपलोड)
                 </button>
               </div>
             ) : (
@@ -593,19 +599,19 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                   return (
                     <div
                       key={doc.id}
-                      className="bg-white p-4 rounded-xl border border-slate-200 hover:border-indigo-300 shadow-xs transition-all flex flex-col justify-between"
+                      className="panel panel-pad flex flex-col justify-between transition-all hover:border-teal-300"
                     >
                       <div>
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-start gap-2.5">
-                            <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600 mt-0.5">
-                              <FileText className="w-4 h-4" />
+                            <div className="mt-0.5 rounded-lg bg-teal-50 p-2 text-teal-700">
+                              <FileText className="h-4 w-4" />
                             </div>
                             <div>
                               <div className="font-semibold text-xs text-slate-900 leading-tight">
                                 {doc.title}
                               </div>
-                              <span className="text-[10px] text-slate-500 font-medium block mt-0.5">
+                              <span className="text-[10px] text-[var(--color-muted)] font-medium block mt-0.5">
                                 {getCategoryName(doc.category)}
                               </span>
                             </div>
@@ -634,13 +640,13 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                         <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2.5 rounded-lg border border-slate-100">
                           {doc.documentNumber && (
                             <div>
-                              <span className="text-slate-400 text-[10px] block">Document / Ref #</span>
+                              <span className="text-[var(--color-muted)] text-[10px] block">Document / Ref #</span>
                               <span className="font-mono font-bold text-slate-800">{doc.documentNumber}</span>
                             </div>
                           )}
                           {doc.issuingAuthority && (
                             <div>
-                              <span className="text-slate-400 text-[10px] block">Issuing Authority</span>
+                              <span className="text-[var(--color-muted)] text-[10px] block">Issuing Authority</span>
                               <span className="text-slate-800 font-medium truncate block">
                                 {doc.issuingAuthority}
                               </span>
@@ -648,7 +654,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                           )}
                           {doc.expiryDate && (
                             <div>
-                              <span className="text-slate-400 text-[10px] block">Valid Till</span>
+                              <span className="text-[var(--color-muted)] text-[10px] block">Valid Till</span>
                               <span
                                 className={`font-semibold ${
                                   isExpired ? 'text-rose-700' : isExpiringSoon ? 'text-amber-700' : 'text-slate-800'
@@ -659,13 +665,13 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                             </div>
                           )}
                           <div>
-                            <span className="text-slate-400 text-[10px] block">Uploaded On</span>
+                            <span className="text-[var(--color-muted)] text-[10px] block">Uploaded On</span>
                             <span className="text-slate-600">{doc.uploadedAt}</span>
                           </div>
                         </div>
 
                         {doc.notes && (
-                          <p className="mt-2 text-[11px] text-slate-500 italic bg-amber-50/50 p-1.5 rounded border border-amber-100/60">
+                          <p className="mt-2 text-[11px] text-[var(--color-muted)] italic bg-amber-50/50 p-1.5 rounded border border-amber-100/60">
                             Note: {doc.notes}
                           </p>
                         )}
@@ -673,21 +679,21 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
 
                       {/* Action buttons */}
                       <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
-                        <span className="text-[10px] text-slate-400 font-mono">
+                        <span className="text-[10px] text-[var(--color-muted)] font-mono">
                           {doc.fileName} ({doc.fileSize || '1.4 MB'})
                         </span>
 
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => setSelectedDocForPreview(doc)}
-                            className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-[11px] font-semibold flex items-center gap-1 transition-colors"
+                            className="inline-flex items-center gap-1 rounded-md bg-teal-50 px-2.5 py-1 text-[11px] font-semibold text-teal-800 transition-colors hover:bg-teal-100"
                           >
-                            <Eye className="w-3 h-3" /> View Scanned Copy
+                            <Eye className="h-3 w-3" /> View Scanned Copy
                           </button>
 
                           <button
                             onClick={() => handleDeleteDocument(doc.id)}
-                            className="p-1 hover:bg-rose-50 rounded text-slate-400 hover:text-rose-600 transition-colors"
+                            className="p-1 hover:bg-rose-50 rounded text-[var(--color-muted)] hover:text-rose-600 transition-colors"
                             title="Remove Document"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -703,40 +709,38 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-          <div className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Encrypted &amp; Locally Stored &bull; Ready for Tender Compliance Audits</span>
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[var(--color-line)] bg-[var(--color-surface-muted)] px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
+            <ShieldCheck className="h-4 w-4 text-teal-600" />
+            <span>Encrypted &amp; Locally Stored • Ready for Tender Compliance Audits</span>
           </div>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-semibold transition-colors"
-          >
-            Close (बंद करें)
+          <button type="button" onClick={onClose} className="btn btn-primary">
+            बंद करें (Close)
           </button>
         </div>
       </div>
 
       {/* Upload Document Modal */}
       {isUploadFormOpen && (
-        <div className="fixed inset-0 z-60 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="bg-indigo-600 p-4 text-white flex items-center justify-between">
-              <h4 className="font-bold text-sm flex items-center gap-2">
-                <Upload className="w-4 h-4" />
-                Upload New Document &bull; दस्तावेज अपलोड
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-3 backdrop-blur-xs sm:p-4">
+          <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-white shadow-2xl">
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-[var(--color-ink)] px-4 py-4 text-white">
+              <h4 className="flex items-center gap-2 font-[family-name:var(--font-display)] text-sm font-bold">
+                <Upload className="h-4 w-4 text-teal-300" />
+                Upload New Document • दस्तावेज अपलोड
               </h4>
               <button
+                type="button"
                 onClick={() => setIsUploadFormOpen(false)}
-                className="p-1 hover:bg-white/20 rounded text-indigo-100 hover:text-white"
+                className="rounded-lg bg-white/10 p-1.5 text-white/55 transition-colors hover:bg-white/15 hover:text-white"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveUpload} className="p-5 space-y-4 text-xs">
+            <form onSubmit={handleSaveUpload} className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[var(--color-sand)]/50 p-4 text-xs sm:p-5">
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="mb-1 block font-semibold text-[var(--color-ink)]">
                   Document Category (दस्तावेज का प्रकार) *
                 </label>
                 <select
@@ -746,7 +750,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     setUploadCategory(cat);
                     if (!uploadTitle) setUploadTitle(getCategoryName(cat));
                   }}
-                  className="w-full p-2 bg-white border border-slate-300 rounded-lg font-medium text-slate-900 focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-lg border border-[var(--color-line)] bg-white p-2 font-medium text-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                 >
                   {entityType === 'vehicle' && (
                     <>
@@ -781,7 +785,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="mb-1 block font-semibold text-[var(--color-ink)]">
                   Document Title (दस्तावेज का नाम) *
                 </label>
                 <input
@@ -790,13 +794,13 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                   placeholder="e.g. Commercial Comprehensive Insurance Policy 2026-27"
                   value={uploadTitle}
                   onChange={(e) => setUploadTitle(e.target.value)}
-                  className="w-full p-2 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-[var(--color-ink)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="mb-1 block font-semibold text-[var(--color-ink)]">
                     Document / Policy / Ref #
                   </label>
                   <input
@@ -804,12 +808,12 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     placeholder="e.g. 0823003126P10023"
                     value={uploadDocNumber}
                     onChange={(e) => setUploadDocNumber(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-lg font-mono text-slate-900 focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 font-mono text-[var(--color-ink)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="mb-1 block font-semibold text-[var(--color-ink)]">
                     Issuing Authority / Company
                   </label>
                   <input
@@ -817,42 +821,42 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     placeholder="e.g. United India Insurance / RTO Lucknow"
                     value={uploadAuthority}
                     onChange={(e) => setUploadAuthority(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-[var(--color-ink)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="mb-1 block font-semibold text-[var(--color-ink)]">
                     Issue Date (जारी होने की तिथि)
                   </label>
                   <input
                     type="date"
                     value={uploadIssueDate}
                     onChange={(e) => setUploadIssueDate(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-lg text-slate-900"
+                    className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-[var(--color-ink)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="mb-1 block font-semibold text-[var(--color-ink)]">
                     Expiry Date (वैधता समाप्ति तिथि)
                   </label>
                   <input
                     type="date"
                     value={uploadExpiryDate}
                     onChange={(e) => setUploadExpiryDate(e.target.value)}
-                    className="w-full p-2 border border-slate-300 rounded-lg text-slate-900"
+                    className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-[var(--color-ink)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="mb-1 block font-semibold text-[var(--color-ink)]">
                   Select File / Scan / Photo (फाइल या फोटो चुनें)
                 </label>
-                <div className="border border-dashed border-slate-300 rounded-lg p-3 text-center bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors">
+                <div className="cursor-pointer rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-surface-muted)] p-3 text-center transition-colors hover:border-teal-600/40 hover:bg-teal-50/50">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -861,12 +865,12 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     className="hidden"
                     id="doc-file-upload"
                   />
-                  <label htmlFor="doc-file-upload" className="cursor-pointer block">
-                    <Upload className="w-6 h-6 text-indigo-500 mx-auto mb-1" />
-                    <span className="font-semibold text-indigo-700">
+                  <label htmlFor="doc-file-upload" className="block cursor-pointer">
+                    <Upload className="mx-auto mb-1 h-6 w-6 text-teal-600" />
+                    <span className="font-semibold text-teal-800">
                       {uploadFileName || 'Click to select PDF or Image file'}
                     </span>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                    <span className="mt-0.5 block text-[10px] text-[var(--color-muted)]">
                       PDF, JPG, PNG up to 10MB (Stores in Local Storage)
                     </span>
                   </label>
@@ -874,29 +878,27 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">Remarks / Notes</label>
+                <label className="mb-1 block font-semibold text-[var(--color-ink)]">Remarks / Notes</label>
                 <input
                   type="text"
                   placeholder="e.g. Original verified, copy submitted to PWD division"
                   value={uploadNotes}
                   onChange={(e) => setUploadNotes(e.target.value)}
-                  className="w-full p-2 border border-slate-300 rounded-lg text-slate-900"
+                  className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-muted)] p-2 text-[var(--color-ink)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600/30"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
+              <div className="flex flex-wrap items-center justify-end gap-2 border-t border-[var(--color-line)] pt-3">
                 <button
                   type="button"
                   onClick={() => setIsUploadFormOpen(false)}
-                  className="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-semibold"
+                  className="btn btn-secondary"
                 >
-                  Cancel
+                  रद्द करें (Cancel)
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold flex items-center gap-1 shadow-sm"
-                >
-                  <CheckCircle2 className="w-4 h-4" /> Save &amp; Attach Document
+                <button type="submit" className="btn btn-primary">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Save &amp; Attach Document (सुरक्षित करें)
                 </button>
               </div>
             </form>
@@ -906,17 +908,17 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
 
       {/* Realistic Scanned Copy / Document Viewer Modal */}
       {selectedDocForPreview && (
-        <div className="fixed inset-0 z-70 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-70 bg-[var(--color-ink)]/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-3xl w-full border border-slate-300 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             {/* Viewer Header */}
-            <div className="bg-slate-900 p-4 text-white flex items-center justify-between border-b border-slate-800">
+            <div className="bg-[var(--color-surface)] p-4 text-[var(--color-ink)] flex items-center justify-between border-b border-[var(--color-line)]">
               <div className="flex items-center gap-2.5">
                 <div className="p-1.5 bg-emerald-500/20 text-emerald-400 rounded-lg">
                   <BadgeCheck className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="font-bold text-sm leading-tight">{selectedDocForPreview.title}</h4>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-[var(--color-muted)]">
                     Category: {getCategoryName(selectedDocForPreview.category)} &bull; Uploaded on {selectedDocForPreview.uploadedAt}
                   </p>
                 </div>
@@ -925,7 +927,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1 border border-slate-700"
+                  className="px-3 py-1.5 bg-[var(--color-sand-deep)] hover:bg-[var(--color-sand)] text-[var(--color-ink)] rounded-lg text-xs font-semibold flex items-center gap-1 border border-[var(--color-line-strong)]"
                 >
                   <Printer className="w-3.5 h-3.5" /> Print
                 </button>
@@ -938,13 +940,13 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     a.download = `${selectedDocForPreview.fileName || 'document'}.txt`;
                     a.click();
                   }}
-                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shadow-sm"
+                  className="btn btn-accent !py-1.5 !text-xs"
                 >
                   <Download className="w-3.5 h-3.5" /> Download
                 </button>
                 <button
                   onClick={() => setSelectedDocForPreview(null)}
-                  className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white ml-2"
+                  className="p-1.5 hover:bg-white/10 rounded-lg text-[var(--color-muted)] hover:text-[var(--color-ink)] ml-2"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -987,7 +989,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                   {/* Document Body Details */}
                   <div className="mt-6 grid grid-cols-2 gap-y-4 gap-x-6 text-xs">
                     <div className="p-3 bg-white/80 rounded-lg border border-slate-200">
-                      <span className="text-slate-400 text-[10px] uppercase font-bold block">
+                      <span className="text-[var(--color-muted)] text-[10px] uppercase font-bold block">
                         Registration / Document No.
                       </span>
                       <span className="font-mono text-base font-bold text-slate-900">
@@ -996,7 +998,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     </div>
 
                     <div className="p-3 bg-white/80 rounded-lg border border-slate-200">
-                      <span className="text-slate-400 text-[10px] uppercase font-bold block">
+                      <span className="text-[var(--color-muted)] text-[10px] uppercase font-bold block">
                         Document Classification
                       </span>
                       <span className="font-semibold text-slate-800">
@@ -1005,7 +1007,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     </div>
 
                     <div className="p-3 bg-white/80 rounded-lg border border-slate-200">
-                      <span className="text-slate-400 text-[10px] uppercase font-bold block">
+                      <span className="text-[var(--color-muted)] text-[10px] uppercase font-bold block">
                         Date of Issue / Sanction
                       </span>
                       <span className="font-medium text-slate-800">
@@ -1014,7 +1016,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                     </div>
 
                     <div className="p-3 bg-white/80 rounded-lg border border-slate-200">
-                      <span className="text-slate-400 text-[10px] uppercase font-bold block">
+                      <span className="text-[var(--color-muted)] text-[10px] uppercase font-bold block">
                         Valid Upto / Expiry Date
                       </span>
                       <span className="font-bold text-emerald-800 text-sm">
@@ -1025,7 +1027,7 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
 
                   {/* Associated Entity Details */}
                   <div className="mt-5 p-3.5 bg-white/90 rounded-lg border border-slate-200 text-xs space-y-1">
-                    <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                    <span className="text-[10px] font-bold uppercase text-[var(--color-muted)] block tracking-wider">
                       Target Entity Association
                     </span>
                     <div className="font-bold text-slate-900">
@@ -1041,22 +1043,22 @@ export const DocumentManagerModal: React.FC<DocumentManagerModalProps> = ({
                   {/* Seal & QR Code Emulation */}
                   <div className="mt-8 pt-4 border-t border-slate-300 flex items-center justify-between text-[11px]">
                     <div className="flex items-center gap-3">
-                      <div className="w-16 h-16 bg-slate-900 p-1 rounded border border-slate-400 flex items-center justify-center text-[8px] text-white text-center font-mono">
+                      <div className="w-16 h-16 bg-[var(--color-surface)] p-1 rounded border border-slate-400 flex items-center justify-center text-[8px] text-[var(--color-ink)] text-center font-mono">
                         [DIGITAL QR VERIFIED]
                       </div>
                       <div>
                         <span className="block font-bold text-slate-800">Digitally Verified Document</span>
-                        <span className="text-[10px] text-slate-500 font-mono">
+                        <span className="text-[10px] text-[var(--color-muted)] font-mono">
                           SHA256: 8f9b...a102 | Secure GeM/RTO Portal
                         </span>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <div className="w-24 h-10 border-b border-dashed border-slate-400 ml-auto mb-1 flex items-end justify-center text-[10px] text-indigo-800 font-serif italic">
+                      <div className="w-24 h-10 border-b border-dashed border-slate-400 ml-auto mb-1 flex items-end justify-center text-[10px] text-teal-800 font-serif italic">
                         Authorized Signatory
                       </div>
-                      <span className="text-[10px] text-slate-500">Seal &amp; Signature</span>
+                      <span className="text-[10px] text-[var(--color-muted)]">Seal &amp; Signature</span>
                     </div>
                   </div>
                 </div>

@@ -233,13 +233,13 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel panel-pad flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Users className="w-5 h-5 text-indigo-600" />
+            <Users className="w-5 h-5 text-teal-700" />
             <span>Driver Roster &amp; Khata Ledger &bull; ड्राइवर सैलरी व एडवांस खाता</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-[var(--color-muted)] mt-1">
             ड्राइवर विवरण, मासिक वेतन, व्यक्तिगत पेशगी (एडवांस) रिकॉर्ड, फास्टैग रिचार्ज व नेट सैलरी पर्ची
           </p>
         </div>
@@ -255,7 +255,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
 
           <button
             onClick={() => setIsBulkModalOpen(true)}
-            className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all active:scale-[0.98]"
+            className="btn btn-success !text-xs"
             title="एक्सेल शीट डाउनलोड करें या भरी हुई शीट अपलोड करके एक साथ कई ड्राइवर जोड़ें"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-200" />
@@ -267,7 +267,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
               setAdvDriverId(selectedDriver?.id || drivers[0]?.id || '');
               setIsAdvanceModalOpen(true);
             }}
-            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
+            className="btn btn-primary !text-xs"
           >
             <IndianRupee className="w-4 h-4" />
             + Give Advance / Payment (रुपये दें)
@@ -316,7 +316,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                   onClick={() => setSelectedDriverId(drv.id)}
                   className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
                     isSelected
-                      ? 'border-indigo-600 bg-indigo-50/50 shadow-xs'
+                      ? 'border-teal-600 bg-teal-50/50 shadow-xs'
                       : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
@@ -324,11 +324,11 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                     <div>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-bold text-slate-900 text-sm">{drv.name}</span>
-                        <span className="text-[10px] font-mono font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.2 rounded">
+                        <span className="text-[10px] font-mono font-bold text-teal-800 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded">
                           {getDriverDisplayCode(drv)}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-500 mt-0.5">{drv.phone}</div>
+                      <div className="text-[11px] text-[var(--color-muted)] mt-0.5">{drv.phone}</div>
                     </div>
                     <div className="flex items-center gap-1.5">
                       {onOpenProfileModal && (
@@ -338,7 +338,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                             e.stopPropagation();
                             onOpenProfileModal('driver', drv.id);
                           }}
-                          className="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-colors"
+                          className="p-1 hover:bg-slate-200 rounded text-[var(--color-muted)] hover:text-teal-700 transition-colors"
                           title="चालक प्रोफ़ाइल एडिट करें"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
@@ -365,14 +365,14 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
 
                   <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-slate-400 block">Salary:</span>
+                      <span className="text-[10px] text-[var(--color-muted)] block">Salary:</span>
                       <span className="font-semibold text-slate-800">
                         {formatCurrency(drv.monthlySalary)}
                       </span>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-[10px] text-slate-400 block">Advance Balance:</span>
+                      <span className="text-[10px] text-[var(--color-muted)] block">Advance Balance:</span>
                       <span
                         className={`font-bold ${
                           khata.currentAdvanceBalance > 0 ? 'text-rose-700' : 'text-slate-700'
@@ -398,12 +398,12 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="text-base font-bold text-slate-900">{selectedDriver.name}</h3>
-                      <div className="inline-flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 px-2 py-0.5 rounded-md text-xs font-mono font-bold shadow-2xs">
+                      <div className="inline-flex items-center gap-1.5 bg-teal-50 border border-teal-200 text-teal-800 px-2 py-0.5 rounded-md text-xs font-mono font-bold shadow-2xs">
                         <span>🆔 {getDriverDisplayCode(selectedDriver)}</span>
                         <button
                           type="button"
                           onClick={() => handleCopyDriverCode(getDriverDisplayCode(selectedDriver))}
-                          className="hover:text-indigo-950 p-0.5 rounded transition-colors text-indigo-500 hover:bg-indigo-100"
+                          className="hover:text-[var(--color-ink)] p-0.5 rounded transition-colors text-teal-600 hover:bg-teal-100"
                           title="यूनिक चालक कोड कॉपी करें"
                         >
                           {copiedDriverCode ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
@@ -413,7 +413,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                         Lic: {selectedDriver.licenseNumber}
                       </span>
                     </div>
-                    <div className="text-xs text-slate-500 mt-0.5">
+                    <div className="text-xs text-[var(--color-muted)] mt-0.5">
                       Assigned to:{' '}
                       <strong className="text-slate-900 font-mono">
                         {driverVehicle ? `${driverVehicle.vehicleNumber} (${driverVehicle.makeModel})` : 'Unassigned'}
@@ -426,19 +426,19 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                       <button
                         type="button"
                         onClick={() => onOpenProfileModal('driver', selectedDriver.id)}
-                        className="px-3 py-1.5 bg-indigo-700 hover:bg-indigo-600 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                        className="btn btn-primary !text-xs"
                         title="चालक की प्रोफ़ाइल, नाम, फोन, वेतन, बैंक खाता एडिट करें"
                       >
-                        <Edit2 className="w-3.5 h-3.5 text-indigo-200" />
+                        <Edit2 className="w-3.5 h-3.5 text-teal-200" />
                         <span>✏️ प्रोफ़ाइल एडिट करें (Edit Profile)</span>
                       </button>
                     )}
 
                     <button
                       onClick={() => setIsDriverDocsModalOpen(true)}
-                      className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-indigo-200 shadow-2xs transition-colors"
+                      className="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-teal-200 shadow-2xs transition-colors"
                     >
-                      <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                      <FileText className="w-3.5 h-3.5 text-teal-700" />
                       KYC Documents &amp; Dossier ({selectedDriver.documents?.length || 4})
                     </button>
 
@@ -455,7 +455,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                         setAdvDriverId(selectedDriver.id);
                         setIsAdvanceModalOpen(true);
                       }}
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shadow-2xs transition-colors"
+                      className="btn btn-primary !text-xs"
                     >
                       <IndianRupee className="w-3.5 h-3.5" />
                       Give Advance
@@ -464,15 +464,15 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                 </div>
 
                 {/* Driver KYC & Mandatory Documents Summary Strip */}
-                <div className="mt-4 p-3.5 rounded-xl border border-indigo-100 bg-indigo-50/30">
-                  <div className="flex items-center justify-between pb-2 border-b border-indigo-100 text-xs">
-                    <span className="font-bold text-indigo-900 flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-indigo-600" />
+                <div className="mt-4 p-3.5 rounded-xl border border-teal-100 bg-teal-50/30">
+                  <div className="flex items-center justify-between pb-2 border-b border-teal-100 text-xs">
+                    <span className="font-bold text-[var(--color-ink)] flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-teal-700" />
                       Driver KYC &amp; Verification Documents (चालक दस्तावेज - आधार, लाइसेंस, पैन, पुलिस सत्यापन)
                     </span>
                     <button
                       onClick={() => setIsDriverDocsModalOpen(true)}
-                      className="text-indigo-600 hover:text-indigo-800 font-semibold text-[11px] underline"
+                      className="text-teal-700 hover:text-teal-800 font-semibold text-[11px] underline"
                     >
                       Upload / View All Copies &rarr;
                     </button>
@@ -481,7 +481,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                   <div className="mt-2.5 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                     {/* Aadhaar */}
                     <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase block">Aadhaar (आधार)</span>
+                      <span className="text-[10px] text-[var(--color-muted)] font-semibold uppercase block">Aadhaar (आधार)</span>
                       <span className="font-mono text-xs font-bold text-slate-900 block mt-0.5">
                         {selectedDriver.aadharNumber || 'XXXX-XXXX-XXXX'}
                       </span>
@@ -492,18 +492,18 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
 
                     {/* Driving License */}
                     <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase block">Driving Licence (DL)</span>
+                      <span className="text-[10px] text-[var(--color-muted)] font-semibold uppercase block">Driving Licence (DL)</span>
                       <span className="font-mono text-xs font-bold text-slate-900 block mt-0.5">
                         {selectedDriver.licenseNumber}
                       </span>
-                      <span className="text-[9px] text-slate-500 block mt-1">
+                      <span className="text-[9px] text-[var(--color-muted)] block mt-1">
                         Valid: <strong>{formatDate(selectedDriver.licenseExpiry)}</strong>
                       </span>
                     </div>
 
                     {/* PAN Card */}
                     <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase block">PAN Card (पैन)</span>
+                      <span className="text-[10px] text-[var(--color-muted)] font-semibold uppercase block">PAN Card (पैन)</span>
                       <span className="font-mono text-xs font-bold text-slate-900 block mt-0.5">
                         {selectedDriver.panNumber || `BKPPD${selectedDriver.id.slice(-4).padStart(4, '1')}A`}
                       </span>
@@ -514,7 +514,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
 
                     {/* Police Verification */}
                     <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase block">Police Verification</span>
+                      <span className="text-[10px] text-[var(--color-muted)] font-semibold uppercase block">Police Verification</span>
                       <span className="font-semibold text-xs text-slate-900 block mt-0.5 truncate">
                         District SP Office
                       </span>
@@ -528,13 +528,13 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                 {/* Khata Metrics Grid */}
                 <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <span className="text-slate-500 text-[10px] block uppercase font-semibold">
+                    <span className="text-[var(--color-muted)] text-[10px] block uppercase font-semibold">
                       Monthly Base Salary
                     </span>
                     <span className="text-base font-bold text-slate-900">
                       {formatCurrency(selectedDriver.monthlySalary)}
                     </span>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                    <span className="text-[10px] text-[var(--color-muted)] block mt-0.5">
                       Night DA: ₹{selectedDriver.dailyDaRate}/night
                     </span>
                   </div>
@@ -551,14 +551,14 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                     </span>
                   </div>
 
-                  <div className="bg-purple-50 p-3 rounded-lg border border-purple-100">
-                    <span className="text-purple-700 text-[10px] block uppercase font-semibold">
+                  <div className="bg-sky-50 p-3 rounded-lg border border-sky-100">
+                    <span className="text-sky-700 text-[10px] block uppercase font-semibold">
                       Fuel Budget Given
                     </span>
-                    <span className="text-base font-bold text-purple-900">
+                    <span className="text-base font-bold text-[var(--color-ink)]">
                       {formatCurrency(driverKhataSummary?.pendingFuelBudgetBalance || 0)}
                     </span>
-                    <span className="text-[10px] text-purple-600 block mt-0.5">
+                    <span className="text-[10px] text-sky-700 block mt-0.5">
                       Monthly diesel/CNG fund
                     </span>
                   </div>
@@ -579,13 +579,13 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                 {/* Compliance & Bank Account details */}
                 <div className="mt-4 pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-slate-600">
                   <div>
-                    <span className="text-slate-400 block">Bank Account / UPI:</span>
+                    <span className="text-[var(--color-muted)] block">Bank Account / UPI:</span>
                     <span className="font-mono font-medium text-slate-800">
                       {selectedDriver.bankAccountDetails || 'Not specified'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block">Police Verification Expiry:</span>
+                    <span className="text-[var(--color-muted)] block">Police Verification Expiry:</span>
                     <span className="font-medium text-slate-800">
                       {formatDate(selectedDriver.policeVerificationExpiry)}
                     </span>
@@ -600,7 +600,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                     <h4 className="font-bold text-sm text-slate-900">
                       Transaction Ledger &bull; पेशगी व भुगतान का हिसाब
                     </h4>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[var(--color-muted)]">
                       ड्राइवर द्वारा लिया गया एडवांस, पेट्रोल बजट व दी गई सैलरी की पूरी एंट्री
                     </p>
                   </div>
@@ -620,7 +620,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                     <tbody className="divide-y divide-slate-100 text-slate-700">
                       {driverTxList.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="py-8 text-center text-slate-400">
+                          <td colSpan={5} className="py-8 text-center text-[var(--color-muted)]">
                             No ledger transactions recorded for this driver.
                           </td>
                         </tr>
@@ -639,7 +639,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                                     : tx.type === 'salary_payment'
                                     ? 'bg-emerald-100 text-emerald-800'
                                     : tx.type === 'fuel_budget_advance'
-                                    ? 'bg-purple-100 text-purple-800'
+                                    ? 'bg-sky-100 text-sky-800'
                                     : 'bg-blue-100 text-blue-800'
                                 }`}
                               >
@@ -649,7 +649,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
 
                             <td className="py-2.5 px-3">{tx.description}</td>
 
-                            <td className="py-2.5 px-3 text-[11px] text-slate-500">
+                            <td className="py-2.5 px-3 text-[11px] text-[var(--color-muted)]">
                               <span className="uppercase font-semibold text-slate-700">
                                 {tx.paymentMode}
                               </span>
@@ -683,7 +683,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
               </div>
             </>
           ) : (
-            <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-400">
+            <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-[var(--color-muted)]">
               Select a driver to view Khata ledger.
             </div>
           )}
@@ -701,7 +701,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
               </h3>
               <button
                 onClick={() => setIsSalarySlipModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -713,33 +713,33 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                 <h4 className="font-bold text-sm uppercase text-slate-900">
                   SARKARI FLEET SERVICES
                 </h4>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-[var(--color-muted)]">
                   Driver Monthly Salary Settlement Slip &bull; Month: September 2026
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="text-slate-500">Driver Name:</span>{' '}
+                  <span className="text-[var(--color-muted)]">Driver Name:</span>{' '}
                   <strong className="text-slate-900">{selectedDriver.name}</strong>
                 </div>
                 <div>
-                  <span className="text-slate-500">Driver Unique ID:</span>{' '}
-                  <strong className="font-mono text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">
+                  <span className="text-[var(--color-muted)]">Driver Unique ID:</span>{' '}
+                  <strong className="font-mono text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200">
                     {getDriverDisplayCode(selectedDriver)}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-slate-500">Vehicle:</span>{' '}
+                  <span className="text-[var(--color-muted)]">Vehicle:</span>{' '}
                   <strong className="font-mono text-slate-900">
                     {driverVehicle?.vehicleNumber || 'Standby'}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-slate-500">Mobile:</span> {selectedDriver.phone}
+                  <span className="text-[var(--color-muted)]">Mobile:</span> {selectedDriver.phone}
                 </div>
                 <div>
-                  <span className="text-slate-500">Bank / UPI:</span>{' '}
+                  <span className="text-[var(--color-muted)]">Bank / UPI:</span>{' '}
                   <span className="font-mono text-[10px]">{selectedDriver.bankAccountDetails || '-'}</span>
                 </div>
               </div>
@@ -812,7 +812,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                 </span>
               </div>
 
-              <div className="flex justify-between pt-4 text-[10px] text-slate-500">
+              <div className="flex justify-between pt-4 text-[10px] text-[var(--color-muted)]">
                 <span>Driver Signature: __________________</span>
                 <span>Manager / Accountant: __________________</span>
               </div>
@@ -843,12 +843,12 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <IndianRupee className="w-5 h-5 text-indigo-600" />
+                <IndianRupee className="w-5 h-5 text-teal-700" />
                 <span>Give Advance / Payment &bull; पेशगी / भुगतान</span>
               </h3>
               <button
                 onClick={() => setIsAdvanceModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -958,7 +958,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Record Payment
                 </button>
@@ -978,7 +978,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
               </h3>
               <button
                 onClick={() => setIsNewDriverModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold"
+                className="text-[var(--color-muted)] hover:text-slate-600 text-xl font-bold"
               >
                 &times;
               </button>
@@ -1002,12 +1002,12 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                     }
                     className={`p-2 rounded-lg border text-left transition-all ${
                       newDriverData.employmentType !== 'owner_driver'
-                        ? 'bg-indigo-50 border-indigo-500 font-bold text-indigo-900 shadow-2xs'
+                        ? 'bg-teal-50 border-teal-500 font-bold text-[var(--color-ink)] shadow-2xs'
                         : 'bg-white border-slate-200 text-slate-600'
                     }`}
                   >
                     <div className="font-semibold">कंपनी चालक (Company Driver)</div>
-                    <div className="text-[10px] text-slate-500">मासिक वेतन व एडवांस खाता</div>
+                    <div className="text-[10px] text-[var(--color-muted)]">मासिक वेतन व एडवांस खाता</div>
                   </button>
 
                   <button
@@ -1026,19 +1026,19 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                     }`}
                   >
                     <div className="font-semibold text-emerald-700">मालिक-चालक (Owner-Driver)</div>
-                    <div className="text-[10px] text-slate-500">गाड़ी भी अपनी, वेतन ₹0</div>
+                    <div className="text-[10px] text-[var(--color-muted)]">गाड़ी भी अपनी, वेतन ₹0</div>
                   </button>
                 </div>
               </div>
 
               {/* Unique Driver ID / Code */}
-              <div className="p-3 bg-indigo-50/70 rounded-xl border border-indigo-200">
+              <div className="p-3 bg-teal-50/70 rounded-xl border border-teal-200">
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                    <Sparkles className="w-3.5 h-3.5 text-teal-700" />
                     <span>चालक यूनिक आईडी (Driver Unique Code / ID) *</span>
                   </label>
-                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-100 border border-indigo-300 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="text-[10px] font-bold text-teal-800 bg-teal-100 border border-teal-300 px-2 py-0.5 rounded-full flex items-center gap-1">
                     ✨ स्वतः तैयार (Auto-Generated)
                   </span>
                 </div>
@@ -1049,19 +1049,19 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                     value={newDriverData.driverCode || ''}
                     onChange={(e) => setNewDriverData({ ...newDriverData, driverCode: e.target.value.toUpperCase() })}
                     placeholder="e.g. DRV-101"
-                    className="w-full px-3 py-2 border border-indigo-300 rounded-lg font-mono font-bold text-slate-900 bg-white uppercase tracking-wider text-sm shadow-2xs focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-teal-300 rounded-lg font-mono font-bold text-slate-900 bg-white uppercase tracking-wider text-sm shadow-2xs focus:ring-2 focus:ring-teal-500"
                   />
                   <button
                     type="button"
                     onClick={() => setNewDriverData({ ...newDriverData, driverCode: generateDriverUniqueId(drivers) })}
-                    className="px-3 py-2 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold shrink-0 flex items-center gap-1 shadow-2xs transition-colors"
+                    className="btn btn-primary !text-xs"
                     title="नया यूनिक कोड पुनः जनरेट करें"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>नया कोड</span>
                   </button>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1.5 leading-tight">
+                <p className="text-[10px] text-[var(--color-muted)] mt-1.5 leading-tight">
                   यह अद्वितीय आईडी चालक के रिकॉर्ड, सैलरी स्लिप, खाताबही और सरकारी लॉगबुक पर हमेशा अंकित रहेगी।
                 </p>
               </div>
@@ -1107,7 +1107,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                     value={newDriverData.employmentType === 'owner_driver' ? 0 : (newDriverData.monthlySalary || '')}
                     onChange={(e) => setNewDriverData({ ...newDriverData, monthlySalary: Number(e.target.value) })}
                     className={`w-full px-3 py-2 border border-slate-300 rounded-lg ${
-                      newDriverData.employmentType === 'owner_driver' ? 'bg-slate-100 text-slate-500 font-bold' : ''
+                      newDriverData.employmentType === 'owner_driver' ? 'bg-slate-100 text-[var(--color-muted)] font-bold' : ''
                     }`}
                   />
                   {newDriverData.employmentType === 'owner_driver' && (
@@ -1194,7 +1194,7 @@ export const DriversKhataView: React.FC<DriversKhataViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-xs"
+                  className="btn btn-primary"
                 >
                   Save Driver
                 </button>
