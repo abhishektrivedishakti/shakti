@@ -26,33 +26,6 @@ import {
   DriverLeaveRecord,
 } from '../types';
 
-import {
-  INITIAL_TENDERS,
-  INITIAL_OFFICERS,
-  INITIAL_VEHICLES,
-  INITIAL_DRIVERS,
-  INITIAL_ALLOCATION_HISTORY,
-  INITIAL_VEHICLE_ALLOCATION_HISTORY,
-  INITIAL_OFFICER_ALLOCATION_HISTORY,
-  INITIAL_DAILY_LOGS,
-  INITIAL_FUEL_RECORDS,
-  INITIAL_MAINTENANCE_RECORDS,
-  INITIAL_KHATA_TRANSACTIONS,
-  INITIAL_BILLS,
-  INITIAL_VENDORS,
-  INITIAL_DAILY_PAYMENTS,
-  INITIAL_VENDOR_SETTLEMENTS,
-  INITIAL_STATUTORY_PAYROLL,
-  INITIAL_FUEL_PUMP_VENDORS,
-  INITIAL_FUEL_SLIPS,
-  INITIAL_FUEL_VENDOR_BILLS,
-  INITIAL_COMPANY_DOCUMENTS,
-  INITIAL_PETTY_CASH_TRANSACTIONS,
-  INITIAL_DRIVER_LEAVES,
-  INITIAL_STAFF_USERS,
-  getDemoFleetData,
-} from '../data/seedData';
-
 // Storage keys for Shakti Travels and Tours
 export const STORAGE_KEYS = {
   TENDERS: 'shakti_live_tenders_v8',
@@ -183,67 +156,67 @@ if (typeof window !== 'undefined') {
 }
 
 export const StorageService = {
-  getTenders: (): Tender[] => getFromStorage(STORAGE_KEYS.TENDERS, INITIAL_TENDERS),
+  getTenders: (): Tender[] => getFromStorage(STORAGE_KEYS.TENDERS, []),
   saveTenders: (tenders: Tender[]) => saveToStorage(STORAGE_KEYS.TENDERS, tenders),
 
-  getOfficers: (): Officer[] => getFromStorage(STORAGE_KEYS.OFFICERS, INITIAL_OFFICERS),
+  getOfficers: (): Officer[] => getFromStorage(STORAGE_KEYS.OFFICERS, []),
   saveOfficers: (officers: Officer[]) => saveToStorage(STORAGE_KEYS.OFFICERS, officers),
 
-  getVehicles: (): Vehicle[] => getFromStorage(STORAGE_KEYS.VEHICLES, INITIAL_VEHICLES),
+  getVehicles: (): Vehicle[] => getFromStorage(STORAGE_KEYS.VEHICLES, []),
   saveVehicles: (vehicles: Vehicle[]) => saveToStorage(STORAGE_KEYS.VEHICLES, vehicles),
 
-  getDrivers: (): Driver[] => getFromStorage(STORAGE_KEYS.DRIVERS, INITIAL_DRIVERS),
+  getDrivers: (): Driver[] => getFromStorage(STORAGE_KEYS.DRIVERS, []),
   saveDrivers: (drivers: Driver[]) => saveToStorage(STORAGE_KEYS.DRIVERS, drivers),
 
   getAllocationHistory: (): DriverAllocationHistory[] =>
-    getFromStorage(STORAGE_KEYS.ALLOCATION_HISTORY, INITIAL_ALLOCATION_HISTORY),
+    getFromStorage(STORAGE_KEYS.ALLOCATION_HISTORY, []),
   saveAllocationHistory: (history: DriverAllocationHistory[]) =>
     saveToStorage(STORAGE_KEYS.ALLOCATION_HISTORY, history),
 
   getVehicleAllocationHistory: (): VehicleAllocationHistory[] =>
-    getFromStorage(STORAGE_KEYS.VEHICLE_ALLOCATION_HISTORY, INITIAL_VEHICLE_ALLOCATION_HISTORY),
+    getFromStorage(STORAGE_KEYS.VEHICLE_ALLOCATION_HISTORY, []),
   saveVehicleAllocationHistory: (history: VehicleAllocationHistory[]) =>
     saveToStorage(STORAGE_KEYS.VEHICLE_ALLOCATION_HISTORY, history),
 
   getOfficerAllocationHistory: (): OfficerAllocationHistory[] =>
-    getFromStorage(STORAGE_KEYS.OFFICER_ALLOCATION_HISTORY, INITIAL_OFFICER_ALLOCATION_HISTORY),
+    getFromStorage(STORAGE_KEYS.OFFICER_ALLOCATION_HISTORY, []),
   saveOfficerAllocationHistory: (history: OfficerAllocationHistory[]) =>
     saveToStorage(STORAGE_KEYS.OFFICER_ALLOCATION_HISTORY, history),
 
-  getDailyLogs: (): DailyLogEntry[] => getFromStorage(STORAGE_KEYS.DAILY_LOGS, INITIAL_DAILY_LOGS),
+  getDailyLogs: (): DailyLogEntry[] => getFromStorage(STORAGE_KEYS.DAILY_LOGS, []),
   saveDailyLogs: (logs: DailyLogEntry[]) => saveToStorage(STORAGE_KEYS.DAILY_LOGS, logs),
 
-  getFuelRecords: (): FuelRecord[] => getFromStorage(STORAGE_KEYS.FUEL_RECORDS, INITIAL_FUEL_RECORDS),
+  getFuelRecords: (): FuelRecord[] => getFromStorage(STORAGE_KEYS.FUEL_RECORDS, []),
   saveFuelRecords: (fuel: FuelRecord[]) => saveToStorage(STORAGE_KEYS.FUEL_RECORDS, fuel),
 
   getMaintenanceRecords: (): MaintenanceRecord[] =>
-    getFromStorage(STORAGE_KEYS.MAINTENANCE_RECORDS, INITIAL_MAINTENANCE_RECORDS),
+    getFromStorage(STORAGE_KEYS.MAINTENANCE_RECORDS, []),
   saveMaintenanceRecords: (maint: MaintenanceRecord[]) =>
     saveToStorage(STORAGE_KEYS.MAINTENANCE_RECORDS, maint),
 
   getKhataTransactions: (): DriverKhataTransaction[] =>
-    getFromStorage(STORAGE_KEYS.KHATA_TRANSACTIONS, INITIAL_KHATA_TRANSACTIONS),
+    getFromStorage(STORAGE_KEYS.KHATA_TRANSACTIONS, []),
   saveKhataTransactions: (khata: DriverKhataTransaction[]) =>
     saveToStorage(STORAGE_KEYS.KHATA_TRANSACTIONS, khata),
 
-  getBills: (): MonthlyBill[] => getFromStorage(STORAGE_KEYS.BILLS, INITIAL_BILLS),
+  getBills: (): MonthlyBill[] => getFromStorage(STORAGE_KEYS.BILLS, []),
   saveBills: (bills: MonthlyBill[]) => saveToStorage(STORAGE_KEYS.BILLS, bills),
 
-  getVendors: (): Vendor[] => getFromStorage(STORAGE_KEYS.VENDORS, INITIAL_VENDORS),
+  getVendors: (): Vendor[] => getFromStorage(STORAGE_KEYS.VENDORS, []),
   saveVendors: (vendors: Vendor[]) => saveToStorage(STORAGE_KEYS.VENDORS, vendors),
 
   getDailyPayments: (): DailyPaymentEntry[] =>
-    getFromStorage(STORAGE_KEYS.DAILY_PAYMENTS, INITIAL_DAILY_PAYMENTS),
+    getFromStorage(STORAGE_KEYS.DAILY_PAYMENTS, []),
   saveDailyPayments: (payments: DailyPaymentEntry[]) =>
     saveToStorage(STORAGE_KEYS.DAILY_PAYMENTS, payments),
 
   getVendorSettlements: (): VendorSettlement[] =>
-    getFromStorage(STORAGE_KEYS.VENDOR_SETTLEMENTS, INITIAL_VENDOR_SETTLEMENTS),
+    getFromStorage(STORAGE_KEYS.VENDOR_SETTLEMENTS, []),
   saveVendorSettlements: (settlements: VendorSettlement[]) =>
     saveToStorage(STORAGE_KEYS.VENDOR_SETTLEMENTS, settlements),
 
   getStatutoryPayroll: (): StatutoryPayrollEntry[] =>
-    getFromStorage(STORAGE_KEYS.STATUTORY_PAYROLL, INITIAL_STATUTORY_PAYROLL),
+    getFromStorage(STORAGE_KEYS.STATUTORY_PAYROLL, []),
   saveStatutoryPayroll: (payroll: StatutoryPayrollEntry[]) =>
     saveToStorage(STORAGE_KEYS.STATUTORY_PAYROLL, payroll),
 
@@ -253,7 +226,7 @@ export const StorageService = {
     saveToStorage(STORAGE_KEYS.BILL_SERIES, config),
 
   getStaffUsers: (): StaffUser[] =>
-    getFromStorage(STORAGE_KEYS.STAFF_USERS, INITIAL_STAFF_USERS),
+    getFromStorage(STORAGE_KEYS.STAFF_USERS, []),
   saveStaffUsers: (users: StaffUser[]) =>
     saveToStorage(STORAGE_KEYS.STAFF_USERS, users),
 
@@ -263,32 +236,32 @@ export const StorageService = {
     saveToStorage(STORAGE_KEYS.CURRENT_USER_ID, id),
 
   getPettyCashTransactions: (): PettyCashTransaction[] =>
-    getFromStorage(STORAGE_KEYS.PETTY_CASH, INITIAL_PETTY_CASH_TRANSACTIONS),
+    getFromStorage(STORAGE_KEYS.PETTY_CASH, []),
   savePettyCashTransactions: (txns: PettyCashTransaction[]) =>
     saveToStorage(STORAGE_KEYS.PETTY_CASH, txns),
 
   getCompanyDocuments: (): CompanyDocument[] =>
-    getFromStorage(STORAGE_KEYS.COMPANY_DOCUMENTS, INITIAL_COMPANY_DOCUMENTS),
+    getFromStorage(STORAGE_KEYS.COMPANY_DOCUMENTS, []),
   saveCompanyDocuments: (docs: CompanyDocument[]) =>
     saveToStorage(STORAGE_KEYS.COMPANY_DOCUMENTS, docs),
 
   getFuelPumpVendors: (): FuelPumpVendor[] =>
-    getFromStorage(STORAGE_KEYS.FUEL_PUMP_VENDORS, INITIAL_FUEL_PUMP_VENDORS),
+    getFromStorage(STORAGE_KEYS.FUEL_PUMP_VENDORS, []),
   saveFuelPumpVendors: (pumps: FuelPumpVendor[]) =>
     saveToStorage(STORAGE_KEYS.FUEL_PUMP_VENDORS, pumps),
 
   getFuelSlips: (): FuelSlip[] =>
-    getFromStorage(STORAGE_KEYS.FUEL_SLIPS, INITIAL_FUEL_SLIPS),
+    getFromStorage(STORAGE_KEYS.FUEL_SLIPS, []),
   saveFuelSlips: (slips: FuelSlip[]) =>
     saveToStorage(STORAGE_KEYS.FUEL_SLIPS, slips),
 
   getFuelVendorBills: (): FuelVendorMonthlyBill[] =>
-    getFromStorage(STORAGE_KEYS.FUEL_VENDOR_BILLS, INITIAL_FUEL_VENDOR_BILLS),
+    getFromStorage(STORAGE_KEYS.FUEL_VENDOR_BILLS, []),
   saveFuelVendorBills: (bills: FuelVendorMonthlyBill[]) =>
     saveToStorage(STORAGE_KEYS.FUEL_VENDOR_BILLS, bills),
 
   getDriverLeaves: (): DriverLeaveRecord[] =>
-    getFromStorage(STORAGE_KEYS.DRIVER_LEAVES, INITIAL_DRIVER_LEAVES),
+    getFromStorage(STORAGE_KEYS.DRIVER_LEAVES, []),
   saveDriverLeaves: (leaves: DriverLeaveRecord[]) =>
     saveToStorage(STORAGE_KEYS.DRIVER_LEAVES, leaves),
 
@@ -314,34 +287,6 @@ export const StorageService = {
     window.location.reload();
   },
 
-  // Optional: Load sample data if user ever wants to inspect demo features
-  loadDemoData: () => {
-    const demo = getDemoFleetData();
-    StorageService.saveTenders(demo.tenders);
-    StorageService.saveOfficers(demo.officers);
-    StorageService.saveVehicles(demo.vehicles);
-    StorageService.saveDrivers(demo.drivers);
-    StorageService.saveAllocationHistory(demo.allocationHistory);
-    StorageService.saveVehicleAllocationHistory(demo.vehicleAllocationHistory);
-    StorageService.saveOfficerAllocationHistory(demo.officerAllocationHistory);
-    StorageService.saveDailyLogs(demo.dailyLogs);
-    StorageService.saveFuelRecords(demo.fuelRecords);
-    StorageService.saveMaintenanceRecords(demo.maintenanceRecords);
-    StorageService.saveKhataTransactions(demo.khataTransactions);
-    StorageService.saveBills(demo.bills);
-    StorageService.saveVendors(demo.vendors);
-    StorageService.saveDailyPayments(demo.dailyPayments);
-    StorageService.saveVendorSettlements(demo.vendorSettlements);
-    StorageService.saveStatutoryPayroll(demo.statutoryPayroll);
-    StorageService.saveCompanyDocuments(demo.companyDocuments);
-    StorageService.savePettyCashTransactions(demo.pettyCashTransactions);
-    StorageService.saveDriverLeaves(demo.driverLeaves);
-    StorageService.saveFuelPumpVendors(demo.fuelPumpVendors);
-    StorageService.saveFuelSlips(demo.fuelSlips);
-    StorageService.saveFuelVendorBills(demo.fuelVendorBills);
-    StorageService.saveStaffUsers(demo.staffUsers);
-    window.location.reload();
-  },
 
   exportAllData: () => {
     const data = {

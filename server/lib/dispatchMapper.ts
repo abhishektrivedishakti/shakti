@@ -20,18 +20,12 @@ import { asJsonInput } from './jsonInput';
 
 export const DEFAULT_DISPATCH_PROFILE: DispatcherProfile = {
   companyName: 'Shakti Travels and Tours',
-  tagline: 'Govt Office Fleet, Luxury Tour & VIP Taxi Services',
-  gstin: '09AABCT1234F1Z8',
-  pan: 'AABCT1234F',
-  address: 'Nirman Bhawan Road, Hazratganj, Lucknow, Uttar Pradesh 226001',
-  supportPhone: '+91 9415011223',
-  bookingEmail: 'trivediabhishek78.AT@gmail.com',
-  bankName: 'State Bank of India (Hazratganj Branch Lucknow)',
-  bankAccountNo: '30291823901',
-  ifscCode: 'SBIN0000125',
-  upiId: 'shaktitravels@sbi',
-  dutySlipTerms:
-    '1. पार्किंग व टोल टैक्स वास्तविक रसीद अनुसार देय होगा।\n2. गाड़ी में एसी सुचारु रूप से चालू रहेगा।\n3. अतिरिक्त किलोमीटर व घंटे की दरें सरकारी टेंडर / वर्क आर्डर के अनुसार ही मान्य होंगी।',
+  tagline: '',
+  gstin: '',
+  pan: '',
+  address: '',
+  supportPhone: '',
+  bookingEmail: '',
 };
 
 export const EMPTY_DIRECTORY: SavedDirectory = {

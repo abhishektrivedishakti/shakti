@@ -8,10 +8,8 @@ import {
   Officer,
   Tender,
 } from '../../types';
-import { initialDispatcherProfile, sampleBookings } from '../../utils/dispatchSampleData';
+import { initialDispatcherProfile } from '../../utils/dispatchSampleData';
 import {
-  DEFAULT_CUSTOM_TARIFF_PACKAGES,
-  defaultSavedDirectory,
   loadSavedDirectory,
   saveCustomTariffPackages,
   saveDirectoryToStorage,
@@ -19,7 +17,6 @@ import {
 import {
   bulkImportDispatchBookingsApi,
   createDispatchBookingApi,
-  createDispatchTariffApi,
   deleteDispatchBookingApi,
   fetchDispatchBookings,
   fetchDispatchDirectory,
@@ -56,8 +53,6 @@ import {
   Loader2,
 } from 'lucide-react';
 
-const P9_DISPATCH_SEEDED_KEY = 'shakti_p9_dispatch_seeded';
-
 interface FleetDispatchProViewProps {
   erpVehicles?: Vehicle[];
   erpDrivers?: Driver[];
@@ -86,12 +81,12 @@ export const FleetDispatchProView: React.FC<FleetDispatchProViewProps> = ({
       const saved = localStorage.getItem('fleetdispatch_bookings_master');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch {
       /* ignore */
     }
-    return sampleBookings;
+    return [];
   });
 
   const [savedDirectory, setSavedDirectory] = useState<SavedDirectory>(() => {
@@ -108,40 +103,12 @@ export const FleetDispatchProView: React.FC<FleetDispatchProViewProps> = ({
     (async () => {
       setLoadingApi(true);
       try {
-        let [apiBookings, apiProfile, apiDirectory, apiTariffs] = await Promise.all([
+        const [apiBookings, apiProfile, apiDirectory, apiTariffs] = await Promise.all([
           fetchDispatchBookings(),
           fetchDispatchProfile(),
           fetchDispatchDirectory(),
           fetchDispatchTariffs(),
         ]);
-
-        const seeded = sessionStorage.getItem(P9_DISPATCH_SEEDED_KEY) === '1';
-        if (!seeded && apiBookings.length === 0) {
-          const localRaw = localStorage.getItem('fleetdispatch_bookings_master');
-          let localBookings: BookingRecord[] = [];
-          try {
-            localBookings = localRaw ? JSON.parse(localRaw) : [];
-          } catch {
-            localBookings = [];
-          }
-          const source =
-            Array.isArray(localBookings) && localBookings.length > 0
-              ? localBookings
-              : sampleBookings;
-          if (source.length > 0) {
-            apiBookings = await bulkImportDispatchBookingsApi(source);
-          }
-        }
-        if (!seeded && apiDirectory.clients.length === 0) {
-          apiDirectory = await updateDispatchDirectoryApi(defaultSavedDirectory);
-        }
-        if (!seeded && apiTariffs.length === 0) {
-          for (const pkg of DEFAULT_CUSTOM_TARIFF_PACKAGES) {
-            await createDispatchTariffApi(pkg);
-          }
-          apiTariffs = await fetchDispatchTariffs();
-        }
-        if (!seeded) sessionStorage.setItem(P9_DISPATCH_SEEDED_KEY, '1');
 
         if (cancelled) return;
         setBookings(apiBookings);

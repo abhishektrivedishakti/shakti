@@ -14,40 +14,38 @@ import {
 import { createStaffApi, fetchStaffList, updateStaffApi } from './api/staffClient';
 import { fetchDashboardSummary, type DashboardSummary } from './api/dashboardClient';
 import {
-  bulkImportTendersApi,
   createTenderApi,
   fetchTenders,
   updateTenderApi,
+  bulkImportTendersApi,
 } from './api/tendersClient';
 import {
-  bulkImportCompanyDocumentsApi,
   createCompanyDocumentApi,
   deleteCompanyDocumentApi,
   fetchCompanyDocuments,
   updateCompanyDocumentApi,
 } from './api/companyDocumentsClient';
 import {
-  bulkImportOfficersApi,
   createOfficerApi,
   deleteOfficerApi,
   fetchOfficers,
   updateOfficerApi,
+  bulkImportOfficersApi,
 } from './api/officersClient';
 import {
-  bulkImportDriversApi,
   createDriverApi,
   deleteDriverApi,
   fetchDrivers,
   updateDriverApi,
+  bulkImportDriversApi,
 } from './api/driversClient';
 import {
-  bulkImportVehiclesApi,
   createVehicleApi,
   fetchVehicles,
   updateVehicleApi,
+  bulkImportVehiclesApi,
 } from './api/vehiclesClient';
 import {
-  bulkImportAllocationsApi,
   fetchDriverAllocations,
   fetchOfficerAllocations,
   fetchVehicleAllocations,
@@ -57,21 +55,15 @@ import {
   transferOfficerApi,
 } from './api/allocationsClient';
 import {
-  bulkImportDailyLogsApi,
   createDailyLogApi,
   fetchDailyLogs,
   verifyDailyLogApi,
 } from './api/dailyLogsClient';
 import {
-  bulkImportMaintenanceApi,
   createMaintenanceApi,
   fetchMaintenanceRecords,
 } from './api/maintenanceClient';
 import {
-  bulkImportFuelPumpsApi,
-  bulkImportFuelRecordsApi,
-  bulkImportFuelSlipsApi,
-  bulkImportFuelVendorBillsApi,
   createFuelPumpApi,
   createFuelRecordApi,
   createFuelSlipApi,
@@ -90,15 +82,12 @@ import {
   updateFuelVendorBillApi,
 } from './api/fuelClient';
 import {
-  bulkImportBillsApi,
   createBillApi,
   fetchBills,
   updateBillApi,
   updateBillStatusApi,
 } from './api/billsClient';
 import {
-  bulkImportDriverLeavesApi,
-  bulkImportKhataApi,
   createDriverLeaveApi,
   createKhataTransactionApi,
   deleteDriverLeaveApi,
@@ -108,15 +97,12 @@ import {
   updateDriverLeaveApi,
 } from './api/khataClient';
 import {
-  bulkImportDailyPaymentsApi,
   createDailyPaymentApi,
   createDailyPaymentsBatchApi,
   fetchDailyPayments,
   type DailyPaymentRouted,
 } from './api/dailyPaymentsClient';
 import {
-  bulkImportVendorSettlementsApi,
-  bulkImportVendorsApi,
   createVendorApi,
   createVendorSettlementApi,
   deleteVendorApi,
@@ -125,44 +111,19 @@ import {
   payVendorSettlementApi,
   updateVendorApi,
   updateVendorSettlementApi,
+  bulkImportVendorsApi,
 } from './api/vendorsClient';
 import { bulkImportDispatchBookingsApi } from './api/dispatchClient';
 import {
-  bulkImportStatutoryPayrollApi,
   createStatutoryPayrollApi,
   fetchStatutoryPayroll,
   updateStatutoryPayrollApi,
 } from './api/statutoryClient';
 import {
-  bulkImportPettyCashApi,
   createPettyCashApi,
   fetchPettyCashTransactions,
   updatePettyCashApi,
 } from './api/pettyCashClient';
-import {
-  INITIAL_ALLOCATION_HISTORY,
-  INITIAL_BILLS,
-  INITIAL_COMPANY_DOCUMENTS,
-  INITIAL_DAILY_LOGS,
-  INITIAL_DAILY_PAYMENTS,
-  INITIAL_DRIVER_LEAVES,
-  INITIAL_DRIVERS,
-  INITIAL_FUEL_PUMP_VENDORS,
-  INITIAL_FUEL_RECORDS,
-  INITIAL_FUEL_SLIPS,
-  INITIAL_FUEL_VENDOR_BILLS,
-  INITIAL_KHATA_TRANSACTIONS,
-  INITIAL_MAINTENANCE_RECORDS,
-  INITIAL_OFFICERS,
-  INITIAL_OFFICER_ALLOCATION_HISTORY,
-  INITIAL_PETTY_CASH_TRANSACTIONS,
-  INITIAL_STATUTORY_PAYROLL,
-  INITIAL_TENDERS,
-  INITIAL_VENDOR_SETTLEMENTS,
-  INITIAL_VENDORS,
-  INITIAL_VEHICLE_ALLOCATION_HISTORY,
-  INITIAL_VEHICLES,
-} from './data/seedData';
 import { Navbar, ActiveTab } from './components/Navbar';
 import { DashboardView } from './components/DashboardView';
 import { TendersView } from './components/TendersView';
@@ -221,14 +182,6 @@ import {
   DriverLeaveRecord,
   BookingRecord,
 } from './types';
-
-const P2_MASTERS_SEEDED_KEY = 'shakti_p2_masters_seeded';
-const P3_FLEET_SEEDED_KEY = 'shakti_p3_fleet_seeded';
-const P4_ALLOC_SEEDED_KEY = 'shakti_p4_alloc_seeded';
-const P5_OPS_SEEDED_KEY = 'shakti_p5_ops_seeded';
-const P6_FUEL_SEEDED_KEY = 'shakti_p6_fuel_seeded';
-const P7_BILLING_SEEDED_KEY = 'shakti_p7_billing_seeded';
-const P8_MONEY_SEEDED_KEY = 'shakti_p8_money_seeded';
 
 type AuthScreen = 'login' | 'register';
 type AuthStatus = 'loading' | 'guest' | 'authenticated';
@@ -347,37 +300,8 @@ export default function App() {
     let cancelled = false;
     (async () => {
       try {
-        const cachedTenders = StorageService.getTenders();
-        const cachedDocs = StorageService.getCompanyDocuments();
-        const cachedVehicles = StorageService.getVehicles();
-        const cachedOfficers = StorageService.getOfficers();
-        const cachedDrivers = StorageService.getDrivers();
-        const cachedDriverAlloc = StorageService.getAllocationHistory();
-        const cachedVehicleAlloc = StorageService.getVehicleAllocationHistory();
-        const cachedOfficerAlloc = StorageService.getOfficerAllocationHistory();
-        const cachedLogs = StorageService.getDailyLogs();
-        const cachedMaint = StorageService.getMaintenanceRecords();
-        const cachedFuelRecords = StorageService.getFuelRecords();
-        const cachedFuelPumps = StorageService.getFuelPumpVendors();
-        const cachedFuelSlips = StorageService.getFuelSlips();
-        const cachedFuelBills = StorageService.getFuelVendorBills();
-        const cachedBills = StorageService.getBills();
-        const cachedKhata = StorageService.getKhataTransactions();
-        const cachedLeaves = StorageService.getDriverLeaves();
-        const cachedDailyPayments = StorageService.getDailyPayments();
-        const cachedVendors = StorageService.getVendors();
-        const cachedSettlements = StorageService.getVendorSettlements();
-        const cachedPayroll = StorageService.getStatutoryPayroll();
-        const cachedPetty = StorageService.getPettyCashTransactions();
-        const alreadySeeded = sessionStorage.getItem(P2_MASTERS_SEEDED_KEY) === '1';
-        const fleetSeeded = sessionStorage.getItem(P3_FLEET_SEEDED_KEY) === '1';
-        const allocSeeded = sessionStorage.getItem(P4_ALLOC_SEEDED_KEY) === '1';
-        const opsSeeded = sessionStorage.getItem(P5_OPS_SEEDED_KEY) === '1';
-        const fuelSeeded = sessionStorage.getItem(P6_FUEL_SEEDED_KEY) === '1';
-        const billingSeeded = sessionStorage.getItem(P7_BILLING_SEEDED_KEY) === '1';
-        const moneySeeded = sessionStorage.getItem(P8_MONEY_SEEDED_KEY) === '1';
-
-        let [
+        // Load live API data only — do not auto-seed demo/dummy records into production DBs.
+        const [
           list,
           summary,
           apiTenders,
@@ -428,203 +352,6 @@ export default function App() {
           fetchStatutoryPayroll(),
           fetchPettyCashTransactions(),
         ]);
-
-        // One-time hydrate: empty DB after Phase 2 would otherwise wipe the local seed fleet links.
-        let didSeed = false;
-        if (!alreadySeeded && apiTenders.length === 0) {
-          const source = cachedTenders.length > 0 ? cachedTenders : INITIAL_TENDERS;
-          if (source.length > 0) {
-            apiTenders = await bulkImportTendersApi(source);
-            didSeed = true;
-          }
-        }
-        if (!alreadySeeded && apiDocs.length === 0) {
-          const source = cachedDocs.length > 0 ? cachedDocs : INITIAL_COMPANY_DOCUMENTS;
-          if (source.length > 0) {
-            apiDocs = await bulkImportCompanyDocumentsApi(source);
-            didSeed = true;
-          }
-        }
-        if (!alreadySeeded) {
-          sessionStorage.setItem(P2_MASTERS_SEEDED_KEY, '1');
-        }
-
-        if (!fleetSeeded && apiVehicles.length === 0) {
-          const source = cachedVehicles.length > 0 ? cachedVehicles : INITIAL_VEHICLES;
-          if (source.length > 0) {
-            apiVehicles = await bulkImportVehiclesApi(source);
-            didSeed = true;
-          }
-        }
-        if (!fleetSeeded && apiOfficers.length === 0) {
-          const source = cachedOfficers.length > 0 ? cachedOfficers : INITIAL_OFFICERS;
-          if (source.length > 0) {
-            apiOfficers = await bulkImportOfficersApi(source);
-            didSeed = true;
-          }
-        }
-        if (!fleetSeeded && apiDrivers.length === 0) {
-          const source = cachedDrivers.length > 0 ? cachedDrivers : INITIAL_DRIVERS;
-          if (source.length > 0) {
-            apiDrivers = await bulkImportDriversApi(source);
-            didSeed = true;
-          }
-        }
-        if (!fleetSeeded) {
-          sessionStorage.setItem(P3_FLEET_SEEDED_KEY, '1');
-        }
-
-        if (
-          !allocSeeded &&
-          apiDriverAlloc.length === 0 &&
-          apiVehicleAlloc.length === 0 &&
-          apiOfficerAlloc.length === 0
-        ) {
-          const driversSrc =
-            cachedDriverAlloc.length > 0 ? cachedDriverAlloc : INITIAL_ALLOCATION_HISTORY;
-          const vehiclesSrc =
-            cachedVehicleAlloc.length > 0
-              ? cachedVehicleAlloc
-              : INITIAL_VEHICLE_ALLOCATION_HISTORY;
-          const officersSrc =
-            cachedOfficerAlloc.length > 0
-              ? cachedOfficerAlloc
-              : INITIAL_OFFICER_ALLOCATION_HISTORY;
-          if (driversSrc.length + vehiclesSrc.length + officersSrc.length > 0) {
-            const imported = await bulkImportAllocationsApi({
-              drivers: driversSrc,
-              vehicles: vehiclesSrc,
-              officers: officersSrc,
-            });
-            apiDriverAlloc = imported.drivers;
-            apiVehicleAlloc = imported.vehicles;
-            apiOfficerAlloc = imported.officers;
-            didSeed = true;
-          }
-        }
-        if (!allocSeeded) {
-          sessionStorage.setItem(P4_ALLOC_SEEDED_KEY, '1');
-        }
-
-        if (!opsSeeded && apiLogs.length === 0) {
-          const source = cachedLogs.length > 0 ? cachedLogs : INITIAL_DAILY_LOGS;
-          if (source.length > 0) {
-            apiLogs = await bulkImportDailyLogsApi(source);
-            didSeed = true;
-          }
-        }
-        if (!opsSeeded && apiMaint.length === 0) {
-          const source = cachedMaint.length > 0 ? cachedMaint : INITIAL_MAINTENANCE_RECORDS;
-          if (source.length > 0) {
-            apiMaint = await bulkImportMaintenanceApi(source);
-            didSeed = true;
-          }
-        }
-        if (!opsSeeded) {
-          sessionStorage.setItem(P5_OPS_SEEDED_KEY, '1');
-        }
-
-        if (!fuelSeeded && apiFuelPumps.length === 0) {
-          const source = cachedFuelPumps.length > 0 ? cachedFuelPumps : INITIAL_FUEL_PUMP_VENDORS;
-          if (source.length > 0) {
-            apiFuelPumps = await bulkImportFuelPumpsApi(source);
-            didSeed = true;
-          }
-        }
-        if (!fuelSeeded && apiFuelSlips.length === 0) {
-          const source = cachedFuelSlips.length > 0 ? cachedFuelSlips : INITIAL_FUEL_SLIPS;
-          if (source.length > 0) {
-            apiFuelSlips = await bulkImportFuelSlipsApi(source);
-            didSeed = true;
-          }
-        }
-        if (!fuelSeeded && apiFuelRecords.length === 0) {
-          const source = cachedFuelRecords.length > 0 ? cachedFuelRecords : INITIAL_FUEL_RECORDS;
-          if (source.length > 0) {
-            apiFuelRecords = await bulkImportFuelRecordsApi(source);
-            didSeed = true;
-          }
-        }
-        if (!fuelSeeded && apiFuelBills.length === 0) {
-          const source = cachedFuelBills.length > 0 ? cachedFuelBills : INITIAL_FUEL_VENDOR_BILLS;
-          if (source.length > 0) {
-            apiFuelBills = await bulkImportFuelVendorBillsApi(source);
-            didSeed = true;
-          }
-        }
-        if (!fuelSeeded) {
-          sessionStorage.setItem(P6_FUEL_SEEDED_KEY, '1');
-        }
-
-        if (!billingSeeded && apiBills.length === 0) {
-          const source = cachedBills.length > 0 ? cachedBills : INITIAL_BILLS;
-          if (source.length > 0) {
-            apiBills = await bulkImportBillsApi(source);
-            didSeed = true;
-          }
-        }
-        if (!billingSeeded) {
-          sessionStorage.setItem(P7_BILLING_SEEDED_KEY, '1');
-        }
-
-        if (!moneySeeded && apiKhata.length === 0) {
-          const source = cachedKhata.length > 0 ? cachedKhata : INITIAL_KHATA_TRANSACTIONS;
-          if (source.length > 0) {
-            apiKhata = await bulkImportKhataApi(source);
-            didSeed = true;
-          }
-        }
-        if (!moneySeeded && apiLeaves.length === 0) {
-          const source = cachedLeaves.length > 0 ? cachedLeaves : INITIAL_DRIVER_LEAVES;
-          if (source.length > 0) {
-            apiLeaves = await bulkImportDriverLeavesApi(source);
-            didSeed = true;
-          }
-        }
-        if (!moneySeeded && apiVendors.length === 0) {
-          const source = cachedVendors.length > 0 ? cachedVendors : INITIAL_VENDORS;
-          if (source.length > 0) {
-            apiVendors = await bulkImportVendorsApi(source);
-            didSeed = true;
-          }
-        }
-        if (!moneySeeded && apiSettlements.length === 0) {
-          const source =
-            cachedSettlements.length > 0 ? cachedSettlements : INITIAL_VENDOR_SETTLEMENTS;
-          if (source.length > 0) {
-            apiSettlements = await bulkImportVendorSettlementsApi(source);
-            didSeed = true;
-          }
-        }
-        if (!moneySeeded && apiDailyPayments.length === 0) {
-          const source =
-            cachedDailyPayments.length > 0 ? cachedDailyPayments : INITIAL_DAILY_PAYMENTS;
-          if (source.length > 0) {
-            apiDailyPayments = await bulkImportDailyPaymentsApi(source);
-            didSeed = true;
-          }
-        }
-        if (!moneySeeded && apiPayroll.length === 0) {
-          const source = cachedPayroll.length > 0 ? cachedPayroll : INITIAL_STATUTORY_PAYROLL;
-          if (source.length > 0) {
-            apiPayroll = await bulkImportStatutoryPayrollApi(source);
-            didSeed = true;
-          }
-        }
-        if (!moneySeeded && apiPetty.length === 0) {
-          const source = cachedPetty.length > 0 ? cachedPetty : INITIAL_PETTY_CASH_TRANSACTIONS;
-          if (source.length > 0) {
-            apiPetty = await bulkImportPettyCashApi(source);
-            didSeed = true;
-          }
-        }
-        if (!moneySeeded) {
-          sessionStorage.setItem(P8_MONEY_SEEDED_KEY, '1');
-        }
-
-        if (didSeed) {
-          summary = await fetchDashboardSummary();
-        }
 
         if (cancelled) return;
         setStaffUsers(list);
