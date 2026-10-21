@@ -18,7 +18,6 @@ import {
   BillSeriesConfig,
   StaffUser,
   PettyCashTransaction,
-  ModulePermissionKey,
   CompanyDocument,
   FuelPumpVendor,
   FuelSlip,
@@ -26,7 +25,11 @@ import {
   DriverLeaveRecord,
 } from '../types';
 
-// Storage keys for Shakti Travels and Tours
+/**
+ * Operational data is API/DB only — do not persist module lists in localStorage.
+ * Auth tokens stay in sessionStorage via authClient.
+ */
+
 export const STORAGE_KEYS = {
   TENDERS: 'shakti_live_tenders_v8',
   OFFICERS: 'shakti_live_officers_v8',
@@ -55,40 +58,32 @@ export const STORAGE_KEYS = {
   DRIVER_LEAVES: 'shakti_live_driver_leaves_v8',
 };
 
-// Automatic one-time population: Load comprehensive, multi-category dataset across all features (June - October 2026)
-try {
-  if (typeof window !== 'undefined' && localStorage.getItem('shakti_loaded_full_dataset_v8') !== 'true') {
+/** Wipe legacy browser caches so stale demo/API mirrors cannot resurface. */
+export function purgeLegacyLocalCaches(): void {
+  if (typeof window === 'undefined') return;
+  try {
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k && (k.startsWith('sft_') || k.startsWith('shakti_') || k.includes('demo') || k.includes('v4') || k.includes('v5') || k.includes('v6') || k.includes('v7'))) {
+      if (
+        k &&
+        (k.startsWith('sft_') ||
+          k.startsWith('shakti_') ||
+          k.startsWith('fleetdispatch_') ||
+          k.includes('demo'))
+      ) {
         keysToRemove.push(k);
       }
     }
     keysToRemove.forEach((k) => localStorage.removeItem(k));
-    localStorage.setItem('shakti_loaded_full_dataset_v8', 'true');
+  } catch {
+    /* ignore */
   }
-} catch (e) {
-  // ignore storage errors
 }
 
-const ALL_MODULE_KEYS: ModulePermissionKey[] = [
-  'dashboard',
-  'company_documents',
-  'tenders',
-  'vehicles_officers',
-  'logbook',
-  'billing',
-  'drivers_khata',
-  'fuel_manager',
-  'maintenance',
-  'daily_payments',
-  'attached_vendors',
-  'statutory_payroll',
-  'petty_cash',
-  'reminders',
-  'staff_management',
-];
+if (typeof window !== 'undefined') {
+  purgeLegacyLocalCaches();
+}
 
 export const DEFAULT_BILL_SERIES_CONFIG: BillSeriesConfig = {
   prefix: 'ST/BILL/2026-27/',
@@ -100,59 +95,17 @@ export const DEFAULT_BILL_SERIES_CONFIG: BillSeriesConfig = {
   useTenderPrefix: true,
 };
 
-function getFromStorage<T>(key: string, defaultValue: T): T {
-  try {
-    const item = localStorage.getItem(key);
-    if (!item) return defaultValue;
-    return JSON.parse(item);
-  } catch (err) {
-    console.error(`Error reading ${key} from storage:`, err);
-    return defaultValue;
-  }
+function getFromStorage<T>(_key: string, defaultValue: T): T {
+  return defaultValue;
 }
 
-/** Debounce localStorage writes so CRUD UI never waits on JSON.stringify of large lists. */
-const pendingWrites = new Map<string, unknown>();
-let flushTimer: ReturnType<typeof setTimeout> | null = null;
-
-function flushPendingWrites(): void {
-  flushTimer = null;
-  const entries = Array.from(pendingWrites.entries());
-  pendingWrites.clear();
-  for (const [key, value] of entries) {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (err) {
-      console.error(`Error saving ${key} to storage:`, err);
-    }
-  }
+function saveToStorage<T>(_key: string, _value: T): void {
+  // no-op — React state + API are the source of truth
 }
 
-function saveToStorage<T>(key: string, value: T): void {
-  pendingWrites.set(key, value);
-  if (flushTimer != null) return;
-  flushTimer = setTimeout(() => {
-    if (typeof requestIdleCallback === 'function') {
-      requestIdleCallback(() => flushPendingWrites(), { timeout: 120 });
-    } else {
-      flushPendingWrites();
-    }
-  }, 40);
-}
-
-/** Force any queued saves before unload / logout. */
+/** Kept for call-site compatibility; nothing is buffered to disk. */
 export function flushStorageWrites(): void {
-  if (flushTimer != null) {
-    clearTimeout(flushTimer);
-    flushTimer = null;
-  }
-  flushPendingWrites();
-}
-
-if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', () => {
-    flushStorageWrites();
-  });
+  /* no-op */
 }
 
 export const StorageService = {
@@ -205,8 +158,7 @@ export const StorageService = {
   getVendors: (): Vendor[] => getFromStorage(STORAGE_KEYS.VENDORS, []),
   saveVendors: (vendors: Vendor[]) => saveToStorage(STORAGE_KEYS.VENDORS, vendors),
 
-  getDailyPayments: (): DailyPaymentEntry[] =>
-    getFromStorage(STORAGE_KEYS.DAILY_PAYMENTS, []),
+  getDailyPayments: (): DailyPaymentEntry[] => getFromStorage(STORAGE_KEYS.DAILY_PAYMENTS, []),
   saveDailyPayments: (payments: DailyPaymentEntry[]) =>
     saveToStorage(STORAGE_KEYS.DAILY_PAYMENTS, payments),
 
@@ -225,15 +177,11 @@ export const StorageService = {
   saveBillSeriesConfig: (config: BillSeriesConfig) =>
     saveToStorage(STORAGE_KEYS.BILL_SERIES, config),
 
-  getStaffUsers: (): StaffUser[] =>
-    getFromStorage(STORAGE_KEYS.STAFF_USERS, []),
-  saveStaffUsers: (users: StaffUser[]) =>
-    saveToStorage(STORAGE_KEYS.STAFF_USERS, users),
+  getStaffUsers: (): StaffUser[] => getFromStorage(STORAGE_KEYS.STAFF_USERS, []),
+  saveStaffUsers: (users: StaffUser[]) => saveToStorage(STORAGE_KEYS.STAFF_USERS, users),
 
-  getCurrentUserId: (): string =>
-    getFromStorage(STORAGE_KEYS.CURRENT_USER_ID, 'staff-1'),
-  saveCurrentUserId: (id: string) =>
-    saveToStorage(STORAGE_KEYS.CURRENT_USER_ID, id),
+  getCurrentUserId: (): string => getFromStorage(STORAGE_KEYS.CURRENT_USER_ID, ''),
+  saveCurrentUserId: (id: string) => saveToStorage(STORAGE_KEYS.CURRENT_USER_ID, id),
 
   getPettyCashTransactions: (): PettyCashTransaction[] =>
     getFromStorage(STORAGE_KEYS.PETTY_CASH, []),
@@ -250,103 +198,38 @@ export const StorageService = {
   saveFuelPumpVendors: (pumps: FuelPumpVendor[]) =>
     saveToStorage(STORAGE_KEYS.FUEL_PUMP_VENDORS, pumps),
 
-  getFuelSlips: (): FuelSlip[] =>
-    getFromStorage(STORAGE_KEYS.FUEL_SLIPS, []),
-  saveFuelSlips: (slips: FuelSlip[]) =>
-    saveToStorage(STORAGE_KEYS.FUEL_SLIPS, slips),
+  getFuelSlips: (): FuelSlip[] => getFromStorage(STORAGE_KEYS.FUEL_SLIPS, []),
+  saveFuelSlips: (slips: FuelSlip[]) => saveToStorage(STORAGE_KEYS.FUEL_SLIPS, slips),
 
   getFuelVendorBills: (): FuelVendorMonthlyBill[] =>
     getFromStorage(STORAGE_KEYS.FUEL_VENDOR_BILLS, []),
   saveFuelVendorBills: (bills: FuelVendorMonthlyBill[]) =>
     saveToStorage(STORAGE_KEYS.FUEL_VENDOR_BILLS, bills),
 
-  getDriverLeaves: (): DriverLeaveRecord[] =>
-    getFromStorage(STORAGE_KEYS.DRIVER_LEAVES, []),
+  getDriverLeaves: (): DriverLeaveRecord[] => getFromStorage(STORAGE_KEYS.DRIVER_LEAVES, []),
   saveDriverLeaves: (leaves: DriverLeaveRecord[]) =>
     saveToStorage(STORAGE_KEYS.DRIVER_LEAVES, leaves),
 
-  // Clear all operational data so user can reset anytime
   clearAllOperationalData: () => {
-    Object.values(STORAGE_KEYS).forEach((k) => {
-      if (k !== STORAGE_KEYS.STAFF_USERS && k !== STORAGE_KEYS.CURRENT_USER_ID) {
-        localStorage.removeItem(k);
-      }
-    });
+    purgeLegacyLocalCaches();
     window.location.reload();
   },
 
   clearAllData: () => {
-    Object.values(STORAGE_KEYS).forEach((k) => localStorage.removeItem(k));
-    localStorage.removeItem('shakti_clean_slate_live_v5');
+    purgeLegacyLocalCaches();
     window.location.reload();
   },
 
   resetToDefault: () => {
-    Object.values(STORAGE_KEYS).forEach((k) => localStorage.removeItem(k));
-    localStorage.removeItem('shakti_clean_slate_live_v5');
+    purgeLegacyLocalCaches();
     window.location.reload();
   },
-
 
   exportAllData: () => {
-    const data = {
-      companyName: 'Shakti Travels and Tours',
-      tenders: StorageService.getTenders(),
-      officers: StorageService.getOfficers(),
-      vehicles: StorageService.getVehicles(),
-      drivers: StorageService.getDrivers(),
-      vendors: StorageService.getVendors(),
-      dailyPayments: StorageService.getDailyPayments(),
-      vendorSettlements: StorageService.getVendorSettlements(),
-      allocationHistory: StorageService.getAllocationHistory(),
-      vehicleAllocationHistory: StorageService.getVehicleAllocationHistory(),
-      officerAllocationHistory: StorageService.getOfficerAllocationHistory(),
-      dailyLogs: StorageService.getDailyLogs(),
-      fuelRecords: StorageService.getFuelRecords(),
-      maintenanceRecords: StorageService.getMaintenanceRecords(),
-      khataTransactions: StorageService.getKhataTransactions(),
-      bills: StorageService.getBills(),
-      staffUsers: StorageService.getStaffUsers(),
-      pettyCashTransactions: StorageService.getPettyCashTransactions(),
-      companyDocuments: StorageService.getCompanyDocuments(),
-      fuelPumpVendors: StorageService.getFuelPumpVendors(),
-      fuelSlips: StorageService.getFuelSlips(),
-      fuelVendorBills: StorageService.getFuelVendorBills(),
-      driverLeaves: StorageService.getDriverLeaves(),
-      exportDate: new Date().toISOString(),
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `shakti-travels-and-tours-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    alert('Export uses the server backup when you are logged in. Local cache export is disabled.');
   },
 
-  importData: (jsonData: any) => {
-    if (jsonData.tenders) StorageService.saveTenders(jsonData.tenders);
-    if (jsonData.officers) StorageService.saveOfficers(jsonData.officers);
-    if (jsonData.vehicles) StorageService.saveVehicles(jsonData.vehicles);
-    if (jsonData.drivers) StorageService.saveDrivers(jsonData.drivers);
-    if (jsonData.vendors) StorageService.saveVendors(jsonData.vendors);
-    if (jsonData.dailyPayments) StorageService.saveDailyPayments(jsonData.dailyPayments);
-    if (jsonData.vendorSettlements) StorageService.saveVendorSettlements(jsonData.vendorSettlements);
-    if (jsonData.allocationHistory) StorageService.saveAllocationHistory(jsonData.allocationHistory);
-    if (jsonData.vehicleAllocationHistory) StorageService.saveVehicleAllocationHistory(jsonData.vehicleAllocationHistory);
-    if (jsonData.officerAllocationHistory) StorageService.saveOfficerAllocationHistory(jsonData.officerAllocationHistory);
-    if (jsonData.dailyLogs) StorageService.saveDailyLogs(jsonData.dailyLogs);
-    if (jsonData.fuelRecords) StorageService.saveFuelRecords(jsonData.fuelRecords);
-    if (jsonData.maintenanceRecords) StorageService.saveMaintenanceRecords(jsonData.maintenanceRecords);
-    if (jsonData.khataTransactions) StorageService.saveKhataTransactions(jsonData.khataTransactions);
-    if (jsonData.bills) StorageService.saveBills(jsonData.bills);
-    if (jsonData.staffUsers) StorageService.saveStaffUsers(jsonData.staffUsers);
-    if (jsonData.pettyCashTransactions) StorageService.savePettyCashTransactions(jsonData.pettyCashTransactions);
-    if (jsonData.companyDocuments) StorageService.saveCompanyDocuments(jsonData.companyDocuments);
-    if (jsonData.fuelPumpVendors) StorageService.saveFuelPumpVendors(jsonData.fuelPumpVendors);
-    if (jsonData.fuelSlips) StorageService.saveFuelSlips(jsonData.fuelSlips);
-    if (jsonData.fuelVendorBills) StorageService.saveFuelVendorBills(jsonData.fuelVendorBills);
-    if (jsonData.driverLeaves) StorageService.saveDriverLeaves(jsonData.driverLeaves);
-    window.location.reload();
+  importData: (_jsonData: unknown) => {
+    alert('Import uses the server restore when you are logged in. Local cache import is disabled.');
   },
 };

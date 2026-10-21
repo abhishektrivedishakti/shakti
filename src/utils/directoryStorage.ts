@@ -1,29 +1,13 @@
 import { BookingRecord, SavedDirectory, CustomTariffPackage } from '../types';
 
-const DIRECTORY_STORAGE_KEY = 'fleetdispatch_saved_directory';
-const CUSTOM_TARIFFS_STORAGE_KEY = 'fleetdispatch_custom_tariff_packages';
+/** In-memory only — directory/tariffs are loaded/saved via the API. */
+let memoryTariffs: CustomTariffPackage[] = [];
+let memoryDirectory: SavedDirectory | null = null;
 
-export const loadCustomTariffPackages = (): CustomTariffPackage[] => {
-  try {
-    const raw = localStorage.getItem(CUSTOM_TARIFFS_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
-    }
-  } catch (e) {
-    console.error('Error loading custom tariffs:', e);
-  }
-  return [];
-};
+export const loadCustomTariffPackages = (): CustomTariffPackage[] => memoryTariffs;
 
 export const saveCustomTariffPackages = (packages: CustomTariffPackage[]): void => {
-  try {
-    localStorage.setItem(CUSTOM_TARIFFS_STORAGE_KEY, JSON.stringify(packages));
-  } catch (e) {
-    console.error('Error saving custom tariffs:', e);
-  }
+  memoryTariffs = Array.isArray(packages) ? packages : [];
 };
 
 export const EMPTY_SAVED_DIRECTORY: SavedDirectory = {
@@ -38,20 +22,15 @@ export const EMPTY_SAVED_DIRECTORY: SavedDirectory = {
 export const defaultSavedDirectory: SavedDirectory = EMPTY_SAVED_DIRECTORY;
 
 export const loadSavedDirectory = (bookings: BookingRecord[] = []): SavedDirectory => {
-  try {
-    const raw = localStorage.getItem(DIRECTORY_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && Array.isArray(parsed.clients) && parsed.clients.length > 0) {
-        return parsed;
-      }
-    }
-  } catch (e) {
-    console.error('Error loading saved directory:', e);
-  }
+  if (memoryDirectory) return memoryDirectory;
 
-  // If no stored directory, derive from default and any bookings
-  const directory: SavedDirectory = { ...defaultSavedDirectory };
+  const directory: SavedDirectory = {
+    clients: [],
+    bookers: [],
+    passengers: [],
+    vehicles: [],
+    drivers: [],
+  };
 
   if (bookings && bookings.length > 0) {
     bookings.forEach((b) => {
@@ -93,9 +72,5 @@ export const loadSavedDirectory = (bookings: BookingRecord[] = []): SavedDirecto
 };
 
 export const saveDirectoryToStorage = (directory: SavedDirectory): void => {
-  try {
-    localStorage.setItem(DIRECTORY_STORAGE_KEY, JSON.stringify(directory));
-  } catch (e) {
-    console.error('Error saving directory to localStorage:', e);
-  }
+  memoryDirectory = directory;
 };

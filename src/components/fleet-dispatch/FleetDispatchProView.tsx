@@ -66,32 +66,11 @@ export const FleetDispatchProView: React.FC<FleetDispatchProViewProps> = ({
   erpOfficers = [],
   erpTenders = [],
 }) => {
-  const [dispatcher, setDispatcher] = useState<DispatcherProfile>(() => {
-    try {
-      const saved = localStorage.getItem('fleetdispatch_dispatcher_profile');
-      if (saved) return JSON.parse(saved);
-    } catch {
-      /* ignore */
-    }
-    return initialDispatcherProfile;
-  });
-
-  const [bookings, setBookings] = useState<BookingRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem('fleetdispatch_bookings_master');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch {
-      /* ignore */
-    }
-    return [];
-  });
-
-  const [savedDirectory, setSavedDirectory] = useState<SavedDirectory>(() => {
-    return loadSavedDirectory(bookings);
-  });
+  const [dispatcher, setDispatcher] = useState<DispatcherProfile>(initialDispatcherProfile);
+  const [bookings, setBookings] = useState<BookingRecord[]>([]);
+  const [savedDirectory, setSavedDirectory] = useState<SavedDirectory>(() =>
+    loadSavedDirectory([])
+  );
 
   const [loadingApi, setLoadingApi] = useState(false);
   const [apiError, setApiError] = useState('');
@@ -112,9 +91,7 @@ export const FleetDispatchProView: React.FC<FleetDispatchProViewProps> = ({
 
         if (cancelled) return;
         setBookings(apiBookings);
-        localStorage.setItem('fleetdispatch_bookings_master', JSON.stringify(apiBookings));
         setDispatcher(apiProfile);
-        localStorage.setItem('fleetdispatch_dispatcher_profile', JSON.stringify(apiProfile));
         setSavedDirectory(apiDirectory);
         saveDirectoryToStorage(apiDirectory);
         if (apiTariffs.length > 0) saveCustomTariffPackages(apiTariffs);
@@ -183,22 +160,6 @@ export const FleetDispatchProView: React.FC<FleetDispatchProViewProps> = ({
       return prev;
     });
   }, [erpVehicles, erpDrivers, erpOfficers]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('fleetdispatch_bookings_master', JSON.stringify(bookings));
-    } catch {
-      /* ignore */
-    }
-  }, [bookings]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('fleetdispatch_dispatcher_profile', JSON.stringify(dispatcher));
-    } catch {
-      /* ignore */
-    }
-  }, [dispatcher]);
 
   const [activeTab, setActiveTab] = useState<
     'register' | 'new-booking' | 'analytics' | 'finance' | 'gps-relay' | 'whatsapp' | 'directory'

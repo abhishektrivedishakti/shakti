@@ -145,7 +145,7 @@ import { FleetDispatchProView } from './components/fleet-dispatch/FleetDispatchP
 import { BulkImportModal, BulkImportType } from './components/BulkImportModal';
 import { UnifiedProfileModal, ProfileEntityType } from './components/UnifiedProfileModal';
 
-import { flushStorageWrites, StorageService } from './utils/storage';
+import { purgeLegacyLocalCaches } from './utils/storage';
 import { generateAllReminders, getDaysDiff } from './utils/calculations';
 import {
   generateDriverUniqueId,
@@ -191,61 +191,35 @@ export default function App() {
   const [authScreen, setAuthScreen] = useState<AuthScreen>('login');
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
 
-  // Core State initialized from persistent StorageService
-  const [tenders, setTenders] = useState<Tender[]>(() => StorageService.getTenders());
-  const [vehicles, setVehicles] = useState<Vehicle[]>(() => StorageService.getVehicles());
-  const [officers, setOfficers] = useState<Officer[]>(() => StorageService.getOfficers());
-  const [drivers, setDrivers] = useState<Driver[]>(() => StorageService.getDrivers());
-  const [allocationHistory, setAllocationHistory] = useState<DriverAllocationHistory[]>(() =>
-    StorageService.getAllocationHistory()
-  );
-  const [vehicleAllocationHistory, setVehicleAllocationHistory] = useState<VehicleAllocationHistory[]>(() =>
-    StorageService.getVehicleAllocationHistory()
-  );
-  const [officerAllocationHistory, setOfficerAllocationHistory] = useState<OfficerAllocationHistory[]>(() =>
-    StorageService.getOfficerAllocationHistory()
-  );
-  const [dailyLogs, setDailyLogs] = useState<DailyLogEntry[]>(() => StorageService.getDailyLogs());
-  const [fuelRecords, setFuelRecords] = useState<FuelRecord[]>(() =>
-    StorageService.getFuelRecords()
-  );
-  const [fuelPumpVendors, setFuelPumpVendors] = useState<FuelPumpVendor[]>(() =>
-    StorageService.getFuelPumpVendors()
-  );
-  const [fuelSlips, setFuelSlips] = useState<FuelSlip[]>(() =>
-    StorageService.getFuelSlips()
-  );
-  const [fuelVendorBills, setFuelVendorBills] = useState<FuelVendorMonthlyBill[]>(() =>
-    StorageService.getFuelVendorBills()
-  );
-  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>(() =>
-    StorageService.getMaintenanceRecords()
-  );
-  const [khataTransactions, setKhataTransactions] = useState<DriverKhataTransaction[]>(() =>
-    StorageService.getKhataTransactions()
-  );
-  const [bills, setBills] = useState<MonthlyBill[]>(() => StorageService.getBills());
-  const [vendors, setVendors] = useState<Vendor[]>(() => StorageService.getVendors());
-  const [dailyPayments, setDailyPayments] = useState<DailyPaymentEntry[]>(() =>
-    StorageService.getDailyPayments()
-  );
-  const [vendorSettlements, setVendorSettlements] = useState<VendorSettlement[]>(() =>
-    StorageService.getVendorSettlements()
-  );
-  const [statutoryPayroll, setStatutoryPayroll] = useState<StatutoryPayrollEntry[]>(() =>
-    StorageService.getStatutoryPayroll()
-  );
-  const [staffUsers, setStaffUsers] = useState<StaffUser[]>(() => StorageService.getStaffUsers());
-  const [currentUserId, setCurrentUserId] = useState<string>(() => StorageService.getCurrentUserId());
-  const [pettyCashTransactions, setPettyCashTransactions] = useState<PettyCashTransaction[]>(() =>
-    StorageService.getPettyCashTransactions()
-  );
-  const [companyDocuments, setCompanyDocuments] = useState<CompanyDocument[]>(() =>
-    StorageService.getCompanyDocuments()
-  );
-  const [driverLeaves, setDriverLeaves] = useState<DriverLeaveRecord[]>(() =>
-    StorageService.getDriverLeaves()
-  );
+  // Core state — API/DB only (no localStorage mirror)
+  useEffect(() => {
+    purgeLegacyLocalCaches();
+  }, []);
+
+  const [tenders, setTenders] = useState<Tender[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [officers, setOfficers] = useState<Officer[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [allocationHistory, setAllocationHistory] = useState<DriverAllocationHistory[]>([]);
+  const [vehicleAllocationHistory, setVehicleAllocationHistory] = useState<VehicleAllocationHistory[]>([]);
+  const [officerAllocationHistory, setOfficerAllocationHistory] = useState<OfficerAllocationHistory[]>([]);
+  const [dailyLogs, setDailyLogs] = useState<DailyLogEntry[]>([]);
+  const [fuelRecords, setFuelRecords] = useState<FuelRecord[]>([]);
+  const [fuelPumpVendors, setFuelPumpVendors] = useState<FuelPumpVendor[]>([]);
+  const [fuelSlips, setFuelSlips] = useState<FuelSlip[]>([]);
+  const [fuelVendorBills, setFuelVendorBills] = useState<FuelVendorMonthlyBill[]>([]);
+  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([]);
+  const [khataTransactions, setKhataTransactions] = useState<DriverKhataTransaction[]>([]);
+  const [bills, setBills] = useState<MonthlyBill[]>([]);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [dailyPayments, setDailyPayments] = useState<DailyPaymentEntry[]>([]);
+  const [vendorSettlements, setVendorSettlements] = useState<VendorSettlement[]>([]);
+  const [statutoryPayroll, setStatutoryPayroll] = useState<StatutoryPayrollEntry[]>([]);
+  const [staffUsers, setStaffUsers] = useState<StaffUser[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [pettyCashTransactions, setPettyCashTransactions] = useState<PettyCashTransaction[]>([]);
+  const [companyDocuments, setCompanyDocuments] = useState<CompanyDocument[]>([]);
+  const [driverLeaves, setDriverLeaves] = useState<DriverLeaveRecord[]>([]);
   const [dashboardSummary, setDashboardSummary] = useState<DashboardSummary | null>(null);
   const [staffApiError, setStaffApiError] = useState('');
   const [mastersApiError, setMastersApiError] = useState('');
@@ -258,11 +232,9 @@ export default function App() {
     setStaffUsers((prev) => {
       const exists = prev.some((s) => s.id === user.id);
       const merged = exists ? prev.map((s) => (s.id === user.id ? user : s)) : [user, ...prev];
-      StorageService.saveStaffUsers(merged);
       return merged;
     });
     setCurrentUserId(user.id);
-    StorageService.saveCurrentUserId(user.id);
     setAuthStatus('authenticated');
   }, []);
 
@@ -355,52 +327,29 @@ export default function App() {
 
         if (cancelled) return;
         setStaffUsers(list);
-        StorageService.saveStaffUsers(list);
         setDashboardSummary(summary);
         setTenders(apiTenders);
-        StorageService.saveTenders(apiTenders);
         setCompanyDocuments(apiDocs);
-        StorageService.saveCompanyDocuments(apiDocs);
         setVehicles(apiVehicles);
-        StorageService.saveVehicles(apiVehicles);
         setOfficers(apiOfficers);
-        StorageService.saveOfficers(apiOfficers);
         setDrivers(apiDrivers);
-        StorageService.saveDrivers(apiDrivers);
         setAllocationHistory(apiDriverAlloc);
-        StorageService.saveAllocationHistory(apiDriverAlloc);
         setVehicleAllocationHistory(apiVehicleAlloc);
-        StorageService.saveVehicleAllocationHistory(apiVehicleAlloc);
         setOfficerAllocationHistory(apiOfficerAlloc);
-        StorageService.saveOfficerAllocationHistory(apiOfficerAlloc);
         setDailyLogs(apiLogs);
-        StorageService.saveDailyLogs(apiLogs);
         setMaintenanceRecords(apiMaint);
-        StorageService.saveMaintenanceRecords(apiMaint);
         setFuelRecords(apiFuelRecords);
-        StorageService.saveFuelRecords(apiFuelRecords);
         setFuelPumpVendors(apiFuelPumps);
-        StorageService.saveFuelPumpVendors(apiFuelPumps);
         setFuelSlips(apiFuelSlips);
-        StorageService.saveFuelSlips(apiFuelSlips);
         setFuelVendorBills(apiFuelBills);
-        StorageService.saveFuelVendorBills(apiFuelBills);
         setBills(apiBills);
-        StorageService.saveBills(apiBills);
         setKhataTransactions(apiKhata);
-        StorageService.saveKhataTransactions(apiKhata);
         setDriverLeaves(apiLeaves);
-        StorageService.saveDriverLeaves(apiLeaves);
         setDailyPayments(apiDailyPayments);
-        StorageService.saveDailyPayments(apiDailyPayments);
         setVendors(apiVendors);
-        StorageService.saveVendors(apiVendors);
         setVendorSettlements(apiSettlements);
-        StorageService.saveVendorSettlements(apiSettlements);
         setStatutoryPayroll(apiPayroll);
-        StorageService.saveStatutoryPayroll(apiPayroll);
         setPettyCashTransactions(apiPetty);
-        StorageService.savePettyCashTransactions(apiPetty);
         setStaffApiError('');
         setMastersApiError('');
       } catch (err: unknown) {
@@ -417,7 +366,6 @@ export default function App() {
   }, [authStatus]);
 
   const handleLogout = () => {
-    flushStorageWrites();
     clearAuthSession();
     setAuthStatus('guest');
     setAuthScreen('login');
@@ -448,13 +396,11 @@ export default function App() {
     const snapshot = drivers;
     const updated = drivers.filter((d) => d.id !== driverId);
     setDrivers(updated);
-    StorageService.saveDrivers(updated);
     try {
       await deleteDriverApi(driverId);
       setMastersApiError('');
     } catch (err: unknown) {
       setDrivers(snapshot);
-      StorageService.saveDrivers(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not delete driver.';
       setMastersApiError(msg);
       throw new Error(msg);
@@ -465,13 +411,11 @@ export default function App() {
     const snapshot = vendors;
     const updated = vendors.filter((v) => v.id !== vendorId);
     setVendors(updated);
-    StorageService.saveVendors(updated);
     try {
       await deleteVendorApi(vendorId);
       setMastersApiError('');
     } catch (err: unknown) {
       setVendors(snapshot);
-      StorageService.saveVendors(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not delete vendor.';
       setMastersApiError(msg);
       throw new Error(msg);
@@ -482,7 +426,6 @@ export default function App() {
     if (routed.khata) {
       setKhataTransactions((prev) => {
         const next = [routed.khata!, ...prev.filter((t) => t.id !== routed.khata!.id)];
-        StorageService.saveKhataTransactions(next);
         return next;
       });
     }
@@ -492,7 +435,6 @@ export default function App() {
           routed.fuelRecord!,
           ...prev.filter((r) => r.id !== routed.fuelRecord!.id),
         ];
-        StorageService.saveFuelRecords(next);
         return next;
       });
     }
@@ -502,7 +444,6 @@ export default function App() {
           routed.maintenance!,
           ...prev.filter((r) => r.id !== routed.maintenance!.id),
         ];
-        StorageService.saveMaintenanceRecords(next);
         return next;
       });
     }
@@ -511,7 +452,6 @@ export default function App() {
         const next = prev.map((s) =>
           s.id === routed.settlement!.id ? routed.settlement! : s
         );
-        StorageService.saveVendorSettlements(next);
         return next;
       });
     }
@@ -521,13 +461,11 @@ export default function App() {
     const snapshot = officers;
     const updated = officers.filter((o) => o.id !== officerId);
     setOfficers(updated);
-    StorageService.saveOfficers(updated);
     try {
       await deleteOfficerApi(officerId);
       setMastersApiError('');
     } catch (err: unknown) {
       setOfficers(snapshot);
-      StorageService.saveOfficers(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not delete officer.';
       setMastersApiError(msg);
       throw new Error(msg);
@@ -581,7 +519,6 @@ export default function App() {
       ? tenders.map((t) => (t.id === tender.id ? tender : t))
       : [...tenders, tender];
     setTenders(optimistic);
-    StorageService.saveTenders(optimistic);
 
     try {
       const saved = exists
@@ -592,14 +529,12 @@ export default function App() {
           const next = prev.some((t) => t.id === saved.id)
             ? prev.map((t) => (t.id === saved.id ? saved : t))
             : [...prev, saved];
-          StorageService.saveTenders(next);
           return next;
         });
         setMastersApiError('');
       });
     } catch (err: unknown) {
       setTenders(snapshot);
-      StorageService.saveTenders(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not save tender to API.';
       setMastersApiError(msg);
       throw new Error(msg);
@@ -613,7 +548,6 @@ export default function App() {
       ? vehicles.map((v) => (v.id === vehicle.id ? vehicle : v))
       : [...vehicles, vehicle];
     setVehicles(updated);
-    StorageService.saveVehicles(updated);
 
     try {
       const saved = exists
@@ -624,14 +558,12 @@ export default function App() {
           const next = prev.some((v) => v.id === saved.id)
             ? prev.map((v) => (v.id === saved.id ? saved : v))
             : [...prev, saved];
-          StorageService.saveVehicles(next);
           return next;
         });
         setMastersApiError('');
       });
     } catch (err: unknown) {
       setVehicles(snapshot);
-      StorageService.saveVehicles(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not save vehicle to API.';
       setMastersApiError(msg);
       throw new Error(msg);
@@ -653,7 +585,6 @@ export default function App() {
       ? officers.map((o) => (o.id === finalOfficer.id ? finalOfficer : o))
       : [...officers, finalOfficer];
     setOfficers(updated);
-    StorageService.saveOfficers(updated);
 
     try {
       const saved = exists
@@ -664,14 +595,12 @@ export default function App() {
           const next = prev.some((o) => o.id === saved.id)
             ? prev.map((o) => (o.id === saved.id ? saved : o))
             : [...prev, saved];
-          StorageService.saveOfficers(next);
           return next;
         });
         setMastersApiError('');
       });
     } catch (err: unknown) {
       setOfficers(snapshot);
-      StorageService.saveOfficers(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not save officer to API.';
       setMastersApiError(msg);
       throw new Error(msg);
@@ -693,7 +622,6 @@ export default function App() {
       ? drivers.map((d) => (d.id === finalDriver.id ? finalDriver : d))
       : [...drivers, finalDriver];
     setDrivers(updated);
-    StorageService.saveDrivers(updated);
 
     try {
       const saved = exists
@@ -704,14 +632,12 @@ export default function App() {
           const next = prev.some((d) => d.id === saved.id)
             ? prev.map((d) => (d.id === saved.id ? saved : d))
             : [...prev, saved];
-          StorageService.saveDrivers(next);
           return next;
         });
         setMastersApiError('');
       });
     } catch (err: unknown) {
       setDrivers(snapshot);
-      StorageService.saveDrivers(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not save driver to API.';
       setMastersApiError(msg);
       throw new Error(msg);
@@ -721,7 +647,6 @@ export default function App() {
   const handleBulkImportVehicles = (newVehicles: Vehicle[], newVendors?: Vendor[]) => {
     const updatedVehicles = [...newVehicles, ...vehicles];
     setVehicles(updatedVehicles);
-    StorageService.saveVehicles(updatedVehicles);
 
     let processedVendors: Vendor[] = [];
     if (newVendors && newVendors.length > 0) {
@@ -734,7 +659,6 @@ export default function App() {
       });
       const updatedVendors = [...processedVendors, ...vendors];
       setVendors(updatedVendors);
-      StorageService.saveVendors(updatedVendors);
     }
 
     return (async () => {
@@ -744,7 +668,6 @@ export default function App() {
           const byId = new Map(prev.map((v) => [v.id, v]));
           for (const v of imported) byId.set(v.id, v);
           const next = Array.from(byId.values());
-          StorageService.saveVehicles(next);
           return next;
         });
         if (processedVendors.length > 0) {
@@ -753,7 +676,6 @@ export default function App() {
             const byId = new Map(prev.map((v) => [v.id, v]));
             for (const v of importedVendors) byId.set(v.id, v);
             const next = Array.from(byId.values());
-            StorageService.saveVendors(next);
             return next;
           });
         }
@@ -776,7 +698,6 @@ export default function App() {
     });
     const updatedDrivers = [...processedDrivers, ...drivers];
     setDrivers(updatedDrivers);
-    StorageService.saveDrivers(updatedDrivers);
 
     return (async () => {
       try {
@@ -785,7 +706,6 @@ export default function App() {
           const byId = new Map(prev.map((d) => [d.id, d]));
           for (const d of imported) byId.set(d.id, d);
           const next = Array.from(byId.values());
-          StorageService.saveDrivers(next);
           return next;
         });
         setMastersApiError('');
@@ -807,7 +727,6 @@ export default function App() {
     });
     const updatedOfficers = [...processedOfficers, ...officers];
     setOfficers(updatedOfficers);
-    StorageService.saveOfficers(updatedOfficers);
 
     return (async () => {
       try {
@@ -816,7 +735,6 @@ export default function App() {
           const byId = new Map(prev.map((o) => [o.id, o]));
           for (const o of imported) byId.set(o.id, o);
           const next = Array.from(byId.values());
-          StorageService.saveOfficers(next);
           return next;
         });
         setMastersApiError('');
@@ -831,7 +749,6 @@ export default function App() {
   const handleBulkImportTenders = (newTenders: Tender[]) => {
     const updatedTenders = [...newTenders, ...tenders];
     setTenders(updatedTenders);
-    StorageService.saveTenders(updatedTenders);
 
     return (async () => {
       try {
@@ -840,7 +757,6 @@ export default function App() {
           const byId = new Map(prev.map((t) => [t.id, t]));
           for (const t of imported) byId.set(t.id, t);
           const next = Array.from(byId.values());
-          StorageService.saveTenders(next);
           return next;
         });
         setMastersApiError('');
@@ -862,7 +778,6 @@ export default function App() {
     });
     const updatedVendors = [...processedVendors, ...vendors];
     setVendors(updatedVendors);
-    StorageService.saveVendors(updatedVendors);
 
     return (async () => {
       try {
@@ -871,7 +786,6 @@ export default function App() {
           const byId = new Map(prev.map((v) => [v.id, v]));
           for (const v of imported) byId.set(v.id, v);
           const next = Array.from(byId.values());
-          StorageService.saveVendors(next);
           return next;
         });
         setMastersApiError('');
@@ -915,20 +829,17 @@ export default function App() {
         });
         setVehicles((prev) => {
           const next = prev.map((v) => (v.id === result.vehicle.id ? result.vehicle : v));
-          StorageService.saveVehicles(next);
           return next;
         });
         setDrivers((prev) => {
           const byId = new Map(prev.map((d) => [d.id, d]));
           for (const d of result.drivers) byId.set(d.id, d);
           const next = Array.from(byId.values());
-          StorageService.saveDrivers(next);
           return next;
         });
         if (result.officer) {
           setOfficers((prev) => {
             const next = prev.map((o) => (o.id === result.officer!.id ? result.officer! : o));
-            StorageService.saveOfficers(next);
             return next;
           });
         }
@@ -939,7 +850,6 @@ export default function App() {
               : h
           );
           const next = [result.allocation, ...closed.filter((h) => h.id !== result.allocation.id)];
-          StorageService.saveAllocationHistory(next);
           return next;
         });
         setMastersApiError('');
@@ -985,20 +895,17 @@ export default function App() {
           byId.set(result.oldVehicle.id, result.oldVehicle);
           byId.set(result.vehicle.id, result.vehicle);
           const next = Array.from(byId.values());
-          StorageService.saveVehicles(next);
           return next;
         });
         if (result.officer) {
           setOfficers((prev) => {
             const next = prev.map((o) => (o.id === result.officer!.id ? result.officer! : o));
-            StorageService.saveOfficers(next);
             return next;
           });
         }
         if (result.driver) {
           setDrivers((prev) => {
             const next = prev.map((d) => (d.id === result.driver!.id ? result.driver! : d));
-            StorageService.saveDrivers(next);
             return next;
           });
         }
@@ -1014,7 +921,6 @@ export default function App() {
               : h
           );
           const next = [result.allocation, ...closed.filter((h) => h.id !== result.allocation.id)];
-          StorageService.saveVehicleAllocationHistory(next);
           return next;
         });
         setMastersApiError('');
@@ -1056,7 +962,6 @@ export default function App() {
         });
         setVehicles((prev) => {
           const next = prev.map((v) => (v.id === result.vehicle.id ? result.vehicle : v));
-          StorageService.saveVehicles(next);
           return next;
         });
         setOfficers((prev) => {
@@ -1064,13 +969,11 @@ export default function App() {
           if (result.oldOfficer) byId.set(result.oldOfficer.id, result.oldOfficer);
           if (result.officer) byId.set(result.officer.id, result.officer);
           const next = Array.from(byId.values());
-          StorageService.saveOfficers(next);
           return next;
         });
         if (result.driver) {
           setDrivers((prev) => {
             const next = prev.map((d) => (d.id === result.driver!.id ? result.driver! : d));
-            StorageService.saveDrivers(next);
             return next;
           });
         }
@@ -1085,7 +988,6 @@ export default function App() {
               result.allocation!,
               ...closed.filter((h) => h.id !== result.allocation!.id),
             ];
-            StorageService.saveOfficerAllocationHistory(next);
             return next;
           });
         }
@@ -1115,19 +1017,16 @@ export default function App() {
         });
         setVehicles((prev) => {
           const next = prev.map((v) => (v.id === result.vehicle.id ? result.vehicle : v));
-          StorageService.saveVehicles(next);
           return next;
         });
         setOfficers((prev) => {
           const byId = new Map(prev.map((o) => [o.id, o]));
           byId.set(result.officer.id, result.officer);
           const next = Array.from(byId.values());
-          StorageService.saveOfficers(next);
           return next;
         });
         setOfficerAllocationHistory((prev) => {
           const next = [result.allocation, ...prev.filter((h) => h.id !== result.allocation.id)];
-          StorageService.saveOfficerAllocationHistory(next);
           return next;
         });
         setMastersApiError('');
@@ -1140,20 +1039,17 @@ export default function App() {
   const handleAddLog = (entry: DailyLogEntry) => {
     const updated = [entry, ...dailyLogs];
     setDailyLogs(updated);
-    StorageService.saveDailyLogs(updated);
 
     (async () => {
       try {
         const result = await createDailyLogApi(entry);
         setDailyLogs((prev) => {
           const next = [result.log, ...prev.filter((l) => l.id !== result.log.id && l.id !== entry.id)];
-          StorageService.saveDailyLogs(next);
           return next;
         });
         if (result.vehicle) {
           setVehicles((prev) => {
             const next = prev.map((v) => (v.id === result.vehicle!.id ? result.vehicle! : v));
-            StorageService.saveVehicles(next);
             return next;
           });
         }
@@ -1169,14 +1065,12 @@ export default function App() {
       l.id === id ? { ...l, isVerifiedByOfficer: !l.isVerifiedByOfficer } : l
     );
     setDailyLogs(updated);
-    StorageService.saveDailyLogs(updated);
 
     (async () => {
       try {
         const saved = await verifyDailyLogApi(id);
         setDailyLogs((prev) => {
           const next = prev.map((l) => (l.id === saved.id ? saved : l));
-          StorageService.saveDailyLogs(next);
           return next;
         });
         setMastersApiError('');
@@ -1196,7 +1090,6 @@ export default function App() {
         ? bills.map((b) => (b.id === saved.id ? saved : b))
         : [saved, ...bills];
       setBills(updated);
-      StorageService.saveBills(updated);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Could not save bill.');
     }
@@ -1218,7 +1111,6 @@ export default function App() {
       });
       const updated = bills.map((b) => (b.id === billId ? saved : b));
       setBills(updated);
-      StorageService.saveBills(updated);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Could not update bill status.');
     }
@@ -1229,13 +1121,11 @@ export default function App() {
       const result = await createFuelRecordApi(record);
       const updated = [result.record, ...fuelRecords.filter((r) => r.id !== result.record.id)];
       setFuelRecords(updated);
-      StorageService.saveFuelRecords(updated);
       if (result.vehicle) {
         const nextVehicles = vehicles.map((v) =>
           v.id === result.vehicle!.id ? result.vehicle! : v
         );
         setVehicles(nextVehicles);
-        StorageService.saveVehicles(nextVehicles);
       }
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Could not save fuel record.');
@@ -1259,7 +1149,6 @@ export default function App() {
               v.id === result.vehicle!.id ? result.vehicle! : v
             );
             setVehicles(nextVehicles);
-            StorageService.saveVehicles(nextVehicles);
           }
         } else {
           saved = await updateFuelSlipApi(slip.id, slip);
@@ -1273,7 +1162,6 @@ export default function App() {
         ? fuelSlips.map((s) => (s.id === saved.id ? saved : s))
         : [saved, ...fuelSlips];
       setFuelSlips(updated);
-      StorageService.saveFuelSlips(updated);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Could not save fuel slip.');
     }
@@ -1284,7 +1172,6 @@ export default function App() {
       await deleteFuelSlipApi(slipId);
       const updated = fuelSlips.filter((s) => s.id !== slipId);
       setFuelSlips(updated);
-      StorageService.saveFuelSlips(updated);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Could not delete fuel slip.');
     }
@@ -1300,7 +1187,6 @@ export default function App() {
         ? fuelPumpVendors.map((p) => (p.id === saved.id ? saved : p))
         : [...fuelPumpVendors, saved];
       setFuelPumpVendors(updated);
-      StorageService.saveFuelPumpVendors(updated);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Could not save fuel pump.');
     }
@@ -1311,7 +1197,6 @@ export default function App() {
       await deleteFuelPumpApi(vendorId);
       const updated = fuelPumpVendors.filter((p) => p.id !== vendorId);
       setFuelPumpVendors(updated);
-      StorageService.saveFuelPumpVendors(updated);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Could not delete fuel pump.');
     }
@@ -1334,7 +1219,6 @@ export default function App() {
         ? fuelVendorBills.map((b) => (b.id === saved.id ? saved : b))
         : [saved, ...fuelVendorBills];
       setFuelVendorBills(updatedBills);
-      StorageService.saveFuelVendorBills(updatedBills);
 
       if (linked.length > 0 || (linkedSlipIds && linkedSlipIds.length > 0)) {
         const linkedMap = new Map(linked.map((s) => [s.id, s]));
@@ -1351,7 +1235,6 @@ export default function App() {
           return s;
         });
         setFuelSlips(updatedSlips);
-        StorageService.saveFuelSlips(updatedSlips);
       }
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Could not save fuel vendor bill.');
@@ -1363,10 +1246,8 @@ export default function App() {
       await deleteFuelVendorBillApi(billId);
       const updated = fuelVendorBills.filter((b) => b.id !== billId);
       setFuelVendorBills(updated);
-      StorageService.saveFuelVendorBills(updated);
       const refreshedSlips = await fetchFuelSlips();
       setFuelSlips(refreshedSlips);
-      StorageService.saveFuelSlips(refreshedSlips);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Could not delete fuel vendor bill.');
     }
@@ -1393,7 +1274,6 @@ export default function App() {
     }
     const updatedBills = fuelVendorBills.map((b) => (b.id === billId ? updatedBill : b));
     setFuelVendorBills(updatedBills);
-    StorageService.saveFuelVendorBills(updatedBills);
 
     // Auto-record in Daily Payments Journal
     const paymentEntry: DailyPaymentEntry = {
@@ -1417,7 +1297,6 @@ export default function App() {
         });
         setDailyPayments((prev) => {
           const next = [saved, ...prev.filter((p) => p.id !== saved.id)];
-          StorageService.saveDailyPayments(next);
           return next;
         });
       } catch (err: unknown) {
@@ -1429,7 +1308,6 @@ export default function App() {
   const handleAddMaintenanceRecord = (record: MaintenanceRecord) => {
     const updated = [record, ...maintenanceRecords];
     setMaintenanceRecords(updated);
-    StorageService.saveMaintenanceRecords(updated);
 
     (async () => {
       try {
@@ -1439,13 +1317,11 @@ export default function App() {
             result.record,
             ...prev.filter((r) => r.id !== result.record.id && r.id !== record.id),
           ];
-          StorageService.saveMaintenanceRecords(next);
           return next;
         });
         if (result.vehicle) {
           setVehicles((prev) => {
             const next = prev.map((v) => (v.id === result.vehicle!.id ? result.vehicle! : v));
-            StorageService.saveVehicles(next);
             return next;
           });
         }
@@ -1462,18 +1338,15 @@ export default function App() {
     const snapshot = khataTransactions;
     const optimistic = [tx, ...khataTransactions.filter((t) => t.id !== tx.id)];
     setKhataTransactions(optimistic);
-    StorageService.saveKhataTransactions(optimistic);
     try {
       const saved = await createKhataTransactionApi(tx);
       setKhataTransactions((prev) => {
         const next = [saved, ...prev.filter((t) => t.id !== saved.id && t.id !== tx.id)];
-        StorageService.saveKhataTransactions(next);
         return next;
       });
       setMastersApiError('');
     } catch (err: unknown) {
       setKhataTransactions(snapshot);
-      StorageService.saveKhataTransactions(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not save khata transaction.';
       setMastersApiError(msg);
       alert(msg);
@@ -1484,13 +1357,11 @@ export default function App() {
     const snapshot = khataTransactions;
     const updated = khataTransactions.filter((t) => t.id !== txId);
     setKhataTransactions(updated);
-    StorageService.saveKhataTransactions(updated);
     try {
       await deleteKhataTransactionApi(txId);
       setMastersApiError('');
     } catch (err: unknown) {
       setKhataTransactions(snapshot);
-      StorageService.saveKhataTransactions(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not delete khata transaction.';
       setMastersApiError(msg);
       alert(msg);
@@ -1504,7 +1375,6 @@ export default function App() {
       ? driverLeaves.map((l) => (l.id === leave.id ? leave : l))
       : [leave, ...driverLeaves];
     setDriverLeaves(optimistic);
-    StorageService.saveDriverLeaves(optimistic);
     try {
       const saved = exists
         ? await updateDriverLeaveApi(leave.id, leave)
@@ -1513,13 +1383,11 @@ export default function App() {
         const next = exists
           ? prev.map((l) => (l.id === saved.id ? saved : l))
           : [saved, ...prev.filter((l) => l.id !== saved.id && l.id !== leave.id)];
-        StorageService.saveDriverLeaves(next);
         return next;
       });
       setMastersApiError('');
     } catch (err: unknown) {
       setDriverLeaves(snapshot);
-      StorageService.saveDriverLeaves(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not save driver leave.';
       setMastersApiError(msg);
       alert(msg);
@@ -1530,13 +1398,11 @@ export default function App() {
     const snapshot = driverLeaves;
     const updated = driverLeaves.filter((l) => l.id !== leaveId);
     setDriverLeaves(updated);
-    StorageService.saveDriverLeaves(updated);
     try {
       await deleteDriverLeaveApi(leaveId);
       setMastersApiError('');
     } catch (err: unknown) {
       setDriverLeaves(snapshot);
-      StorageService.saveDriverLeaves(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not delete driver leave.';
       setMastersApiError(msg);
       alert(msg);
@@ -1560,7 +1426,6 @@ export default function App() {
       ? vendors.map((v) => (v.id === finalVendor.id ? finalVendor : v))
       : [...vendors, finalVendor];
     setVendors(optimistic);
-    StorageService.saveVendors(optimistic);
     try {
       const saved = exists
         ? await updateVendorApi(finalVendor.id, finalVendor)
@@ -1569,13 +1434,11 @@ export default function App() {
         const next = exists
           ? prev.map((v) => (v.id === saved.id ? saved : v))
           : [...prev.filter((v) => v.id !== saved.id && v.id !== finalVendor.id), saved];
-        StorageService.saveVendors(next);
         return next;
       });
       setMastersApiError('');
     } catch (err: unknown) {
       setVendors(snapshot);
-      StorageService.saveVendors(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not save vendor.';
       setMastersApiError(msg);
       alert(msg);
@@ -1589,7 +1452,6 @@ export default function App() {
       ? vendorSettlements.map((s) => (s.id === settlement.id ? settlement : s))
       : [settlement, ...vendorSettlements];
     setVendorSettlements(optimistic);
-    StorageService.saveVendorSettlements(optimistic);
     try {
       const saved = exists
         ? await updateVendorSettlementApi(settlement.id, settlement)
@@ -1598,13 +1460,11 @@ export default function App() {
         const next = exists
           ? prev.map((s) => (s.id === saved.id ? saved : s))
           : [saved, ...prev.filter((s) => s.id !== saved.id && s.id !== settlement.id)];
-        StorageService.saveVendorSettlements(next);
         return next;
       });
       setMastersApiError('');
     } catch (err: unknown) {
       setVendorSettlements(snapshot);
-      StorageService.saveVendorSettlements(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not save vendor settlement.';
       setMastersApiError(msg);
       alert(msg);
@@ -1624,18 +1484,15 @@ export default function App() {
         : s
     );
     setVendorSettlements(optimistic);
-    StorageService.saveVendorSettlements(optimistic);
     try {
       const saved = await payVendorSettlementApi(settlementId, { paymentRef });
       setVendorSettlements((prev) => {
         const next = prev.map((s) => (s.id === saved.id ? saved : s));
-        StorageService.saveVendorSettlements(next);
         return next;
       });
       setMastersApiError('');
     } catch (err: unknown) {
       setVendorSettlements(snapshot);
-      StorageService.saveVendorSettlements(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not mark settlement paid.';
       setMastersApiError(msg);
       alert(msg);
@@ -1646,19 +1503,16 @@ export default function App() {
     const snapshot = dailyPayments;
     const optimistic = [payment, ...dailyPayments.filter((p) => p.id !== payment.id)];
     setDailyPayments(optimistic);
-    StorageService.saveDailyPayments(optimistic);
     try {
       const { payment: saved, routed } = await createDailyPaymentApi(payment);
       setDailyPayments((prev) => {
         const next = [saved, ...prev.filter((p) => p.id !== saved.id && p.id !== payment.id)];
-        StorageService.saveDailyPayments(next);
         return next;
       });
       applyDailyPaymentRouted(routed);
       setMastersApiError('');
     } catch (err: unknown) {
       setDailyPayments(snapshot);
-      StorageService.saveDailyPayments(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not save daily payment.';
       setMastersApiError(msg);
       alert(msg);
@@ -1670,20 +1524,17 @@ export default function App() {
     const snapshot = dailyPayments;
     const optimistic = [...payments, ...dailyPayments];
     setDailyPayments(optimistic);
-    StorageService.saveDailyPayments(optimistic);
     try {
       const { payments: saved, routed } = await createDailyPaymentsBatchApi(payments);
       setDailyPayments((prev) => {
         const ids = new Set(payments.map((p) => p.id));
         const next = [...saved, ...prev.filter((p) => !ids.has(p.id) && !saved.some((s) => s.id === p.id))];
-        StorageService.saveDailyPayments(next);
         return next;
       });
       routed.forEach(applyDailyPaymentRouted);
       setMastersApiError('');
     } catch (err: unknown) {
       setDailyPayments(snapshot);
-      StorageService.saveDailyPayments(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not save batch payments.';
       setMastersApiError(msg);
       alert(msg);
@@ -1697,7 +1548,6 @@ export default function App() {
       ? statutoryPayroll.map((p) => (p.id === entry.id ? entry : p))
       : [entry, ...statutoryPayroll];
     setStatutoryPayroll(optimistic);
-    StorageService.saveStatutoryPayroll(optimistic);
     try {
       const saved = exists
         ? await updateStatutoryPayrollApi(entry.id, entry)
@@ -1706,13 +1556,11 @@ export default function App() {
         const next = exists
           ? prev.map((p) => (p.id === saved.id ? saved : p))
           : [saved, ...prev.filter((p) => p.id !== saved.id && p.id !== entry.id)];
-        StorageService.saveStatutoryPayroll(next);
         return next;
       });
       setMastersApiError('');
     } catch (err: unknown) {
       setStatutoryPayroll(snapshot);
-      StorageService.saveStatutoryPayroll(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not save payroll entry.';
       setMastersApiError(msg);
       alert(msg);
@@ -1740,18 +1588,15 @@ export default function App() {
     };
     const optimistic = drivers.map((d) => (d.id === driverId ? { ...d, ...patch } : d));
     setDrivers(optimistic);
-    StorageService.saveDrivers(optimistic);
     try {
       const saved = await updateDriverApi(driverId, patch);
       setDrivers((prev) => {
         const next = prev.map((d) => (d.id === saved.id ? saved : d));
-        StorageService.saveDrivers(next);
         return next;
       });
       setMastersApiError('');
     } catch (err: unknown) {
       setDrivers(snapshot);
-      StorageService.saveDrivers(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not enroll driver.';
       setMastersApiError(msg);
       alert(msg);
@@ -1761,7 +1606,6 @@ export default function App() {
   // Multi-user & RBAC handlers
   const handleSwitchUser = (user: StaffUser) => {
     setCurrentUserId(user.id);
-    StorageService.saveCurrentUserId(user.id);
     // If user does not have permission for current activeTab, auto-switch to first allowed tab
     if (user.role !== 'admin') {
       const permKey = (activeTab === 'fuel' ? 'fuel_manager' : activeTab) as any;
@@ -1820,7 +1664,6 @@ export default function App() {
         const merged = exists
           ? withoutTemp.map((s) => (s.id === saved.id ? saved : s))
           : [...withoutTemp, saved];
-        StorageService.saveStaffUsers(merged);
         return merged;
       });
     } catch (err: unknown) {
@@ -1835,12 +1678,10 @@ export default function App() {
     const snapshotPetty = pettyCashTransactions;
     const optimistic = [txn, ...pettyCashTransactions.filter((t) => t.id !== txn.id)];
     setPettyCashTransactions(optimistic);
-    StorageService.savePettyCashTransactions(optimistic);
     try {
       const { transaction: saved, sideEffects } = await createPettyCashApi(txn);
       setPettyCashTransactions((prev) => {
         const next = [saved, ...prev.filter((t) => t.id !== saved.id && t.id !== txn.id)];
-        StorageService.savePettyCashTransactions(next);
         return next;
       });
       if (sideEffects.payment) {
@@ -1849,7 +1690,6 @@ export default function App() {
             sideEffects.payment!,
             ...prev.filter((p) => p.id !== sideEffects.payment!.id),
           ];
-          StorageService.saveDailyPayments(next);
           return next;
         });
       }
@@ -1859,7 +1699,6 @@ export default function App() {
             sideEffects.fuelRecord!,
             ...prev.filter((r) => r.id !== sideEffects.fuelRecord!.id),
           ];
-          StorageService.saveFuelRecords(next);
           return next;
         });
       }
@@ -1869,14 +1708,12 @@ export default function App() {
             sideEffects.maintenance!,
             ...prev.filter((r) => r.id !== sideEffects.maintenance!.id),
           ];
-          StorageService.saveMaintenanceRecords(next);
           return next;
         });
       }
       setMastersApiError('');
     } catch (err: unknown) {
       setPettyCashTransactions(snapshotPetty);
-      StorageService.savePettyCashTransactions(snapshotPetty);
       const msg = err instanceof Error ? err.message : 'Could not save petty cash transaction.';
       setMastersApiError(msg);
       alert(msg);
@@ -1887,18 +1724,15 @@ export default function App() {
     const snapshot = pettyCashTransactions;
     const optimistic = pettyCashTransactions.map((t) => (t.id === txn.id ? txn : t));
     setPettyCashTransactions(optimistic);
-    StorageService.savePettyCashTransactions(optimistic);
     try {
       const saved = await updatePettyCashApi(txn.id, txn);
       setPettyCashTransactions((prev) => {
         const next = prev.map((t) => (t.id === saved.id ? saved : t));
-        StorageService.savePettyCashTransactions(next);
         return next;
       });
       setMastersApiError('');
     } catch (err: unknown) {
       setPettyCashTransactions(snapshot);
-      StorageService.savePettyCashTransactions(snapshot);
       const msg = err instanceof Error ? err.message : 'Could not update petty cash transaction.';
       setMastersApiError(msg);
       alert(msg);
@@ -1911,7 +1745,6 @@ export default function App() {
       ? companyDocuments.map((d) => (d.id === doc.id ? doc : d))
       : [doc, ...companyDocuments];
     setCompanyDocuments(updated);
-    StorageService.saveCompanyDocuments(updated);
 
     (async () => {
       try {
@@ -1922,7 +1755,6 @@ export default function App() {
           const next = prev.some((d) => d.id === saved.id)
             ? prev.map((d) => (d.id === saved.id ? saved : d))
             : [saved, ...prev];
-          StorageService.saveCompanyDocuments(next);
           return next;
         });
         setMastersApiError('');
@@ -1937,7 +1769,6 @@ export default function App() {
   const handleDeleteCompanyDocument = (id: string) => {
     const updated = companyDocuments.filter((d) => d.id !== id);
     setCompanyDocuments(updated);
-    StorageService.saveCompanyDocuments(updated);
 
     (async () => {
       try {
