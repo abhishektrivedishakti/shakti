@@ -159,6 +159,8 @@ export const ExportStandaloneModal: React.FC<ExportStandaloneModalProps> = ({
         }
       } catch (err) {
         setImportStatus('फ़ाइल पढ़ने में त्रुटि। कृपया सही JSON फ़ाइल चुनें।');
+      } finally {
+        e.target.value = '';
       }
     };
     reader.readAsText(file);

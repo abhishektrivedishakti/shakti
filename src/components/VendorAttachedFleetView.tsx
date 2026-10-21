@@ -59,6 +59,7 @@ interface VendorAttachedFleetViewProps {
   onSaveDriver?: (driver: Driver) => void;
   onBulkImportVehicles?: (vehicles: Vehicle[], vendors?: Vendor[]) => void;
   onBulkImportDrivers?: (drivers: Driver[]) => void;
+  onBulkImportVendors?: (vendors: Vendor[]) => void;
   onSaveSettlement: (settlement: VendorSettlement) => void;
   onPaySettlement: (settlementId: string, paymentRef: string) => void;
   onOpenProfileModal?: (type?: any, id?: string) => void;
@@ -77,6 +78,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
   onSaveDriver,
   onBulkImportVehicles = () => {},
   onBulkImportDrivers = () => {},
+  onBulkImportVendors = () => {},
   onSaveSettlement,
   onPaySettlement,
   onOpenProfileModal,
@@ -2222,6 +2224,7 @@ export const VendorAttachedFleetView: React.FC<VendorAttachedFleetViewProps> = (
         vendors={vendors}
         onImportVehicles={onBulkImportVehicles}
         onImportDrivers={onBulkImportDrivers}
+        onImportVendors={onBulkImportVendors}
       />
     </div>
   );

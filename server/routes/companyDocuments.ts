@@ -48,9 +48,9 @@ companyDocumentsRouter.get('/', requireAuth, async (req: Request, res: Response)
         ...(q
           ? {
               OR: [
-                { title: { contains: q } },
-                { docNumber: { contains: q } },
-                { issuingAuthority: { contains: q } },
+                { title: { contains: q, mode: 'insensitive' } },
+                { docNumber: { contains: q, mode: 'insensitive' } },
+                { issuingAuthority: { contains: q, mode: 'insensitive' } },
               ],
             }
           : {}),

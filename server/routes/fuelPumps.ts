@@ -25,9 +25,9 @@ fuelPumpsRouter.get('/', requireAuth, async (req: Request, res: Response) => {
         ...(q
           ? {
               OR: [
-                { name: { contains: q } },
-                { location: { contains: q } },
-                { phone: { contains: q } },
+                { name: { contains: q, mode: 'insensitive' } },
+                { location: { contains: q, mode: 'insensitive' } },
+                { phone: { contains: q, mode: 'insensitive' } },
               ],
             }
           : {}),

@@ -28,7 +28,15 @@ import {
   Phone,
   ShieldCheck,
 } from 'lucide-react';
-import { Vehicle, Driver, Tender, Vendor, Officer } from '../types';
+import {
+  Vehicle,
+  Driver,
+  Tender,
+  Vendor,
+  Officer,
+  BookingRecord,
+  DutyTypeCategory,
+} from '../types';
 import {
   downloadVehicleExcelTemplate,
   downloadVehicleCsvTemplate,
@@ -188,11 +196,12 @@ interface BulkImportModalProps {
   existingOfficers?: Officer[];
   tenders: Tender[];
   vendors: Vendor[];
-  onImportVehicles: (newVehicles: Vehicle[], newVendors?: Vendor[]) => void;
-  onImportDrivers: (newDrivers: Driver[]) => void;
-  onImportOfficers?: (newOfficers: Officer[]) => void;
-  onImportTenders?: (newTenders: Tender[]) => void;
-  onImportDuties?: (newDuties: any[]) => void;
+  onImportVehicles: (newVehicles: Vehicle[], newVendors?: Vendor[]) => void | Promise<void>;
+  onImportDrivers: (newDrivers: Driver[]) => void | Promise<void>;
+  onImportOfficers?: (newOfficers: Officer[]) => void | Promise<void>;
+  onImportTenders?: (newTenders: Tender[]) => void | Promise<void>;
+  onImportVendors?: (newVendors: Vendor[]) => void | Promise<void>;
+  onImportDuties?: (newDuties: BookingRecord[]) => void | Promise<void>;
 }
 
 export const BulkImportModal: React.FC<BulkImportModalProps> = ({
@@ -208,6 +217,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
   onImportDrivers,
   onImportOfficers = () => {},
   onImportTenders = () => {},
+  onImportVendors = () => {},
   onImportDuties = () => {},
 }) => {
   const [activeType, setActiveType] = useState<BulkImportType>(initialType);
@@ -309,49 +319,235 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
       .trim();
   };
 
+  type DetectedImportEntity =
+    | 'vehicles'
+    | 'drivers'
+    | 'officers'
+    | 'tenders'
+    | 'duties'
+    | 'vendors';
+
+  const detectEntityFromName = (name: string): DetectedImportEntity | null => {
+    const n = name.toLowerCase();
+    if (n.includes('officer') || n.includes('अधिकारी')) return 'officers';
+    if (n.includes('tender') || n.includes('टेंडर')) return 'tenders';
+    if (n.includes('vendor') || n.includes('वेंडर')) return 'vendors';
+    if (n.includes('duty') || n.includes('booking') || n.includes('ड्यूटी') || n.includes('gr no')) {
+      return 'duties';
+    }
+    // Prefer vehicles over drivers when both words appear (e.g. vehicles-with-drivers.csv)
+    if (n.includes('vehicle') || n.includes('गाड़ी') || n.includes('fleet') || n.includes('gadi')) {
+      return 'vehicles';
+    }
+    if (n.includes('driver') || n.includes('चालक')) return 'drivers';
+    return null;
+  };
+
+  const detectEntityFromHeaders = (jsonData: any[]): DetectedImportEntity | null => {
+    if (!jsonData.length) return null;
+    const headers = Object.keys(jsonData[0] || {}).map((k) => normalizeKey(k));
+    const headerText = headers.join(' | ');
+    if (!headerText) return null;
+
+    const scores: Record<DetectedImportEntity, number> = {
+      vehicles: 0,
+      drivers: 0,
+      officers: 0,
+      tenders: 0,
+      duties: 0,
+      vendors: 0,
+    };
+
+    if (/(duty date|duty slip|garage out|garage in|pickup location|drop location)/.test(headerText)) {
+      scores.duties += 5;
+    }
+    if (/(client|package|base rate)/.test(headerText) && scores.duties > 0) scores.duties += 1;
+
+    if (/(vendor type|tds applicable|tds rate|monthly agreed rate)/.test(headerText)) {
+      scores.vendors += 5;
+    }
+    if (
+      /(vendor name|वेंडर)/.test(headerText) &&
+      !/(make|model|ownership|स्वामित्व)/.test(headerText)
+    ) {
+      scores.vendors += 3;
+    }
+
+    // True vehicle master columns (not "Assigned Vehicle Number" on officer/driver sheets)
+    const hasPrimaryVehicleNo = headers.some(
+      (h) =>
+        /^(vehicle number|vehicle no|reg no|registration|गाड़ी नंबर|gadi number)\b/.test(h) ||
+        h === 'vehicle number' ||
+        h.startsWith('vehicle number ')
+    );
+    const hasVehicleMasterFields = /(make|model|मेक|मॉडल|ownership|स्वामित्व|fuel type|ईंधन)/.test(
+      headerText
+    );
+    if (hasPrimaryVehicleNo) scores.vehicles += 4;
+    if (hasVehicleMasterFields) scores.vehicles += 3;
+
+    if (/(driver name|चालक का नाम|चालक नाम)/.test(headerText)) scores.drivers += 2;
+    if (/(license|dl number|डीएल|driving license)/.test(headerText)) scores.drivers += 3;
+    if (/(employment type|driver type|श्रेणी)/.test(headerText)) scores.drivers += 1;
+
+    if (/(officer name|name of the officer|name of officer|अधिकारी का नाम)/.test(headerText)) {
+      scores.officers += 5;
+    }
+    if (/(designation|पदनाम|rank)/.test(headerText)) scores.officers += 3;
+    if (/(department|विभाग)/.test(headerText) && !hasVehicleMasterFields) {
+      scores.officers += 2;
+    }
+    // Officers often have an assigned-vehicle column — that alone must NOT win vehicles.
+    if (/(assigned vehicle|तैनात गाड़ी)/.test(headerText) && scores.officers > 0) {
+      scores.officers += 1;
+    }
+
+    if (/(tender number|टेंडर नंबर|tender no)/.test(headerText)) scores.tenders += 4;
+    if (/(sanctioned|budget|vehicles required|बजट)/.test(headerText)) scores.tenders += 2;
+
+    // Strong entity locks (order matters)
+    if (scores.duties >= 5) return 'duties';
+    if (scores.vendors >= 5) return 'vendors';
+    if (scores.officers >= 5) return 'officers';
+    // Vehicles only when it looks like a vehicle master sheet, not officer/driver with assigned vehicle
+    if (scores.vehicles >= 6 && scores.officers < 5 && scores.drivers < 5) return 'vehicles';
+
+    const ranked = (Object.entries(scores) as [DetectedImportEntity, number][]).sort(
+      (a, b) => b[1] - a[1]
+    );
+    if (ranked[0][1] <= 0) return null;
+    return ranked[0][0];
+  };
+
+  /** Prefer longer / exact header matches; never prefer an empty cell over a filled one. */
+  const makeFindVal = (row: Record<string, unknown>) => {
+    const rowEntries = Object.entries(row);
+    return (keywords: string[]) => {
+      let bestScore = -1;
+      let bestVal = '';
+      for (const [k, v] of rowEntries) {
+        const normK = normalizeKey(k);
+        const val = String(v !== undefined && v !== null ? v : '').trim();
+        // Skip empty cells so e.g. blank "Concerned Officer" cannot beat a filled name column
+        if (!val) continue;
+        for (const kw of keywords) {
+          const nkw = normalizeKey(kw);
+          if (!nkw) continue;
+          if (normK === nkw || normK.includes(nkw)) {
+            const score =
+              nkw.length +
+              (normK === nkw ? 1000 : 0) +
+              (normK.startsWith(nkw) ? 50 : 0);
+            if (score > bestScore) {
+              bestScore = score;
+              bestVal = val;
+            }
+          }
+        }
+      }
+      return bestVal;
+    };
+  };
+
+  const isBlankImportRow = (row: Record<string, unknown>) =>
+    Object.values(row).every((v) => String(v ?? '').trim() === '');
+
+  const resolveTenderId = (tenderName: string | undefined, pool: Tender[]): string => {
+    if (tenderName?.trim()) {
+      const needle = tenderName.trim().toLowerCase();
+      const exact = pool.find(
+        (t) =>
+          t.tenderNumber.toLowerCase() === needle ||
+          t.departmentName.toLowerCase() === needle
+      );
+      if (exact) return exact.id;
+      const fuzzy = pool.find(
+        (t) =>
+          t.departmentName.toLowerCase().includes(needle) ||
+          t.tenderNumber.toLowerCase().includes(needle) ||
+          needle.includes(t.tenderNumber.toLowerCase()) ||
+          needle.includes(t.departmentName.toLowerCase())
+      );
+      if (fuzzy) return fuzzy.id;
+    }
+    return pool[0]?.id || '';
+  };
+
+  const resolveSheetEntity = (
+    sheetName: string,
+    fileName: string,
+    jsonData: any[],
+    fallback: DetectedImportEntity | null = null
+  ): DetectedImportEntity | null => {
+    return (
+      detectEntityFromName(sheetName) ||
+      detectEntityFromHeaders(jsonData) ||
+      detectEntityFromName(fileName) ||
+      fallback
+    );
+  };
+
+  const renderImportRowStatus = (isValid: boolean, isDuplicate: boolean, errors: string[]) => {
+    if (!isValid) {
+      return (
+        <span
+          className="text-[10px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded inline-block max-w-[160px]"
+          title={errors.join(' | ')}
+        >
+          अमान्य: {errors[0] || 'Invalid'}
+        </span>
+      );
+    }
+    if (isDuplicate) {
+      return (
+        <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">
+          मौजूद (Duplicate)
+        </span>
+      );
+    }
+    return (
+      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+        वैध (Ready)
+      </span>
+    );
+  };
+
   // -------------------------------------------------------------
   // PARSER: Vehicles Rows (with Driver Name & Mobile auto-extraction)
   // -------------------------------------------------------------
   const parseVehicleRows = (jsonData: any[]): ParsedVehicleRow[] => {
     const existingNumSet = new Set(existingVehicles.map((v) => v.vehicleNumber.trim().toUpperCase()));
+    const seenInFile = new Set<string>();
 
-    return jsonData.map((row, index) => {
+    return jsonData
+      .filter((row) => !isBlankImportRow(row as Record<string, unknown>))
+      .map((row, index) => {
       const rowNum = index + 2;
       const errors: string[] = [];
-
-      const rowEntries = Object.entries(row);
-      const findVal = (keywords: string[]) => {
-        for (const [k, v] of rowEntries) {
-          const normK = normalizeKey(k);
-          if (keywords.some((kw) => normK.includes(kw))) {
-            return String(v !== undefined && v !== null ? v : '').trim();
-          }
-        }
-        return '';
-      };
+      const findVal = makeFindVal(row as Record<string, unknown>);
 
       const vehNumRaw = findVal(['vehicle number', 'गाड़ी नंबर', 'vehicle no', 'reg no', 'registration', 'gadi number']);
-      const makeModelRaw = findVal(['make', 'model', 'मेक', 'मॉडल', 'car model', 'vehicle name']);
-      const typeRaw = findVal(['vehicle type', 'प्रकार', 'type', 'category']);
-      const fuelRaw = findVal(['fuel', 'ईंधन', 'fuel type']);
-      const ownerTypeRaw = findVal(['ownership', 'स्वामित्व', 'owner type', 'ownership type']);
+      const makeModelRaw = findVal(['make & model', 'make model', 'मेक', 'मॉडल', 'car model', 'vehicle name', 'make', 'model']);
+      const typeRaw = findVal(['vehicle type', 'प्रकार', 'category']);
+      const fuelRaw = findVal(['fuel type', 'ईंधन', 'fuel']);
+      const ownerTypeRaw = findVal(['ownership type', 'ownership', 'स्वामित्व', 'owner type']);
 
       // Driver columns extraction
-      const driverNameRaw = findVal(['driver name', 'चालक का नाम', 'चालक नाम', 'assigned driver', 'तैनात चालक', 'driver', 'चालक']);
-      const driverPhoneRaw = findVal(['driver mobile', 'चालक का मोबाइल', 'driver phone', 'मोबाइल', 'phone', 'mobile']);
-      const driverDlRaw = findVal(['driver dl', 'चालक डीएल', 'license', 'डीएल', 'dl number']);
-      const driverSalaryRaw = findVal(['driver salary', 'चालक वेतन', 'मासिक वेतन', 'salary']);
+      const driverNameRaw = findVal(['driver name', 'चालक का नाम', 'चालक नाम', 'assigned driver', 'तैनात चालक']);
+      const driverPhoneRaw = findVal(['driver mobile', 'चालक का मोबाइल', 'driver phone']);
+      const driverDlRaw = findVal(['driver dl', 'चालक डीएल', 'dl number', 'driving license']);
+      const driverSalaryRaw = findVal(['driver salary', 'चालक वेतन', 'driver monthly salary', 'मासिक वेतन']);
 
-      const officerNameRaw = findVal(['officer name', 'अधिकारी का नाम', 'officer', 'अधिकारी', 'assigned officer']);
-      const vendorNameRaw = findVal(['vendor', 'वेंडर', 'owner name', 'मालिक']);
-      const rentRaw = findVal(['rent', 'किराया', 'monthly rent', 'payout', 'rate']);
-      const odoRaw = findVal(['odometer', 'किमी', 'km', 'current km', 'reading']);
-      const tenderRaw = findVal(['tender', 'टेंडर', 'dept', 'department', 'work order']);
+      const officerNameRaw = findVal(['officer name', 'अधिकारी का नाम', 'assigned officer', 'officer']);
+      const vendorNameRaw = findVal(['vendor name', 'vendor / owner name', 'वेंडर', 'owner name']);
+      const rentRaw = findVal(['monthly rent', 'rent to vendor', 'किराया', 'monthly vendor rent', 'payout']);
+      const odoRaw = findVal(['current odometer', 'odometer', 'current km', 'किमी', 'reading']);
+      const tenderRaw = findVal(['tender name', 'tender number', 'टेंडर', 'work order', 'tender']);
 
       const fitRaw = findVal(['fitness', 'फिटनेस']);
       const insRaw = findVal(['insurance', 'बीमा', 'bima']);
       const pucRaw = findVal(['puc', 'प्रदूषण', 'pollution']);
-      const taxRaw = findVal(['tax', 'टैक्स', 'road tax']);
+      const taxRaw = findVal(['road tax', 'टैक्स', 'tax']);
       const permitRaw = findVal(['permit', 'परमिट']);
 
       const cleanVehNum = vehNumRaw.toUpperCase().replace(/\s+/g, ' ').trim();
@@ -359,9 +555,13 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
 
       if (!cleanVehNum) {
         errors.push('गाड़ी नंबर अनुपलब्ध (Missing Vehicle Number)');
+      } else if (seenInFile.has(cleanVehNum)) {
+        errors.push('फाइल में डुप्लीकेट गाड़ी नंबर (Duplicate in file)');
+      } else {
+        seenInFile.add(cleanVehNum);
       }
 
-      const isDuplicate = existingNumSet.has(cleanVehNum);
+      const isDuplicate = Boolean(cleanVehNum && existingNumSet.has(cleanVehNum));
 
       let fuelType: 'Diesel' | 'Petrol' | 'CNG' | 'Electric' = 'Diesel';
       const fNorm = fuelRaw.toLowerCase();
@@ -425,28 +625,21 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
   const parseDriverRows = (jsonData: any[]): ParsedDriverRow[] => {
     const existingPhoneSet = new Set(existingDrivers.map((d) => d.phone.trim().replace(/\D/g, '')));
     const existingLicSet = new Set(existingDrivers.map((d) => d.licenseNumber.trim().toUpperCase()));
+    const seenPhones = new Set<string>();
 
-    return jsonData.map((row, index) => {
+    return jsonData
+      .filter((row) => !isBlankImportRow(row as Record<string, unknown>))
+      .map((row, index) => {
       const rowNum = index + 2;
       const errors: string[] = [];
+      const findVal = makeFindVal(row as Record<string, unknown>);
 
-      const rowEntries = Object.entries(row);
-      const findVal = (keywords: string[]) => {
-        for (const [k, v] of rowEntries) {
-          const normK = normalizeKey(k);
-          if (keywords.some((kw) => normK.includes(kw))) {
-            return String(v !== undefined && v !== null ? v : '').trim();
-          }
-        }
-        return '';
-      };
-
-      const nameRaw = findVal(['driver name', 'name', 'चालक का नाम', 'नाम', 'driver']);
-      const phoneRaw = findVal(['mobile', 'phone', 'मोबाइल', 'contact', 'फोन']);
-      const altPhoneRaw = findVal(['alternate', 'दूसरा मोबाइल', 'alt phone']);
-      const dlRaw = findVal(['license', 'dl', 'डीएल', 'driving license']);
+      const nameRaw = findVal(['driver name', 'चालक का नाम', 'चालक नाम', 'नाम']);
+      const phoneRaw = findVal(['mobile number', 'mobile', 'phone', 'मोबाइल', 'contact', 'फोन']);
+      const altPhoneRaw = findVal(['alternate mobile', 'दूसरा मोबाइल', 'alt phone', 'alternate']);
+      const dlRaw = findVal(['driving license', 'license no', 'dl number', 'डीएल', 'license', 'dl']);
       const dlExpRaw = findVal(['license expiry', 'dl expiry', 'वैधता']);
-      const catRaw = findVal(['category', 'श्रेणी', 'type', 'driver type', 'employment']);
+      const catRaw = findVal(['driver category', 'employment type', 'driver type', 'श्रेणी', 'category']);
       const salaryRaw = findVal(['salary', 'वेतन', 'monthly salary']);
       const daRaw = findVal(['da', 'भत्ता', 'bhatta', 'daily da']);
       const panRaw = findVal(['pan', 'पैन']);
@@ -466,6 +659,10 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
       }
       if (!cleanPhone || cleanPhone.length < 10) {
         errors.push('10-अंकीय मोबाइल नंबर आवश्यक है (Invalid Phone)');
+      } else if (seenPhones.has(cleanPhone)) {
+        errors.push('फाइल में डुप्लीकेट मोबाइल (Duplicate in file)');
+      } else {
+        seenPhones.add(cleanPhone);
       }
 
       const isDuplicate = existingPhoneSet.has(cleanPhone) || Boolean(cleanDl && existingLicSet.has(cleanDl));
@@ -512,35 +709,71 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
   // -------------------------------------------------------------
   const parseOfficerRows = (jsonData: any[]): ParsedOfficerRow[] => {
     const existingMobSet = new Set(existingOfficers.map((o) => o.mobile.trim().replace(/\D/g, '')));
+    const seenMobs = new Set<string>();
 
-    return jsonData.map((row, index) => {
+    return jsonData
+      .filter((row) => !isBlankImportRow(row as Record<string, unknown>))
+      .map((row, index) => {
       const rowNum = index + 2;
       const errors: string[] = [];
+      const findVal = makeFindVal(row as Record<string, unknown>);
 
-      const rowEntries = Object.entries(row);
-      const findVal = (keywords: string[]) => {
-        for (const [k, v] of rowEntries) {
-          const normK = normalizeKey(k);
-          if (keywords.some((kw) => normK.includes(kw))) {
-            return String(v !== undefined && v !== null ? v : '').trim();
-          }
-        }
-        return '';
+      const nameRaw = findVal([
+        'name of the officer',
+        'name of officer',
+        'officer name',
+        'officer\'s name',
+        'full name',
+        'employee name',
+        'अधिकारी का नाम',
+        'अधिकारी नाम',
+        'नाम',
+        'name',
+      ]);
+      const desigRaw = findVal(['designation', 'पदनाम', 'post', 'rank', 'पद']);
+      const deptRaw = findVal(['department', 'विभाग', 'dept', 'ministry']);
+      const mobRaw = findVal(['mobile number', 'mobile', 'phone', 'मोबाइल', 'contact', 'फ़ोन']);
+      const altMobRaw = findVal(['alternate mobile', 'दूसरा मोबाइल', 'alt phone', 'alternate']);
+      const addrRaw = findVal(['office address', 'कार्यालय', 'address', 'पता', 'room', 'chamber']);
+      const tenderRaw = findVal(['tender name', 'tender number', 'टेंडर', 'अनुबंध', 'work order', 'tender']);
+      const assignedVehRaw = findVal(['assigned vehicle', 'vehicle number', 'गाड़ी', 'vehicle', 'car']);
+      const repTimeRaw = findVal(['reporting time', 'reporting', 'duty time', 'समय']);
+      const emailRaw = findVal(['email', 'ईमेल', 'mail']);
+      const specRaw = findVal(['special instructions', 'instructions', 'निर्देश', 'route', 'special']);
+
+      const looksLikePersonName = (v: string) => {
+        const t = v.trim();
+        if (t.length < 3) return false;
+        const digits = t.replace(/\D/g, '');
+        if (digits.length >= 10 && digits.length === t.replace(/\s/g, '').length) return false;
+        if (/^[A-Z]{2}\s?\d{1,2}\s?[A-Z]{0,3}\s?\d{1,4}$/i.test(t)) return false;
+        if (t.includes('@')) return false;
+        if (/^(cvo|ias|ips|pcs|sdm|adm|ceo|md|gm|jee|ae|ee|se|ce)$/i.test(t)) return false;
+        if (desigRaw && t.toLowerCase() === desigRaw.toLowerCase()) return false;
+        if (deptRaw && t.toLowerCase() === deptRaw.toLowerCase()) return false;
+        return /[a-zA-Z\u0900-\u097F]{2,}/.test(t);
       };
 
-      const nameRaw = findVal(['officer name', 'name', 'अधिकारी', 'अधिकारी का नाम', 'नाम']);
-      const desigRaw = findVal(['designation', 'पद', 'पदनाम', 'post', 'rank']);
-      const deptRaw = findVal(['department', 'विभाग', 'dept', 'ministry']);
-      const mobRaw = findVal(['mobile', 'phone', 'मोबाइल', 'contact', 'फ़ोन']);
-      const altMobRaw = findVal(['alternate', 'दूसरा मोबाइल', 'alt phone']);
-      const addrRaw = findVal(['office address', 'पता', 'कार्यालय', 'address', 'room', 'chamber']);
-      const tenderRaw = findVal(['tender', 'टेंडर', 'अनुबंध', 'work order']);
-      const assignedVehRaw = findVal(['vehicle', 'गाड़ी', 'assigned vehicle', 'car']);
-      const repTimeRaw = findVal(['reporting time', 'समय', 'reporting', 'duty time']);
-      const emailRaw = findVal(['email', 'ईमेल', 'mail']);
-      const specRaw = findVal(['special', 'instructions', 'निर्देश', 'route']);
-
-      const cleanName = nameRaw.trim();
+      // Fallback: person-like cell when headers are non-standard (metro CSVs etc.)
+      let cleanName = nameRaw.trim();
+      // Reject if we accidentally picked designation/department via broad "name" match
+      if (
+        cleanName &&
+        ((desigRaw && cleanName.toLowerCase() === desigRaw.toLowerCase()) ||
+          (deptRaw && cleanName.toLowerCase() === deptRaw.toLowerCase()) ||
+          /^(cvo|ias|ips|pcs)$/i.test(cleanName))
+      ) {
+        cleanName = '';
+      }
+      if (!cleanName) {
+        const values = Object.values(row as Record<string, unknown>).map((v) =>
+          String(v !== undefined && v !== null ? v : '').trim()
+        );
+        cleanName =
+          values.find((v) => looksLikePersonName(v) && v.includes(' ')) ||
+          values.find((v) => looksLikePersonName(v)) ||
+          '';
+      }
       const cleanMob = mobRaw.replace(/\D/g, '');
 
       if (!cleanName) {
@@ -548,6 +781,10 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
       }
       if (!cleanMob || cleanMob.length < 10) {
         errors.push('10-अंकीय मोबाइल नंबर आवश्यक है (Invalid Mobile)');
+      } else if (seenMobs.has(cleanMob)) {
+        errors.push('फाइल में डुप्लीकेट मोबाइल (Duplicate in file)');
+      } else {
+        seenMobs.add(cleanMob);
       }
 
       const isDuplicate = existingMobSet.has(cleanMob);
@@ -577,34 +814,33 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
   // PARSER: Tenders Rows
   // -------------------------------------------------------------
   const parseTenderRows = (jsonData: any[]): ParsedTenderRow[] => {
-    return jsonData.map((row, index) => {
+    const seenTenderNums = new Set<string>();
+
+    return jsonData
+      .filter((row) => !isBlankImportRow(row as Record<string, unknown>))
+      .map((row, index) => {
       const rowNum = index + 2;
       const errors: string[] = [];
-
-      const rowEntries = Object.entries(row);
-      const findVal = (keywords: string[]) => {
-        for (const [k, v] of rowEntries) {
-          const normK = normalizeKey(k);
-          if (keywords.some((kw) => normK.includes(kw))) {
-            return String(v !== undefined && v !== null ? v : '').trim();
-          }
-        }
-        return '';
-      };
+      const findVal = makeFindVal(row as Record<string, unknown>);
 
       const tenderNumRaw = findVal(['tender number', 'टेंडर नंबर', 'tender no', 'work order']);
       const deptRaw = findVal(['department name', 'विभाग', 'department', 'client']);
-      const authRaw = findVal(['authority office', 'कार्यालय', 'authority', 'office']);
+      const authRaw = findVal(['authority office', 'authority', 'कार्यालय', 'office']);
       const startRaw = findVal(['start date', 'शुरुआत', 'from date']);
       const endRaw = findVal(['end date', 'समाप्ति', 'to date']);
-      const amtRaw = findVal(['budget', 'amount', 'sanctioned', 'बजट']);
-      const scopeRaw = findVal(['scope', 'service scope', 'स्कोप']);
+      const amtRaw = findVal(['sanctioned amount', 'budget', 'amount', 'sanctioned', 'बजट']);
+      const scopeRaw = findVal(['service scope', 'scope', 'स्कोप']);
       const countRaw = findVal(['vehicles required', 'count', 'गाड़ियां', 'qty']);
 
       const cleanTenderNum = tenderNumRaw.trim();
       const cleanDept = deptRaw.trim();
 
       if (!cleanTenderNum) errors.push('टेंडर नंबर अनिवार्य है');
+      else if (seenTenderNums.has(cleanTenderNum.toLowerCase())) {
+        errors.push('फाइल में डुप्लीकेट टेंडर नंबर');
+      } else {
+        seenTenderNums.add(cleanTenderNum.toLowerCase());
+      }
       if (!cleanDept) errors.push('विभाग का नाम अनिवार्य है');
 
       const isDuplicate = tenders.some((t) => t.tenderNumber.toLowerCase() === cleanTenderNum.toLowerCase());
@@ -632,6 +868,134 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
   };
 
   // -------------------------------------------------------------
+  // PARSER: Duty / Booking Rows
+  // -------------------------------------------------------------
+  const parseDutyRows = (jsonData: any[]): ParsedDutyBookingRow[] => {
+    const existingSlipSet = new Set<string>();
+
+    return jsonData
+      .filter((row) => !isBlankImportRow(row as Record<string, unknown>))
+      .map((row, index) => {
+      const rowNum = index + 2;
+      const errors: string[] = [];
+      const findVal = makeFindVal(row as Record<string, unknown>);
+
+      const dateRaw = findVal(['duty date', 'date', 'तारीख']);
+      const slipRaw = findVal(['duty slip', 'gr no', 'slip', 'पर्ची', 'booking number']);
+      const clientRaw = findVal(['client', 'department', 'विभाग', 'ग्राहक']);
+      const vehRaw = findVal(['vehicle number', 'गाड़ी नंबर', 'vehicle no', 'reg no']);
+      const driverNameRaw = findVal(['driver name', 'चालक का नाम', 'चालक']);
+      const driverPhoneRaw = findVal(['driver phone', 'driver mobile', 'चालक मोबाइल']);
+      const pickupRaw = findVal(['pickup location', 'pickup', 'पिकअप']);
+      const dropRaw = findVal(['drop location', 'drop', 'ड्रॉप']);
+      const packageRaw = findVal(['duty package', 'package', 'पैकेज']);
+      const rateRaw = findVal(['base rate', 'rate', 'दर']);
+      const outKmRaw = findVal(['garage out', 'out km', 'start km']);
+      const inKmRaw = findVal(['garage in', 'in km', 'end km']);
+
+      const cleanSlip = slipRaw.trim();
+      const cleanVeh = vehRaw.toUpperCase().replace(/\s+/g, ' ').trim();
+      const cleanDate = dateRaw.trim() || new Date().toISOString().slice(0, 10);
+
+      if (!cleanDate) errors.push('ड्यूटी तारीख आवश्यक है (Missing Duty Date)');
+      if (!cleanSlip) errors.push('ड्यूटी स्लिप / GR नंबर आवश्यक है');
+      if (!clientRaw) errors.push('क्लाइंट / विभाग नाम आवश्यक है');
+      if (!cleanVeh) errors.push('गाड़ी नंबर आवश्यक है');
+      if (!driverNameRaw) errors.push('चालक का नाम आवश्यक है');
+
+      const slipKey = cleanSlip.toUpperCase();
+      const isDuplicate = Boolean(slipKey && existingSlipSet.has(slipKey));
+      if (slipKey) existingSlipSet.add(slipKey);
+
+      return {
+        rowNumber: rowNum,
+        dutyDate: cleanDate,
+        dutySlipNumber: cleanSlip,
+        clientName: clientRaw || 'Client',
+        vehicleNumber: cleanVeh,
+        driverName: driverNameRaw || '',
+        driverPhone: driverPhoneRaw.replace(/\D/g, '') || undefined,
+        pickupLocation: pickupRaw || 'Lucknow',
+        dropLocation: dropRaw || 'Lucknow',
+        packageType: packageRaw || 'local_8hr_80km',
+        baseRate: Number(rateRaw.replace(/[^0-9.]/g, '')) || 2400,
+        garageOutKm: Number(outKmRaw.replace(/[^0-9.]/g, '')) || undefined,
+        garageInKm: Number(inKmRaw.replace(/[^0-9.]/g, '')) || undefined,
+        isValid: errors.length === 0,
+        isDuplicate,
+        errors,
+      };
+    });
+  };
+
+  // -------------------------------------------------------------
+  // PARSER: Vendor Rows
+  // -------------------------------------------------------------
+  const parseVendorRows = (jsonData: any[]): ParsedVendorRow[] => {
+    const existingPhoneSet = new Set(vendors.map((v) => v.phone.trim().replace(/\D/g, '')));
+    const existingNameSet = new Set(vendors.map((v) => v.name.trim().toLowerCase()));
+    const seenPhones = new Set<string>();
+
+    return jsonData
+      .filter((row) => !isBlankImportRow(row as Record<string, unknown>))
+      .map((row, index) => {
+      const rowNum = index + 2;
+      const errors: string[] = [];
+      const findVal = makeFindVal(row as Record<string, unknown>);
+
+      const nameRaw = findVal(['vendor name', 'owner name', 'वेंडर', 'vendor', 'name']);
+      const phoneRaw = findVal(['mobile number', 'mobile', 'phone', 'मोबाइल']);
+      const contactRaw = findVal(['contact person', 'contact', 'संपर्क']);
+      const typeRaw = findVal(['vendor type', 'type', 'प्रकार']);
+      const rateRaw = findVal(['monthly agreed rate', 'monthly rate', 'किराया']);
+      const tdsApplRaw = findVal(['tds applicable']);
+      const tdsRateRaw = findVal(['tds rate', 'rate %']);
+      const panRaw = findVal(['pan number', 'pan', 'पैन']);
+      const bankRaw = findVal(['bank account', 'bank details', 'ifsc', 'बैंक']);
+      const addrRaw = findVal(['address', 'city', 'पता', 'शहर']);
+
+      const cleanName = nameRaw.trim();
+      const cleanPhone = phoneRaw.replace(/\D/g, '');
+
+      if (!cleanName) errors.push('वेंडर नाम आवश्यक है (Missing Vendor Name)');
+      if (!cleanPhone || cleanPhone.length < 10) {
+        errors.push('10-अंकीय मोबाइल नंबर आवश्यक है (Invalid Phone)');
+      } else if (seenPhones.has(cleanPhone)) {
+        errors.push('फाइल में डुप्लीकेट मोबाइल (Duplicate in file)');
+      } else {
+        seenPhones.add(cleanPhone);
+      }
+
+      let vendorType: 'fleet_vendor' | 'owner_driver' = 'fleet_vendor';
+      const tNorm = typeRaw.toLowerCase();
+      if (tNorm.includes('owner')) vendorType = 'owner_driver';
+
+      const tdsNorm = tdsApplRaw.toLowerCase();
+      const isTds = !(tdsNorm.includes('no') || tdsNorm === 'n' || tdsNorm === '0' || tdsNorm === 'false');
+
+      const isDuplicate =
+        existingPhoneSet.has(cleanPhone) || existingNameSet.has(cleanName.toLowerCase());
+
+      return {
+        rowNumber: rowNum,
+        name: cleanName,
+        phone: cleanPhone || '9839000000',
+        contactPerson: contactRaw || cleanName,
+        vendorType,
+        monthlyRate: Number(rateRaw.replace(/[^0-9.]/g, '')) || 32000,
+        isTds,
+        tdsRate: Number(tdsRateRaw.replace(/[^0-9.]/g, '')) || (vendorType === 'owner_driver' ? 1 : 2),
+        panNumber: panRaw || 'PAN-ON-FILE',
+        bankDetails: bankRaw || 'A/C on record',
+        address: addrRaw || 'Uttar Pradesh',
+        isValid: errors.length === 0,
+        isDuplicate,
+        errors,
+      };
+    });
+  };
+
+  // -------------------------------------------------------------
   // FILE UPLOAD PROCESSOR
   // -------------------------------------------------------------
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -640,6 +1004,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
 
     setSelectedFileName(file.name);
     setIsProcessing(true);
+    setImportSuccessMessage(null);
 
     const reader = new FileReader();
     reader.onload = (evt) => {
@@ -647,70 +1012,98 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
         const data = evt.target?.result;
         const workbook = XLSX.read(data, { type: 'binary', cellDates: true });
 
-        const isCombined =
-          activeType === 'combined' ||
-          workbook.SheetNames.some((n) => n.toLowerCase().includes('officer')) ||
-          workbook.SheetNames.some((n) => n.toLowerCase().includes('vehicle')) ||
-          workbook.SheetNames.some((n) => n.toLowerCase().includes('driver'));
+        const typedSheetCount = workbook.SheetNames.filter((n) => detectEntityFromName(n)).length;
+        const isMultiEntityWorkbook = workbook.SheetNames.length > 1 && typedSheetCount >= 2;
+        const useCombinedRouting = activeType === 'combined' || isMultiEntityWorkbook;
 
         let vehiclesResult: ParsedVehicleRow[] = [];
         let driversResult: ParsedDriverRow[] = [];
         let officersResult: ParsedOfficerRow[] = [];
         let tendersResult: ParsedTenderRow[] = [];
+        let dutiesResult: ParsedDutyBookingRow[] = [];
+        let vendorsResult: ParsedVendorRow[] = [];
 
-        if (isCombined) {
+        const applyParsedEntity = (entity: DetectedImportEntity, json: any[]) => {
+          if (entity === 'vehicles') vehiclesResult = parseVehicleRows(json);
+          else if (entity === 'drivers') driversResult = parseDriverRows(json);
+          else if (entity === 'officers') officersResult = parseOfficerRows(json);
+          else if (entity === 'tenders') tendersResult = parseTenderRows(json);
+          else if (entity === 'duties') dutiesResult = parseDutyRows(json);
+          else if (entity === 'vendors') vendorsResult = parseVendorRows(json);
+        };
+
+        const hasAnyParsed = () =>
+          vehiclesResult.length > 0 ||
+          driversResult.length > 0 ||
+          officersResult.length > 0 ||
+          tendersResult.length > 0 ||
+          dutiesResult.length > 0 ||
+          vendorsResult.length > 0;
+
+        if (useCombinedRouting && workbook.SheetNames.length > 1) {
           workbook.SheetNames.forEach((sheetName) => {
-            const sLower = sheetName.toLowerCase();
             const ws = workbook.Sheets[sheetName];
             const json = XLSX.utils.sheet_to_json(ws);
-
-            if (sLower.includes('vehicle') || sLower.includes('गाड़ी')) {
-              vehiclesResult = parseVehicleRows(json);
-            } else if (sLower.includes('driver') || sLower.includes('चालक')) {
-              driversResult = parseDriverRows(json);
-            } else if (sLower.includes('officer') || sLower.includes('अधिकारी')) {
-              officersResult = parseOfficerRows(json);
-            } else if (sLower.includes('tender') || sLower.includes('टेंडर')) {
-              tendersResult = parseTenderRows(json);
-            }
+            // Multi-sheet: sheet name + headers only (not whole-file name).
+            const entity = detectEntityFromName(sheetName) || detectEntityFromHeaders(json);
+            if (entity) applyParsedEntity(entity, json);
           });
 
-          // Fallback if sheets didn't match standard names
-          if (vehiclesResult.length === 0 && driversResult.length === 0 && officersResult.length === 0) {
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const json = XLSX.utils.sheet_to_json(firstSheet);
-            vehiclesResult = parseVehicleRows(json);
+          if (!hasAnyParsed()) {
+            const firstSheetName = workbook.SheetNames[0];
+            const json = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName]);
+            const entity = resolveSheetEntity(firstSheetName, file.name, json, 'vehicles');
+            if (entity) applyParsedEntity(entity, json);
           }
         } else {
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const json = XLSX.utils.sheet_to_json(firstSheet);
+          // Single CSV/sheet (or non-combined tab): include filename so
+          // up-metro-officers-*.csv never becomes empty Vehicles.
+          const firstSheetName = workbook.SheetNames[0];
+          const json = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName]);
+          const tabFallback: DetectedImportEntity | null =
+            activeType === 'vehicles' ||
+            activeType === 'drivers' ||
+            activeType === 'officers' ||
+            activeType === 'tenders' ||
+            activeType === 'duties' ||
+            activeType === 'vendors'
+              ? activeType
+              : null;
 
-          if (activeType === 'vehicles') {
-            vehiclesResult = parseVehicleRows(json);
-          } else if (activeType === 'drivers') {
-            driversResult = parseDriverRows(json);
-          } else if (activeType === 'officers') {
-            officersResult = parseOfficerRows(json);
-          } else if (activeType === 'tenders') {
-            tendersResult = parseTenderRows(json);
-          }
+          const fileHint = detectEntityFromName(file.name);
+          const headerHint = detectEntityFromHeaders(json);
+          const sheetHint = detectEntityFromName(firstSheetName);
+          // Filename/sheet beat a wrong header guess (officers CSV with Assigned Vehicle col)
+          const entity = sheetHint || fileHint || headerHint || tabFallback;
+          if (entity) applyParsedEntity(entity, json);
         }
 
         setParsedVehicles(vehiclesResult);
         setParsedDrivers(driversResult);
         setParsedOfficers(officersResult);
         setParsedTenders(tendersResult);
+        setParsedDuties(dutiesResult);
+        setParsedVendors(vendorsResult);
 
-        // Auto select tab with data
-        if (vehiclesResult.length > 0) setPreviewSubTab('vehicles');
+        // Auto select tab with data (prefer non-vehicle when vehicles empty)
+        if (officersResult.length > 0 && vehiclesResult.length === 0) setPreviewSubTab('officers');
+        else if (driversResult.length > 0 && vehiclesResult.length === 0) setPreviewSubTab('drivers');
+        else if (tendersResult.length > 0 && vehiclesResult.length === 0) setPreviewSubTab('tenders');
+        else if (vendorsResult.length > 0 && vehiclesResult.length === 0) setPreviewSubTab('vendors');
+        else if (dutiesResult.length > 0 && vehiclesResult.length === 0) setPreviewSubTab('duties');
+        else if (vehiclesResult.length > 0) setPreviewSubTab('vehicles');
         else if (driversResult.length > 0) setPreviewSubTab('drivers');
         else if (officersResult.length > 0) setPreviewSubTab('officers');
         else if (tendersResult.length > 0) setPreviewSubTab('tenders');
+        else if (vendorsResult.length > 0) setPreviewSubTab('vendors');
+        else if (dutiesResult.length > 0) setPreviewSubTab('duties');
       } catch (err: any) {
         console.error('File parsing error:', err);
         alert('फाइल पढ़ने में त्रुटि हुई। कृपया सुनिश्चित करें कि यह एक वैध Excel (.xlsx) या CSV फाइल है।');
       } finally {
         setIsProcessing(false);
+        // Allow re-selecting the same file after a failed/invalid parse
+        e.target.value = '';
       }
     };
 
@@ -842,23 +1235,79 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
   // -------------------------------------------------------------
   // COMMIT / EXECUTE IMPORT (WITH AUTO-DRIVER CREATION & FULL LINKING)
   // -------------------------------------------------------------
-  const handleExecuteImport = () => {
+  const handleExecuteImport = async () => {
     const validVehicles = parsedVehicles.filter((v) => v.isValid && (!skipDuplicates || !v.isDuplicate));
     const validDrivers = parsedDrivers.filter((d) => d.isValid && (!skipDuplicates || !d.isDuplicate));
     const validOfficers = parsedOfficers.filter((o) => o.isValid && (!skipDuplicates || !o.isDuplicate));
     const validTenders = parsedTenders.filter((t) => t.isValid && (!skipDuplicates || !t.isDuplicate));
+    const validVendors = parsedVendors.filter((v) => v.isValid && (!skipDuplicates || !v.isDuplicate));
+    const validDuties = parsedDuties.filter((d) => d.isValid && (!skipDuplicates || !d.isDuplicate));
 
-    const totalToImport = validVehicles.length + validDrivers.length + validOfficers.length + validTenders.length;
+    const totalToImport =
+      validVehicles.length +
+      validDrivers.length +
+      validOfficers.length +
+      validTenders.length +
+      validVendors.length +
+      validDuties.length;
 
     if (totalToImport === 0) {
       alert('इम्पोर्ट करने हेतु कोई वैध पंक्ति नहीं मिली।');
       return;
     }
 
-    const defaultTender = tenders[0]?.id || '';
     const newVendorsToAdd: Vendor[] = [];
     const newDriversToCreate: Driver[] = [];
     const newOfficersToCreate: Officer[] = [];
+
+    // 0. Build tenders FIRST so vehicles/officers can link to same-file tenders
+    const newTendersToCreate: Tender[] = validTenders.map((row) => ({
+      id: `tender-${row.tenderNumber.toLowerCase().replace(/[^a-z0-9]/g, '-') || Date.now()}`,
+      tenderNumber: row.tenderNumber,
+      workOrderNumber: `WO-${row.tenderNumber}`,
+      departmentName: row.departmentName,
+      authorityOffice: row.authorityOffice,
+      contractPeriodStart: row.startDate,
+      contractPeriodEnd: row.endDate,
+      billingCycleDay: 1,
+      paymentTermsDays: 30,
+      baseMonthlyRate: Math.round(row.sanctionedAmount / Math.max(1, row.vehiclesRequired)) || 35000,
+      includedKms: 2500,
+      includedHours: 300,
+      extraKmRate: 12,
+      extraHourRate: 60,
+      nightHaltRate: 350,
+      tollTerms: 'reimbursable_actuals' as const,
+      penaltyClauses: '₹1000 per day absent without replacement',
+      officerDesignationsSummary: 'Executive Officers',
+      contactPerson: row.contactOfficerName || 'Nodal Officer',
+      contactPhone: row.contactOfficerPhone || '9415000000',
+      status: 'active' as const,
+      contractType: 'monthly_attached' as const,
+      packages: [
+        {
+          id: `pkg-${Date.now()}-1`,
+          packageName: 'Monthly Dedicated Commercial Vehicle',
+          serviceScope: 'vehicle_driver_fuel' as const,
+          vehicleCategory: 'Sedan',
+          quantity: row.vehiclesRequired || 1,
+          monthlyBaseRate: Math.round(row.sanctionedAmount / Math.max(1, row.vehiclesRequired)) || 35000,
+          includedKms: 2500,
+          includedHours: 300,
+          extraKmRate: 12,
+          extraHourRate: 60,
+          nightHaltRate: 350,
+        },
+      ],
+    }));
+    const tendersPool: Tender[] = [...newTendersToCreate, ...tenders];
+
+    if ((validVehicles.length > 0 || validOfficers.length > 0) && tendersPool.length === 0) {
+      alert(
+        'गाड़ी/अधिकारी इम्पोर्ट हेतु कम से कम एक टेंडर आवश्यक है। पहले टेंडर इम्पोर्ट करें या सिस्टम में टेंडर बनाएँ।'
+      );
+      return;
+    }
 
     // Pre-create cross-linking lookup maps
     const driverPhoneToIdMap = new Map<string, string>();
@@ -918,18 +1367,10 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
       vehicleNumToIdMap.set(v.vehicleNumber.toUpperCase().trim(), generatedVehicleIds[idx]);
     });
 
-    const newVehiclesList: Vehicle[] = validVehicles.map((row, idx) => {
+    const mappedVehicles = validVehicles.map((row, idx) => {
       const vId = generatedVehicleIds[idx];
-
-      let matchedTenderId = defaultTender;
-      if (row.tenderName) {
-        const tMatch = tenders.find(
-          (t) =>
-            t.departmentName.toLowerCase().includes(row.tenderName!.toLowerCase()) ||
-            t.tenderNumber.toLowerCase().includes(row.tenderName!.toLowerCase())
-        );
-        if (tMatch) matchedTenderId = tMatch.id;
-      }
+      const matchedTenderId = resolveTenderId(row.tenderName, tendersPool);
+      if (!matchedTenderId) return null;
 
       // Vendor handling
       let vVendorId: string | undefined = undefined;
@@ -1032,10 +1473,21 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
         pucExpiry: row.pucExpiry,
         roadTaxExpiry: row.roadTaxExpiry,
         permitExpiry: row.permitExpiry,
-        status: 'active',
-        fuelPolicy: 'monthly_fixed_budget',
+        status: 'active' as const,
+        fuelPolicy: 'monthly_fixed_budget' as const,
       };
     });
+    const newVehiclesList = mappedVehicles.filter((v) => v !== null) as Vehicle[];
+
+    if (validVehicles.length > 0 && newVehiclesList.length === 0) {
+      alert('कोई गाड़ी इम्पोर्ट नहीं हो सकी — टेंडर लिंक नहीं मिला। टेंडर नाम/नंबर जाँचें।');
+      return;
+    }
+    if (validVehicles.length > newVehiclesList.length) {
+      console.warn(
+        `Bulk import: skipped ${validVehicles.length - newVehiclesList.length} vehicle row(s) without tender link.`
+      );
+    }
 
     // Update reverse vehicle links on newly created drivers
     newDriversToCreate.forEach((d) => {
@@ -1045,19 +1497,11 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
       }
     });
 
-    // 3. Process Officers
+    // 3. Process Officers (after tenders + vehicles so links resolve)
     validOfficers.forEach((row) => {
       const oId = generateOfficerUniqueId(tempOfficers);
-
-      let oTenderId = defaultTender;
-      if (row.tenderName) {
-        const tMatch = tenders.find(
-          (t) =>
-            t.departmentName.toLowerCase().includes(row.tenderName.toLowerCase()) ||
-            t.tenderNumber.toLowerCase().includes(row.tenderName.toLowerCase())
-        );
-        if (tMatch) oTenderId = tMatch.id;
-      }
+      const oTenderId = resolveTenderId(row.tenderName, tendersPool);
+      if (!oTenderId) return;
 
       let oVehId: string | undefined = undefined;
       let oDriverId: string | undefined = undefined;
@@ -1095,88 +1539,198 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
       newOfficersToCreate.push(newOff);
     });
 
-    // 4. Process Tenders
-    const newTendersToCreate: Tender[] = validTenders.map((row) => ({
-      id: `tender-${row.tenderNumber.toLowerCase().replace(/[^a-z0-9]/g, '-') || Date.now()}`,
-      tenderNumber: row.tenderNumber,
-      workOrderNumber: `WO-${row.tenderNumber}`,
-      departmentName: row.departmentName,
-      authorityOffice: row.authorityOffice,
-      contractPeriodStart: row.startDate,
-      contractPeriodEnd: row.endDate,
-      billingCycleDay: 1,
-      paymentTermsDays: 30,
-      baseMonthlyRate: Math.round(row.sanctionedAmount / Math.max(1, row.vehiclesRequired)) || 35000,
-      includedKms: 2500,
-      includedHours: 300,
-      extraKmRate: 12,
-      extraHourRate: 60,
-      nightHaltRate: 350,
-      tollTerms: 'reimbursable_actuals',
-      penaltyClauses: '₹1000 per day absent without replacement',
-      officerDesignationsSummary: 'Executive Officers',
-      contactPerson: row.contactOfficerName || 'Nodal Officer',
-      contactPhone: row.contactOfficerPhone || '9415000000',
-      status: 'active',
-      contractType: 'monthly_attached',
-      packages: [
-        {
-          id: `pkg-${Date.now()}-1`,
-          packageName: 'Monthly Dedicated Commercial Vehicle',
-          serviceScope: 'vehicle_driver_fuel',
-          vehicleCategory: 'Sedan',
-          quantity: row.vehiclesRequired || 1,
-          monthlyBaseRate: Math.round(row.sanctionedAmount / Math.max(1, row.vehiclesRequired)) || 35000,
-          includedKms: 2500,
-          includedHours: 300,
+    if (validOfficers.length > 0 && newOfficersToCreate.length === 0) {
+      alert('कोई अधिकारी इम्पोर्ट नहीं हो सका — टेंडर लिंक नहीं मिला। टेंडर नाम/नंबर जाँचें।');
+      return;
+    }
+    if (validOfficers.length > newOfficersToCreate.length) {
+      console.warn(
+        `Bulk import: skipped ${validOfficers.length - newOfficersToCreate.length} officer row(s) without tender link.`
+      );
+    }
+
+    // 4. Process explicit Vendor rows
+    const newVendorsFromSheet: Vendor[] = validVendors.map((row) => {
+      const vId = generateVendorUniqueId(tempVendors, row.vendorType);
+      const newV: Vendor = {
+        id: vId,
+        vendorCode: vId,
+        name: row.name,
+        contactPerson: row.contactPerson,
+        phone: row.phone,
+        panNumber: row.panNumber,
+        address: row.address,
+        bankAccountDetails: row.bankDetails,
+        vendorType: row.vendorType,
+        monthlyAgreedRatePerVehicle: row.monthlyRate,
+        isTdsApplicable: row.isTds,
+        tdsRate: row.tdsRate,
+        tdsSection: '194C',
+        status: 'active',
+      };
+      tempVendors.push(newV);
+      return newV;
+    });
+    const allNewVendors = [...newVendorsToAdd, ...newVendorsFromSheet];
+
+    // 6. Process Duty / Booking rows → BookingRecord shape
+    const resolveDutyPackage = (raw: string): { packageType: DutyTypeCategory; packageName: string } => {
+      const p = raw.toLowerCase().trim();
+      if (p.includes('12') || p.includes('100')) {
+        return { packageType: 'local_12hr_100km', packageName: 'Local 12hr / 100km' };
+      }
+      if (p.includes('outstation')) {
+        return { packageType: 'outstation', packageName: 'Outstation' };
+      }
+      if (p.includes('airport') || p.includes('station')) {
+        return { packageType: 'airport_station_transfer', packageName: 'Airport / Station Transfer' };
+      }
+      if (p.includes('night')) {
+        return { packageType: 'night_halt_inspection', packageName: 'Night Halt / Inspection' };
+      }
+      if (p.includes('custom')) {
+        return { packageType: 'custom_package', packageName: raw || 'Custom Package' };
+      }
+      return { packageType: 'local_8hr_80km', packageName: 'Local 8hr / 80km' };
+    };
+
+    const newDutiesToCreate: BookingRecord[] = validDuties.map((row, idx) => {
+      const pkg = resolveDutyPackage(row.packageType);
+      const outKm = row.garageOutKm || 0;
+      const inKm = row.garageInKm;
+      const totalKm = inKm !== undefined && inKm >= outKm ? inKm - outKm : undefined;
+      const baseHours = pkg.packageType === 'local_12hr_100km' ? 12 : pkg.packageType === 'outstation' ? 24 : 8;
+      const baseKm = pkg.packageType === 'local_12hr_100km' ? 100 : pkg.packageType === 'outstation' ? 250 : 80;
+      const nowIso = new Date().toISOString();
+      const bookingId = `duty-${row.dutySlipNumber.toLowerCase().replace(/[^a-z0-9]+/g, '-') || Date.now()}-${idx}`;
+
+      return {
+        id: bookingId,
+        bookingNumber: row.dutySlipNumber,
+        date: row.dutyDate,
+        status: 'scheduled',
+        client: {
+          name: row.clientName,
+          billingAddress: row.clientName,
+        },
+        booker: {
+          name: 'Bulk Import',
+          phone: '0000000000',
+        },
+        passenger: {
+          name: row.clientName,
+          phone: row.driverPhone || '0000000000',
+        },
+        vehicleNumber: row.vehicleNumber,
+        vehicleModel: 'Commercial Vehicle',
+        vehicleClass: 'Sedan',
+        driverName: row.driverName,
+        driverPhone: row.driverPhone || '',
+        reportingDate: row.dutyDate,
+        reportingTime: '09:00',
+        pickupLocation: row.pickupLocation,
+        dropLocation: row.dropLocation,
+        garageOutKm: outKm,
+        garageInKm: inKm,
+        totalKmRun: totalKm,
+        tariff: {
+          packageType: pkg.packageType,
+          packageName: pkg.packageName,
+          baseRate: row.baseRate,
+          baseHours,
+          baseKm,
           extraKmRate: 12,
           extraHourRate: 60,
           nightHaltRate: 350,
+          driverDaRate: 350,
+          extraKmRun: 0,
+          extraHoursRun: 0,
+          extraKmCost: 0,
+          extraHourCost: 0,
+          tollParkingAmount: 0,
+          stateTaxPermitCost: 0,
+          nightHaltAmount: 0,
+          grossClientAmount: row.baseRate,
+          gstRatePercent: 5,
+          gstAmount: Math.round(row.baseRate * 0.05),
+          netClientBillable: Math.round(row.baseRate * 1.05),
+          driverBaseWage: 0,
+          driverExtraHoursPay: 0,
+          driverNightDa: 0,
+          driverAdvanceDeduction: 0,
+          netDriverPayable: 0,
         },
-      ],
-    }));
+        clientPaymentStatus: 'unbilled',
+        driverPaymentStatus: 'pending',
+        createdAt: nowIso,
+      };
+    });
 
-    // COMMIT ALL STATE
-    if (newVehiclesList.length > 0) {
-      onImportVehicles(newVehiclesList, newVendorsToAdd);
-    }
-    if (newDriversToCreate.length > 0) {
-      onImportDrivers(newDriversToCreate);
-    }
-    if (newOfficersToCreate.length > 0) {
-      onImportOfficers(newOfficersToCreate);
-    }
-    if (newTendersToCreate.length > 0) {
-      onImportTenders(newTendersToCreate);
-    }
+    // COMMIT IN DEPENDENCY ORDER (tenders before vehicles/officers; await API writes)
+    setIsProcessing(true);
+    try {
+      if (newTendersToCreate.length > 0) {
+        await Promise.resolve(onImportTenders(newTendersToCreate));
+      }
+      if (newVendorsFromSheet.length > 0) {
+        await Promise.resolve(onImportVendors(newVendorsFromSheet));
+      }
+      if (newDriversToCreate.length > 0) {
+        await Promise.resolve(onImportDrivers(newDriversToCreate));
+      }
+      if (newVehiclesList.length > 0) {
+        await Promise.resolve(onImportVehicles(newVehiclesList, newVendorsToAdd));
+      }
+      if (newOfficersToCreate.length > 0) {
+        await Promise.resolve(onImportOfficers(newOfficersToCreate));
+      }
+      if (newDutiesToCreate.length > 0) {
+        await Promise.resolve(onImportDuties(newDutiesToCreate));
+      }
 
-    const successSummary = [
-      newVehiclesList.length > 0 ? `🚗 ${newVehiclesList.length} गाड़ियाँ` : '',
-      newDriversToCreate.length > 0 ? `👨‍✈️ ${newDriversToCreate.length} चालक (ड्राइवर)` : '',
-      newOfficersToCreate.length > 0 ? `👔 ${newOfficersToCreate.length} अधिकारी` : '',
-      newTendersToCreate.length > 0 ? `🏢 ${newTendersToCreate.length} टेंडर` : '',
-      newVendorsToAdd.length > 0 ? `🤝 ${newVendorsToAdd.length} वेंडर` : '',
-    ]
-      .filter(Boolean)
-      .join(', ');
+      const successSummary = [
+        newVehiclesList.length > 0 ? `🚗 ${newVehiclesList.length} गाड़ियाँ` : '',
+        newDriversToCreate.length > 0 ? `👨‍✈️ ${newDriversToCreate.length} चालक (ड्राइवर)` : '',
+        newOfficersToCreate.length > 0 ? `👔 ${newOfficersToCreate.length} अधिकारी` : '',
+        newTendersToCreate.length > 0 ? `🏢 ${newTendersToCreate.length} टेंडर` : '',
+        allNewVendors.length > 0 ? `🤝 ${allNewVendors.length} वेंडर` : '',
+        newDutiesToCreate.length > 0 ? `📋 ${newDutiesToCreate.length} ड्यूटी` : '',
+      ]
+        .filter(Boolean)
+        .join(', ');
 
-    setImportSuccessMessage(
-      `सफलतापूर्वक सुरक्षित! ${successSummary} सिस्टम में दर्ज किए गए। चालक का नाम व सभी विवरण अब सभी जगह दिखाई दे रहे हैं!`
-    );
+      setImportSuccessMessage(
+        `सफलतापूर्वक सुरक्षित! ${successSummary} सिस्टम में दर्ज किए गए। चालक का नाम व सभी विवरण अब सभी जगह दिखाई दे रहे हैं!`
+      );
 
-    // Clear parsed lists
-    setParsedVehicles([]);
-    setParsedDrivers([]);
-    setParsedOfficers([]);
-    setParsedTenders([]);
+      setParsedVehicles([]);
+      setParsedDrivers([]);
+      setParsedOfficers([]);
+      setParsedTenders([]);
+      setParsedDuties([]);
+      setParsedVendors([]);
+    } catch (err: unknown) {
+      console.error('Bulk import commit failed:', err);
+      alert(err instanceof Error ? err.message : 'इम्पोर्ट सेव करते समय त्रुटि हुई।');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const currentVehiclesValid = parsedVehicles.filter((v) => v.isValid && (!skipDuplicates || !v.isDuplicate)).length;
   const currentDriversValid = parsedDrivers.filter((d) => d.isValid && (!skipDuplicates || !d.isDuplicate)).length;
   const currentOfficersValid = parsedOfficers.filter((o) => o.isValid && (!skipDuplicates || !o.isDuplicate)).length;
   const currentTendersValid = parsedTenders.filter((t) => t.isValid && (!skipDuplicates || !t.isDuplicate)).length;
+  const currentVendorsValid = parsedVendors.filter((v) => v.isValid && (!skipDuplicates || !v.isDuplicate)).length;
+  const currentDutiesValid = parsedDuties.filter((d) => d.isValid && (!skipDuplicates || !d.isDuplicate)).length;
 
-  const totalValidCount = currentVehiclesValid + currentDriversValid + currentOfficersValid + currentTendersValid;
+  const totalValidCount =
+    currentVehiclesValid +
+    currentDriversValid +
+    currentOfficersValid +
+    currentTendersValid +
+    currentVendorsValid +
+    currentDutiesValid;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 sm:p-5 backdrop-blur-xs overflow-y-auto">
@@ -1786,14 +2340,16 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
           {(parsedVehicles.length > 0 ||
             parsedDrivers.length > 0 ||
             parsedOfficers.length > 0 ||
-            parsedTenders.length > 0) && (
+            parsedTenders.length > 0 ||
+            parsedVendors.length > 0 ||
+            parsedDuties.length > 0) && (
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-slate-200 pb-2 flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-xs text-slate-900">
                     📋 इम्पोर्ट पूर्व प्रीव्यू (Preview & Validation):
                   </span>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     {parsedVehicles.length > 0 && (
                       <button
                         onClick={() => setPreviewSubTab('vehicles')}
@@ -1840,6 +2396,30 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                         }`}
                       >
                         🏢 टेंडर ({parsedTenders.length})
+                      </button>
+                    )}
+                    {parsedVendors.length > 0 && (
+                      <button
+                        onClick={() => setPreviewSubTab('vendors')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
+                          previewSubTab === 'vendors'
+                            ? 'bg-amber-700 text-white'
+                            : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                        }`}
+                      >
+                        🤝 वेंडर ({parsedVendors.length})
+                      </button>
+                    )}
+                    {parsedDuties.length > 0 && (
+                      <button
+                        onClick={() => setPreviewSubTab('duties')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
+                          previewSubTab === 'duties'
+                            ? 'bg-teal-700 text-white'
+                            : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                        }`}
+                      >
+                        📋 ड्यूटी ({parsedDuties.length})
                       </button>
                     )}
                   </div>
@@ -1903,7 +2483,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                               {v.driverName || v.assignedDriver ? (
                                 <div className="space-y-0.5">
                                   <span className="font-bold text-emerald-900 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded text-xs inline-flex items-center gap-1">
-                                    👨‍✈️ {v.driverName || v.assignedDriver}
+                                    {v.driverName || v.assignedDriver}
                                   </span>
                                   {v.driverPhone && (
                                     <div className="text-[10px] text-slate-600 font-mono">
@@ -1936,17 +2516,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                             <td className="p-2.5 text-slate-600 truncate max-w-[140px]">
                               {v.tenderName || '-'}
                             </td>
-                            <td className="p-2.5">
-                              {isDup ? (
-                                <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">
-                                  मौजूद (Duplicate)
-                                </span>
-                              ) : (
-                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
-                                  वैध (Ready)
-                                </span>
-                              )}
-                            </td>
+                            <td className="p-2.5">{renderImportRowStatus(v.isValid, isDup, v.errors)}</td>
                             <td className="p-2.5 text-center">
                               <button
                                 onClick={() => setParsedVehicles(parsedVehicles.filter((_, idx) => idx !== i))}
@@ -1982,19 +2552,22 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-800">
                       {parsedDrivers.map((d, i) => (
-                        <tr key={i} className="hover:bg-slate-50">
+                        <tr
+                          key={i}
+                          className={`hover:bg-slate-50 ${
+                            d.isDuplicate ? 'bg-amber-50/60' : !d.isValid ? 'bg-rose-50/60' : ''
+                          }`}
+                        >
                           <td className="p-2.5 text-center text-[var(--color-muted)]">{i + 1}</td>
-                          <td className="p-2.5 font-bold text-slate-900">👨‍✈️ {d.name}</td>
+                          <td className="p-2.5 font-bold text-slate-900">
+                            {d.name || <span className="text-rose-600 font-medium">नाम खाली</span>}
+                          </td>
                           <td className="p-2.5 font-mono">{d.phone}</td>
                           <td className="p-2.5 font-mono">{d.licenseNumber}</td>
                           <td className="p-2.5 font-medium">{d.employmentType}</td>
                           <td className="p-2.5 text-right font-mono font-bold">₹{d.monthlySalary.toLocaleString()}</td>
                           <td className="p-2.5 font-mono font-bold text-emerald-800">{d.assignedVehicleNumber || '-'}</td>
-                          <td className="p-2.5">
-                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
-                              वैध (Ready)
-                            </span>
-                          </td>
+                          <td className="p-2.5">{renderImportRowStatus(d.isValid, d.isDuplicate, d.errors)}</td>
                           <td className="p-2.5 text-center">
                             <button
                               onClick={() => setParsedDrivers(parsedDrivers.filter((_, idx) => idx !== i))}
@@ -2023,19 +2596,32 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                         <th className="p-2.5">मोबाइल</th>
                         <th className="p-2.5">तैनात गाड़ी</th>
                         <th className="p-2.5">टेंडर</th>
+                        <th className="p-2.5">स्थिति</th>
                         <th className="p-2.5 text-center">हटाएँ</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-800">
                       {parsedOfficers.map((o, i) => (
-                        <tr key={i} className="hover:bg-slate-50">
+                        <tr
+                          key={i}
+                          className={`hover:bg-slate-50 ${
+                            o.isDuplicate ? 'bg-amber-50/60' : !o.isValid ? 'bg-rose-50/60' : ''
+                          }`}
+                        >
                           <td className="p-2.5 text-center text-[var(--color-muted)]">{i + 1}</td>
-                          <td className="p-2.5 font-bold text-slate-900">👔 {o.name}</td>
+                          <td className="p-2.5 font-bold text-slate-900">
+                            {o.name?.trim() ? (
+                              o.name
+                            ) : (
+                              <span className="text-rose-600 font-medium">नाम नहीं मिला</span>
+                            )}
+                          </td>
                           <td className="p-2.5">{o.designation}</td>
                           <td className="p-2.5">{o.department}</td>
                           <td className="p-2.5 font-mono">{o.mobile}</td>
                           <td className="p-2.5 font-mono font-bold text-teal-800">{o.assignedVehicleNumber || '-'}</td>
                           <td className="p-2.5 truncate max-w-[140px]">{o.tenderName}</td>
+                          <td className="p-2.5">{renderImportRowStatus(o.isValid, o.isDuplicate, o.errors)}</td>
                           <td className="p-2.5 text-center">
                             <button
                               onClick={() => setParsedOfficers(parsedOfficers.filter((_, idx) => idx !== i))}
@@ -2063,21 +2649,122 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                         <th className="p-2.5">प्राधिकरण</th>
                         <th className="p-2.5 text-right">मासिक बजट</th>
                         <th className="p-2.5 text-center">गाड़ियाँ</th>
+                        <th className="p-2.5">स्थिति</th>
                         <th className="p-2.5 text-center">हटाएँ</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-800">
                       {parsedTenders.map((t, i) => (
-                        <tr key={i} className="hover:bg-slate-50">
+                        <tr
+                          key={i}
+                          className={`hover:bg-slate-50 ${
+                            t.isDuplicate ? 'bg-amber-50/60' : !t.isValid ? 'bg-rose-50/60' : ''
+                          }`}
+                        >
                           <td className="p-2.5 text-center text-[var(--color-muted)]">{i + 1}</td>
                           <td className="p-2.5 font-bold font-mono text-slate-900">{t.tenderNumber}</td>
                           <td className="p-2.5 font-semibold text-slate-800">{t.departmentName}</td>
                           <td className="p-2.5 text-slate-600">{t.authorityOffice}</td>
                           <td className="p-2.5 text-right font-mono font-bold">₹{t.sanctionedAmount.toLocaleString()}</td>
                           <td className="p-2.5 text-center font-bold text-teal-800">{t.vehiclesRequired}</td>
+                          <td className="p-2.5">{renderImportRowStatus(t.isValid, t.isDuplicate, t.errors)}</td>
                           <td className="p-2.5 text-center">
                             <button
                               onClick={() => setParsedTenders(parsedTenders.filter((_, idx) => idx !== i))}
+                              className="text-[var(--color-muted)] hover:text-rose-600"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* VENDORS PREVIEW TABLE */}
+              {previewSubTab === 'vendors' && parsedVendors.length > 0 && (
+                <div className="border border-slate-200 rounded-xl overflow-hidden max-h-80 overflow-y-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-[var(--color-sand-deep)] text-[var(--color-ink)] sticky top-0 z-10 text-[11px] uppercase tracking-wider font-semibold">
+                      <tr>
+                        <th className="p-2.5 w-12 text-center">#</th>
+                        <th className="p-2.5">वेंडर नाम</th>
+                        <th className="p-2.5">मोबाइल</th>
+                        <th className="p-2.5">संपर्क व्यक्ति</th>
+                        <th className="p-2.5">प्रकार</th>
+                        <th className="p-2.5 text-right">मासिक दर</th>
+                        <th className="p-2.5">स्थिति</th>
+                        <th className="p-2.5 text-center">हटाएँ</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-800">
+                      {parsedVendors.map((v, i) => (
+                        <tr
+                          key={i}
+                          className={`hover:bg-slate-50 ${
+                            v.isDuplicate ? 'bg-amber-50/60' : !v.isValid ? 'bg-rose-50/60' : ''
+                          }`}
+                        >
+                          <td className="p-2.5 text-center text-[var(--color-muted)]">{i + 1}</td>
+                          <td className="p-2.5 font-bold text-slate-900">🤝 {v.name}</td>
+                          <td className="p-2.5 font-mono">{v.phone}</td>
+                          <td className="p-2.5">{v.contactPerson}</td>
+                          <td className="p-2.5 font-medium">{v.vendorType}</td>
+                          <td className="p-2.5 text-right font-mono font-bold">₹{v.monthlyRate.toLocaleString()}</td>
+                          <td className="p-2.5">{renderImportRowStatus(v.isValid, v.isDuplicate, v.errors)}</td>
+                          <td className="p-2.5 text-center">
+                            <button
+                              onClick={() => setParsedVendors(parsedVendors.filter((_, idx) => idx !== i))}
+                              className="text-[var(--color-muted)] hover:text-rose-600"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* DUTIES PREVIEW TABLE */}
+              {previewSubTab === 'duties' && parsedDuties.length > 0 && (
+                <div className="border border-slate-200 rounded-xl overflow-hidden max-h-80 overflow-y-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-[var(--color-sand-deep)] text-[var(--color-ink)] sticky top-0 z-10 text-[11px] uppercase tracking-wider font-semibold">
+                      <tr>
+                        <th className="p-2.5 w-12 text-center">#</th>
+                        <th className="p-2.5">तारीख</th>
+                        <th className="p-2.5">स्लिप / GR</th>
+                        <th className="p-2.5">क्लाइंट</th>
+                        <th className="p-2.5">गाड़ी</th>
+                        <th className="p-2.5">चालक</th>
+                        <th className="p-2.5 text-right">दर</th>
+                        <th className="p-2.5">स्थिति</th>
+                        <th className="p-2.5 text-center">हटाएँ</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-800">
+                      {parsedDuties.map((d, i) => (
+                        <tr
+                          key={i}
+                          className={`hover:bg-slate-50 ${
+                            d.isDuplicate ? 'bg-amber-50/60' : !d.isValid ? 'bg-rose-50/60' : ''
+                          }`}
+                        >
+                          <td className="p-2.5 text-center text-[var(--color-muted)]">{i + 1}</td>
+                          <td className="p-2.5 font-mono">{d.dutyDate}</td>
+                          <td className="p-2.5 font-bold font-mono text-slate-900">{d.dutySlipNumber}</td>
+                          <td className="p-2.5 truncate max-w-[140px]">{d.clientName}</td>
+                          <td className="p-2.5 font-mono font-bold text-teal-800">{d.vehicleNumber}</td>
+                          <td className="p-2.5 font-medium">{d.driverName || '-'}</td>
+                          <td className="p-2.5 text-right font-mono font-bold">₹{d.baseRate.toLocaleString()}</td>
+                          <td className="p-2.5">{renderImportRowStatus(d.isValid, d.isDuplicate, d.errors)}</td>
+                          <td className="p-2.5 text-center">
+                            <button
+                              onClick={() => setParsedDuties(parsedDuties.filter((_, idx) => idx !== i))}
                               className="text-[var(--color-muted)] hover:text-rose-600"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -2103,6 +2790,8 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                   {parsedDrivers.length > 0 && ` (${currentDriversValid} चालक)`}
                   {parsedOfficers.length > 0 && ` (${currentOfficersValid} अधिकारी)`}
                   {parsedTenders.length > 0 && ` (${currentTendersValid} टेंडर)`}
+                  {parsedVendors.length > 0 && ` (${currentVendorsValid} वेंडर)`}
+                  {parsedDuties.length > 0 && ` (${currentDutiesValid} ड्यूटी)`}
                 </span>
               ) : (
                 <span>कृपया पहले एक्सेल/CSV फाइल अपलोड करें या मैन्युअल पंक्ति जोड़ें</span>

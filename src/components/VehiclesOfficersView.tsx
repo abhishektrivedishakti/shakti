@@ -131,6 +131,8 @@ interface VehiclesOfficersViewProps {
   onBulkImportVehicles?: (vehicles: Vehicle[], vendors?: Vendor[]) => void;
   onBulkImportDrivers?: (drivers: Driver[]) => void;
   onBulkImportOfficers?: (officers: Officer[]) => void;
+  onBulkImportVendors?: (vendors: Vendor[]) => void;
+  onBulkImportTenders?: (tenders: Tender[]) => void;
   onAddTransaction?: (tx: DriverKhataTransaction) => void;
   onDeleteTransaction?: (txId: string) => void;
   onAddDailyPayment?: (entry: DailyPaymentEntry) => void;
@@ -159,6 +161,8 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
   onBulkImportVehicles = () => {},
   onBulkImportDrivers = () => {},
   onBulkImportOfficers = () => {},
+  onBulkImportVendors = () => {},
+  onBulkImportTenders = () => {},
   onReplaceDriver,
   onReplaceVehicle = () => {},
   onTransferOrRelieveOfficer = () => {},
@@ -2234,6 +2238,8 @@ export const VehiclesOfficersView: React.FC<VehiclesOfficersViewProps> = ({
         onImportVehicles={onBulkImportVehicles}
         onImportDrivers={onBulkImportDrivers}
         onImportOfficers={onBulkImportOfficers}
+        onImportVendors={onBulkImportVendors}
+        onImportTenders={onBulkImportTenders}
       />
       {/* Officer Transfer & Vehicle Halt Modal */}
       {isOfficerTransferModalOpen && selectedVehicleForTransfer && (

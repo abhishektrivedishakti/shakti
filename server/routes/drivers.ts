@@ -39,10 +39,10 @@ driversRouter.get('/', requireAuth, async (req: Request, res: Response) => {
         ...(q
           ? {
               OR: [
-                { name: { contains: q } },
-                { phone: { contains: q } },
-                { licenseNumber: { contains: q } },
-                { driverCode: { contains: q } },
+                { name: { contains: q, mode: 'insensitive' } },
+                { phone: { contains: q, mode: 'insensitive' } },
+                { licenseNumber: { contains: q, mode: 'insensitive' } },
+                { driverCode: { contains: q, mode: 'insensitive' } },
               ],
             }
           : {}),

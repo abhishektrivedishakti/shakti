@@ -60,10 +60,10 @@ vehiclesRouter.get('/', requireAuth, async (req: Request, res: Response) => {
         ...(q
           ? {
               OR: [
-                { vehicleNumber: { contains: q } },
-                { makeModel: { contains: q } },
-                { driverName: { contains: q } },
-                { assignedOfficerName: { contains: q } },
+                { vehicleNumber: { contains: q, mode: 'insensitive' } },
+                { makeModel: { contains: q, mode: 'insensitive' } },
+                { driverName: { contains: q, mode: 'insensitive' } },
+                { assignedOfficerName: { contains: q, mode: 'insensitive' } },
               ],
             }
           : {}),

@@ -18,6 +18,9 @@ import {
   Award,
   BadgePercent,
   ExternalLink,
+  X,
+  Stamp,
+  MapPin,
 } from 'lucide-react';
 import {
   StatutoryPayrollEntry,
@@ -723,129 +726,292 @@ export const StatutoryLabourComplianceView: React.FC<StatutoryLabourComplianceVi
       )}
 
       {/* MODAL 2: GeM / Govt Tender Labour Compliance Certificate */}
-      {isCertificateModalOpen && (
-        <div className="fixed inset-0 z-50 bg-[var(--color-ink)]/50 backdrop-blur-xs flex items-center justify-center p-3 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-slate-200 overflow-hidden my-8">
-            <div className="bg-[var(--color-surface)] text-[var(--color-ink)] p-4 flex items-center justify-between print:hidden">
-              <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-emerald-400" />
-                <h3 className="font-bold text-sm">
-                  GeM &amp; Govt Tender Statutory Labour Law Compliance Certificate
-                </h3>
-              </div>
-              <div className="flex items-center gap-2">
-                <select
-                  value={selectedTenderForCertificate}
-                  onChange={(e) => setSelectedTenderForCertificate(e.target.value)}
-                  className="px-2 py-1 text-xs bg-[var(--color-sand-deep)] text-[var(--color-ink)] border border-[var(--color-line-strong)] rounded"
-                >
-                  {tenders.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.departmentName}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => window.print()}
-                  className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 rounded text-xs font-semibold flex items-center gap-1"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  Print Official Certificate
-                </button>
-                <button
-                  onClick={() => setIsCertificateModalOpen(false)}
-                  className="text-[var(--color-muted)] hover:text-[var(--color-ink)] text-lg font-bold p-1"
-                >
-                  ✕
-                </button>
+      {isCertificateModalOpen && selectedCertTender && (
+        <div className="fixed inset-0 z-50 bg-[var(--color-ink)]/55 backdrop-blur-sm flex items-start sm:items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="bg-[var(--color-surface)] rounded-2xl shadow-2xl max-w-4xl w-full border border-[var(--color-line)] overflow-hidden my-4 sm:my-8 flex flex-col max-h-[94vh]">
+            {/* Sticky toolbar */}
+            <div className="sticky top-0 z-20 print:hidden border-b border-[var(--color-line)] bg-[var(--color-surface)]/95 backdrop-blur-md">
+              <div className="px-4 py-3 sm:px-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-700 border border-teal-200">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-teal-800">
+                      GeM &amp; Govt Tender
+                    </p>
+                    <h3 className="font-bold text-sm sm:text-base text-[var(--color-ink)] leading-snug">
+                      Statutory Labour Law Compliance Certificate
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full lg:w-auto">
+                  <label className="relative flex-1 lg:min-w-[260px]">
+                    <span className="sr-only">Select tender</span>
+                    <Building2 className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-muted)]" />
+                    <select
+                      value={selectedTenderForCertificate}
+                      onChange={(e) => setSelectedTenderForCertificate(e.target.value)}
+                      className="w-full appearance-none pl-8 pr-8 py-2 text-xs font-semibold bg-[var(--color-sand-deep)] text-[var(--color-ink)] border border-[var(--color-line-strong)] rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600/30"
+                    >
+                      {tenders.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.departmentName}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold shadow-sm transition-colors"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    Print Official Certificate
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsCertificateModalOpen(false)}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-surface-muted)] text-[var(--color-muted)] hover:bg-[var(--color-sand-deep)] hover:text-[var(--color-ink)] transition-colors self-end sm:self-auto"
+                    aria-label="Close certificate"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Official Certificate Body */}
-            <div className="p-8 space-y-6 text-slate-900 bg-white leading-relaxed text-xs">
-              <div className="text-center border-b-2 border-[var(--color-line)] pb-4">
-                <span className="text-[11px] uppercase font-bold tracking-widest text-[var(--color-muted)]">
-                  ANNEXURE - STATUTORY LABOUR &amp; SOCIAL SECURITY COMPLIANCE DECLARATION
-                </span>
-                <h2 className="text-xl font-black uppercase text-slate-900 mt-1">
-                  SARKARI FLEET SERVICES
-                </h2>
-                <p className="text-xs text-slate-600">
-                  Govt Authorized Cab &amp; Fleet Service Provider &bull; 42, Transport Nagar, Lucknow
-                </p>
-                <p className="text-[11px] text-[var(--color-muted)] font-mono mt-0.5">
-                  PAN: AAAFS1234F &bull; GSTIN: 09AAAFS1234F1Z8 &bull; EPFO Est ID: UP/LKO/0034812/000
-                </p>
-              </div>
+            {/* Scrollable certificate sheet */}
+            <div className="overflow-y-auto flex-1 bg-[linear-gradient(180deg,#f3f6f4_0%,#eef2f0_100%)] print:bg-white">
+              <div className="p-3 sm:p-6 print:p-0">
+                <article className="relative mx-auto max-w-3xl bg-white text-slate-900 shadow-[0_18px_50px_-28px_rgba(15,23,42,0.45)] border border-slate-200/90 print:shadow-none print:border-0">
+                  {/* Decorative edge rails */}
+                  <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-teal-800 via-teal-600 to-amber-600 print:hidden" />
+                  <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-amber-600 via-teal-600 to-teal-800 print:hidden" />
 
-              <div className="border border-slate-300 p-4 rounded-lg bg-slate-50">
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="text-[var(--color-muted)] block">To Authority:</span>
-                    <strong className="text-sm">{selectedCertTender.authorityOffice}</strong>
-                    <div className="text-slate-600 mt-0.5">{selectedCertTender.departmentName}</div>
+                  <div className="relative px-5 py-6 sm:px-9 sm:py-8 space-y-6 text-[12px] leading-relaxed">
+                    {/* Letterhead */}
+                    <header className="text-center space-y-3 pb-5 border-b border-slate-200">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-teal-900">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        Annexure · Statutory Labour &amp; Social Security
+                      </div>
+
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-teal-800/80 text-teal-800 bg-[radial-gradient(circle_at_30%_30%,#ecfdf5,white)]">
+                          <Stamp className="w-5 h-5" />
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 uppercase">
+                          Sarkari Fleet Services
+                        </h2>
+                        <p className="text-[11px] sm:text-xs text-slate-600 max-w-xl">
+                          Govt Authorized Cab &amp; Fleet Service Provider · 42, Transport Nagar, Lucknow, Uttar Pradesh
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                        {[
+                          ['PAN', 'AAAFS1234F'],
+                          ['GSTIN', '09AAAFS1234F1Z8'],
+                          ['EPFO Est ID', 'UP/LKO/0034812/000'],
+                        ].map(([label, value]) => (
+                          <span
+                            key={label}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 font-mono text-[10px] text-slate-700"
+                          >
+                            <span className="font-sans font-semibold text-slate-500">{label}</span>
+                            {value}
+                          </span>
+                        ))}
+                      </div>
+                    </header>
+
+                    {/* Meta grid */}
+                    <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="rounded-xl border border-slate-200 bg-[linear-gradient(135deg,#f8fafc_0%,#f1f5f4_100%)] p-3.5 sm:p-4">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                          To Authority
+                        </p>
+                        <p className="text-sm font-bold text-slate-900 leading-snug">
+                          {selectedCertTender.authorityOffice}
+                        </p>
+                        <p className="mt-1 text-[11px] text-slate-600 flex items-start gap-1.5">
+                          <Building2 className="w-3.5 h-3.5 mt-0.5 shrink-0 text-teal-700" />
+                          <span>{selectedCertTender.departmentName}</span>
+                        </p>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-200 bg-white p-3.5 sm:p-4 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                            Document refs
+                          </span>
+                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Compliant
+                          </span>
+                        </div>
+                        <dl className="space-y-1.5 text-[11px]">
+                          <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-slate-200 pb-1.5">
+                            <dt className="text-slate-500">Tender / Bid No</dt>
+                            <dd className="font-mono font-bold text-slate-900 text-right">
+                              {selectedCertTender.tenderNumber}
+                            </dd>
+                          </div>
+                          <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-slate-200 pb-1.5">
+                            <dt className="text-slate-500">Work Order No</dt>
+                            <dd className="font-mono font-bold text-slate-900 text-right">
+                              {selectedCertTender.workOrderNumber}
+                            </dd>
+                          </div>
+                          <div className="flex items-baseline justify-between gap-3">
+                            <dt className="text-slate-500">Compliance Month</dt>
+                            <dd className="font-bold text-teal-800 tabular-nums">{selectedMonth}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                    </section>
+
+                    {/* Declaration */}
+                    <section className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="h-px flex-1 bg-slate-200" />
+                        <h4 className="text-[11px] sm:text-xs font-black uppercase tracking-[0.08em] text-slate-900 text-center">
+                          To Whomsoever It May Concern · Bill Submission Certificate
+                        </h4>
+                        <span className="h-px flex-1 bg-slate-200" />
+                      </div>
+                      <p className="text-justify text-slate-700 leading-relaxed text-[11px] sm:text-xs">
+                        This is to certify that in compliance with the terms and conditions of GeM Tender / Contract{' '}
+                        <strong className="text-slate-900">{selectedCertTender.workOrderNumber}</strong> for hiring of
+                        commercial cab services, all commercial drivers deployed on government duty have been paid wages
+                        not less than the statutory Minimum Wages fixed by the appropriate government.
+                      </p>
+                      <p className="text-justify text-slate-700 leading-relaxed text-[11px] sm:text-xs">
+                        Further, it is certified that the statutory contributions under the{' '}
+                        <strong className="text-slate-900">
+                          Employees&apos; Provident Funds and Miscellaneous Provisions Act, 1952 (EPF)
+                        </strong>{' '}
+                        and{' '}
+                        <strong className="text-slate-900">Employees&apos; State Insurance Act, 1948 (ESIC)</strong> have
+                        been duly deposited with the designated authorities within the prescribed due dates as detailed
+                        below:
+                      </p>
+                    </section>
+
+                    {/* Deposit table */}
+                    <section className="rounded-xl border border-slate-200 overflow-hidden">
+                      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5 bg-slate-50 border-b border-slate-200">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                          Deposit proof summary
+                        </p>
+                        <p className="text-[10px] font-semibold text-slate-500">
+                          {certDrivers.length || 15} drivers covered
+                        </p>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-[11px] min-w-[560px]">
+                          <thead>
+                            <tr className="bg-teal-900 text-teal-50">
+                              <th className="p-2.5 text-left font-semibold">Statutory Head</th>
+                              <th className="p-2.5 text-left font-semibold">Challan / TRRN</th>
+                              <th className="p-2.5 text-left font-semibold">Date of Deposit</th>
+                              <th className="p-2.5 text-right font-semibold">Drivers</th>
+                              <th className="p-2.5 text-right font-semibold">Total Deposited</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            <tr className="bg-white hover:bg-slate-50/80">
+                              <td className="p-2.5 font-semibold text-slate-800">
+                                <span className="inline-flex items-center gap-1.5">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                                  EPF &amp; EPS
+                                </span>
+                              </td>
+                              <td className="p-2.5">
+                                <span className="font-mono font-bold text-indigo-700 tracking-tight">
+                                  TRRN 1012608001928
+                                </span>
+                              </td>
+                              <td className="p-2.5 font-mono text-slate-600">07-09-2026</td>
+                              <td className="p-2.5 text-right font-mono tabular-nums">
+                                {certDrivers.length || 15}
+                              </td>
+                              <td className="p-2.5 text-right font-bold tabular-nums text-slate-900">
+                                {formatCurrency((certDrivers.length || 15) * 3750)}
+                              </td>
+                            </tr>
+                            <tr className="bg-slate-50/50 hover:bg-slate-50">
+                              <td className="p-2.5 font-semibold text-slate-800">
+                                <span className="inline-flex items-center gap-1.5">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-teal-600" />
+                                  ESIC
+                                </span>
+                              </td>
+                              <td className="p-2.5">
+                                <span className="font-mono font-bold text-teal-700 tracking-tight">
+                                  ESIC-CHAL-202608-4412
+                                </span>
+                              </td>
+                              <td className="p-2.5 font-mono text-slate-600">08-09-2026</td>
+                              <td className="p-2.5 text-right font-mono tabular-nums">
+                                {certDrivers.length || 15}
+                              </td>
+                              <td className="p-2.5 text-right font-bold tabular-nums text-slate-900">
+                                {formatCurrency((certDrivers.length || 15) * 757)}
+                              </td>
+                            </tr>
+                          </tbody>
+                          <tfoot>
+                            <tr className="bg-slate-100/90 border-t border-slate-200">
+                              <td colSpan={4} className="p-2.5 text-right text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                                Combined statutory deposit
+                              </td>
+                              <td className="p-2.5 text-right font-black tabular-nums text-teal-900">
+                                {formatCurrency((certDrivers.length || 15) * (3750 + 757))}
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </section>
+
+                    {/* Signature block */}
+                    <footer className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-6 border-t border-slate-200">
+                      <div className="space-y-2 text-[11px] text-slate-600">
+                        <p className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-teal-700" />
+                          <span>
+                            <span className="text-slate-500">Date:</span>{' '}
+                            <strong className="text-slate-800">
+                              {formatDate(new Date().toISOString().slice(0, 10))}
+                            </strong>
+                          </span>
+                        </p>
+                        <p className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-teal-700" />
+                          <span>
+                            <span className="text-slate-500">Place:</span>{' '}
+                            <strong className="text-slate-800">Lucknow, Uttar Pradesh</strong>
+                          </span>
+                        </p>
+                      </div>
+
+                      <div className="text-right space-y-2">
+                        <p className="text-[11px] font-bold uppercase tracking-wide text-slate-900">
+                          For Sarkari Fleet Services
+                        </p>
+                        <div className="ml-auto h-16 w-44 rounded-lg border border-dashed border-slate-300 bg-[radial-gradient(circle_at_70%_40%,rgba(13,148,136,0.06),transparent_55%)] flex items-end justify-center pb-2">
+                          <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400">
+                            Signature &amp; stamp
+                          </span>
+                        </div>
+                        <p className="text-[10px] font-medium text-slate-500">Authorized Signatory</p>
+                      </div>
+                    </footer>
                   </div>
-                  <div className="text-right">
-                    <div><span className="text-[var(--color-muted)]">Tender / Bid No: </span><strong className="font-mono">{selectedCertTender.tenderNumber}</strong></div>
-                    <div><span className="text-[var(--color-muted)]">Work Order No: </span><strong className="font-mono">{selectedCertTender.workOrderNumber}</strong></div>
-                    <div><span className="text-[var(--color-muted)]">Compliance Month: </span><strong>{selectedMonth}</strong></div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <p className="font-bold text-sm text-slate-900 mb-2">
-                  TO WHOMSOEVER IT MAY CONCERN / BILL SUBMISSION CERTIFICATE
-                </p>
-                <p className="text-justify text-slate-700 leading-normal">
-                  This is to certify that in compliance with the terms and conditions of GeM Tender / Contract <strong>{selectedCertTender.workOrderNumber}</strong> for hiring of commercial cab services, all commercial drivers deployed on government duty have been paid wages not less than the statutory Minimum Wages fixed by the appropriate government.
-                </p>
-                <p className="text-justify text-slate-700 leading-normal mt-2">
-                  Further, it is certified that the statutory contributions under the <strong>Employees&apos; Provident Funds and Miscellaneous Provisions Act, 1952 (EPF)</strong> and <strong>Employees&apos; State Insurance Act, 1948 (ESIC)</strong> have been duly deposited with the designated authorities within the prescribed due dates as detailed below:
-                </p>
-              </div>
-
-              {/* Deposit Proof Summary */}
-              <div className="border border-slate-300 rounded-lg overflow-hidden">
-                <table className="w-full text-xs">
-                  <thead className="bg-slate-100 font-bold border-b border-slate-300">
-                    <tr>
-                      <th className="p-2.5 text-left">Statutory Head</th>
-                      <th className="p-2.5 text-left">Challan / TRRN Reference</th>
-                      <th className="p-2.5 text-left">Date of Deposit</th>
-                      <th className="p-2.5 text-right">Drivers Covered</th>
-                      <th className="p-2.5 text-right">Total Deposited (₹)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200 font-mono">
-                    <tr>
-                      <td className="p-2.5 font-sans font-semibold">Employees&apos; Provident Fund (EPF &amp; EPS)</td>
-                      <td className="p-2.5 font-bold text-blue-700">TRRN 1012608001928</td>
-                      <td className="p-2.5">07-09-2026</td>
-                      <td className="p-2.5 text-right">{certDrivers.length || 15}</td>
-                      <td className="p-2.5 text-right font-bold">{formatCurrency((certDrivers.length || 15) * 3750)}</td>
-                    </tr>
-                    <tr>
-                      <td className="p-2.5 font-sans font-semibold">Employees&apos; State Insurance (ESIC)</td>
-                      <td className="p-2.5 font-bold text-emerald-700">ESIC-CHAL-202608-4412</td>
-                      <td className="p-2.5">08-09-2026</td>
-                      <td className="p-2.5 text-right">{certDrivers.length || 15}</td>
-                      <td className="p-2.5 text-right font-bold">{formatCurrency((certDrivers.length || 15) * 757)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="pt-8 flex justify-between text-xs text-slate-600 border-t border-slate-200">
-                <div>
-                  <span className="block text-[var(--color-muted)]">Date: {formatDate(new Date().toISOString().slice(0, 10))}</span>
-                  <span className="block text-[var(--color-muted)]">Place: Lucknow, Uttar Pradesh</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold block text-slate-900">For SARKARI FLEET SERVICES</span>
-                  <div className="h-8" />
-                  <span className="block text-[var(--color-muted)] font-medium">Authorized Signatory &amp; Stamp</span>
-                </div>
+                </article>
               </div>
             </div>
           </div>

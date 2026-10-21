@@ -126,6 +126,7 @@ import {
   updateVendorApi,
   updateVendorSettlementApi,
 } from './api/vendorsClient';
+import { bulkImportDispatchBookingsApi } from './api/dispatchClient';
 import {
   bulkImportStatutoryPayrollApi,
   createStatutoryPayrollApi,
@@ -218,6 +219,7 @@ import {
   FuelSlip,
   FuelVendorMonthlyBill,
   DriverLeaveRecord,
+  BookingRecord,
 } from './types';
 
 const P2_MASTERS_SEEDED_KEY = 'shakti_p2_masters_seeded';
@@ -994,9 +996,10 @@ export default function App() {
     setVehicles(updatedVehicles);
     StorageService.saveVehicles(updatedVehicles);
 
+    let processedVendors: Vendor[] = [];
     if (newVendors && newVendors.length > 0) {
       const tempVendors = [...vendors];
-      const processedVendors = newVendors.map((vnd) => {
+      processedVendors = newVendors.map((vnd) => {
         const vCode = vnd.vendorCode || generateVendorUniqueId(tempVendors, vnd.vendorType);
         const completeV = { ...vnd, vendorCode: vCode, id: vnd.id || vCode };
         tempVendors.push(completeV);
@@ -1007,7 +1010,7 @@ export default function App() {
       StorageService.saveVendors(updatedVendors);
     }
 
-    (async () => {
+    return (async () => {
       try {
         const imported = await bulkImportVehiclesApi(newVehicles);
         setVehicles((prev) => {
@@ -1017,9 +1020,21 @@ export default function App() {
           StorageService.saveVehicles(next);
           return next;
         });
+        if (processedVendors.length > 0) {
+          const importedVendors = await bulkImportVendorsApi(processedVendors);
+          setVendors((prev) => {
+            const byId = new Map(prev.map((v) => [v.id, v]));
+            for (const v of importedVendors) byId.set(v.id, v);
+            const next = Array.from(byId.values());
+            StorageService.saveVendors(next);
+            return next;
+          });
+        }
         setMastersApiError('');
       } catch (err: unknown) {
-        setMastersApiError(err instanceof Error ? err.message : 'Could not bulk-import vehicles.');
+        const msg = err instanceof Error ? err.message : 'Could not bulk-import vehicles.';
+        setMastersApiError(msg);
+        throw err instanceof Error ? err : new Error(msg);
       }
     })();
   };
@@ -1036,7 +1051,7 @@ export default function App() {
     setDrivers(updatedDrivers);
     StorageService.saveDrivers(updatedDrivers);
 
-    (async () => {
+    return (async () => {
       try {
         const imported = await bulkImportDriversApi(processedDrivers);
         setDrivers((prev) => {
@@ -1048,7 +1063,9 @@ export default function App() {
         });
         setMastersApiError('');
       } catch (err: unknown) {
-        setMastersApiError(err instanceof Error ? err.message : 'Could not bulk-import drivers.');
+        const msg = err instanceof Error ? err.message : 'Could not bulk-import drivers.';
+        setMastersApiError(msg);
+        throw err instanceof Error ? err : new Error(msg);
       }
     })();
   };
@@ -1065,7 +1082,7 @@ export default function App() {
     setOfficers(updatedOfficers);
     StorageService.saveOfficers(updatedOfficers);
 
-    (async () => {
+    return (async () => {
       try {
         const imported = await bulkImportOfficersApi(processedOfficers);
         setOfficers((prev) => {
@@ -1077,7 +1094,9 @@ export default function App() {
         });
         setMastersApiError('');
       } catch (err: unknown) {
-        setMastersApiError(err instanceof Error ? err.message : 'Could not bulk-import officers.');
+        const msg = err instanceof Error ? err.message : 'Could not bulk-import officers.';
+        setMastersApiError(msg);
+        throw err instanceof Error ? err : new Error(msg);
       }
     })();
   };
@@ -1087,7 +1106,7 @@ export default function App() {
     setTenders(updatedTenders);
     StorageService.saveTenders(updatedTenders);
 
-    (async () => {
+    return (async () => {
       try {
         const imported = await bulkImportTendersApi(newTenders);
         setTenders((prev) => {
@@ -1099,7 +1118,53 @@ export default function App() {
         });
         setMastersApiError('');
       } catch (err: unknown) {
-        setMastersApiError(err instanceof Error ? err.message : 'Could not bulk-import tenders.');
+        const msg = err instanceof Error ? err.message : 'Could not bulk-import tenders.';
+        setMastersApiError(msg);
+        throw err instanceof Error ? err : new Error(msg);
+      }
+    })();
+  };
+
+  const handleBulkImportVendors = (newVendors: Vendor[]) => {
+    const tempVendors = [...vendors];
+    const processedVendors = newVendors.map((vnd) => {
+      const vCode = vnd.vendorCode || generateVendorUniqueId(tempVendors, vnd.vendorType);
+      const completeV = { ...vnd, vendorCode: vCode, id: vnd.id || vCode };
+      tempVendors.push(completeV);
+      return completeV;
+    });
+    const updatedVendors = [...processedVendors, ...vendors];
+    setVendors(updatedVendors);
+    StorageService.saveVendors(updatedVendors);
+
+    return (async () => {
+      try {
+        const imported = await bulkImportVendorsApi(processedVendors);
+        setVendors((prev) => {
+          const byId = new Map(prev.map((v) => [v.id, v]));
+          for (const v of imported) byId.set(v.id, v);
+          const next = Array.from(byId.values());
+          StorageService.saveVendors(next);
+          return next;
+        });
+        setMastersApiError('');
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Could not bulk-import vendors.';
+        setMastersApiError(msg);
+        throw err instanceof Error ? err : new Error(msg);
+      }
+    })();
+  };
+
+  const handleBulkImportDuties = (newDuties: BookingRecord[]) => {
+    return (async () => {
+      try {
+        await bulkImportDispatchBookingsApi(newDuties);
+        setMastersApiError('');
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Could not bulk-import duty bookings.';
+        setMastersApiError(msg);
+        throw err instanceof Error ? err : new Error(msg);
       }
     })();
   };
@@ -2342,6 +2407,7 @@ export default function App() {
             onSaveDriver={handleSaveDriver}
             onBulkImportVehicles={handleBulkImportVehicles}
             onBulkImportDrivers={handleBulkImportDrivers}
+            onBulkImportVendors={handleBulkImportVendors}
             onSaveSettlement={handleSaveSettlement}
             onPaySettlement={handlePaySettlement}
             onOpenProfileModal={handleOpenProfileModal}
@@ -2419,6 +2485,8 @@ export default function App() {
             onBulkImportVehicles={handleBulkImportVehicles}
             onBulkImportDrivers={handleBulkImportDrivers}
             onBulkImportOfficers={handleBulkImportOfficers}
+            onBulkImportVendors={handleBulkImportVendors}
+            onBulkImportTenders={handleBulkImportTenders}
             onReplaceDriver={handleReplaceDriver}
             onReplaceVehicle={handleReplaceVehicle}
             onTransferOrRelieveOfficer={handleTransferOrRelieveOfficer}
@@ -2555,6 +2623,8 @@ export default function App() {
           onImportDrivers={handleBulkImportDrivers}
           onImportOfficers={handleBulkImportOfficers}
           onImportTenders={handleBulkImportTenders}
+          onImportVendors={handleBulkImportVendors}
+          onImportDuties={handleBulkImportDuties}
         />
       )}
 

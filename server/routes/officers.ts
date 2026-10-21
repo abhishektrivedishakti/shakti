@@ -35,10 +35,10 @@ officersRouter.get('/', requireAuth, async (req: Request, res: Response) => {
         ...(q
           ? {
               OR: [
-                { name: { contains: q } },
-                { department: { contains: q } },
-                { mobile: { contains: q } },
-                { officerCode: { contains: q } },
+                { name: { contains: q, mode: 'insensitive' } },
+                { department: { contains: q, mode: 'insensitive' } },
+                { mobile: { contains: q, mode: 'insensitive' } },
+                { officerCode: { contains: q, mode: 'insensitive' } },
               ],
             }
           : {}),

@@ -49,10 +49,10 @@ tendersRouter.get('/', requireAuth, async (req: Request, res: Response) => {
         ...(q
           ? {
               OR: [
-                { tenderNumber: { contains: q } },
-                { departmentName: { contains: q } },
-                { workOrderNumber: { contains: q } },
-                { authorityOffice: { contains: q } },
+                { tenderNumber: { contains: q, mode: 'insensitive' } },
+                { departmentName: { contains: q, mode: 'insensitive' } },
+                { workOrderNumber: { contains: q, mode: 'insensitive' } },
+                { authorityOffice: { contains: q, mode: 'insensitive' } },
               ],
             }
           : {}),
